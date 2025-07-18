@@ -1,8 +1,7 @@
 package com.neg.hr.human.resouce.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -10,12 +9,18 @@ import java.math.BigDecimal;
 @Table(name = "position")
 @Getter
 @Setter
+@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Position extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String title;
+
     private BigDecimal baseSalary;
 }

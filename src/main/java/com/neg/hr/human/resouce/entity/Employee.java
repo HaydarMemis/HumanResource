@@ -1,15 +1,18 @@
 package com.neg.hr.human.resouce.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "employee")
 @Getter
 @Setter
+@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Employee extends AuditableEntity {
 
     @Id
@@ -17,25 +20,37 @@ public class Employee extends AuditableEntity {
     private Long id;
 
     @OneToOne
+    @JoinColumn(name="person_id", nullable=false)
     private Person person;
 
     @ManyToOne
+    @JoinColumn(name="department_id")
     private Department department;
 
     @ManyToOne
+    @JoinColumn(name="position_id")
     private Position position;
 
     @ManyToOne
+    @JoinColumn(name="company_id")
     private Company company;
 
     @ManyToOne
     @JoinColumn(name = "manager_id")
     private Employee manager;
 
+    @Column(name = "registration_number")
     private String registrationNumber;
-    private LocalDate hireDate;
-    private LocalDate employmentStartDate;
-    private LocalDate employmentEndDate;
 
+    @Column(name = "hire_date", nullable = false)
+    private LocalDateTime hireDate;
+
+    @Column(name = "employment_start_date", nullable = false)
+    private LocalDateTime employmentStartDate;
+
+    @Column(name = "employment_start_end")
+    private LocalDateTime employmentEndDate;
+
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 }

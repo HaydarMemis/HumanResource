@@ -1,13 +1,16 @@
 package com.neg.hr.human.resouce.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "employee_project")
 @Getter
 @Setter
+@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class EmployeeProject extends AuditableEntity {
 
     @Id
@@ -15,8 +18,10 @@ public class EmployeeProject extends AuditableEntity {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
     @ManyToOne
+    @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 }

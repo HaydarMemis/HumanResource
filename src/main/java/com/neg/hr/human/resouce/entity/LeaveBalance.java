@@ -1,8 +1,7 @@
 package com.neg.hr.human.resouce.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -10,6 +9,10 @@ import java.math.BigDecimal;
 @Table(name = "leave_balance")
 @Getter
 @Setter
+@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class LeaveBalance extends AuditableEntity {
 
     @Id
@@ -17,12 +20,15 @@ public class LeaveBalance extends AuditableEntity {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
     @ManyToOne
+    @JoinColumn(name = "leave_type_id", nullable = false)
     private LeaveType leaveType;
 
     private Integer date; // year
 
+    @Column(nullable = false)
     private BigDecimal amount; // total entitled leave
 }
