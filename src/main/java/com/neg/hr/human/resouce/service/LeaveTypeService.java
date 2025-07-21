@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class LeaveTypeService {
+public class LeaveTypeService implements LeaveTypeInterface {
 
     private final LeaveTypeRepository leaveTypeRepository;
 
