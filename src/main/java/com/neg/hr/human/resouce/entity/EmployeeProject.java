@@ -7,9 +7,8 @@ import lombok.*;
 @Table(name = "employee_project")
 @Getter
 @Setter
-@RequiredArgsConstructor
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class EmployeeProject extends AuditableEntity {
 

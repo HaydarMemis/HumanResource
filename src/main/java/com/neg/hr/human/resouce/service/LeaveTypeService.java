@@ -7,12 +7,48 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class LeaveTypeService implements LeaveTypeInterface {
 
     private final LeaveTypeRepository leaveTypeRepository;
+
+    @Override
+    public Optional<LeaveType> findByName(String name) {
+        return leaveTypeRepository.findByName(name);
+    }
+
+    @Override
+    public List<LeaveType> findByIsAnnualTrue() {
+        return leaveTypeRepository.findByIsAnnualTrue();
+    }
+
+    @Override
+    public List<LeaveType> findByIsAnnualFalse() {
+        return leaveTypeRepository.findByIsAnnualFalse();
+    }
+
+    @Override
+    public List<LeaveType> findByIsUnpaidTrue() {
+        return leaveTypeRepository.findByIsUnpaidTrue();
+    }
+
+    @Override
+    public List<LeaveType> findByGenderRequiredTrue() {
+        return leaveTypeRepository.findByGenderRequiredTrue();
+    }
+
+    @Override
+    public List<LeaveType> findByBorrowableLimitGreaterThan(Integer limit) {
+        return leaveTypeRepository.findByBorrowableLimitGreaterThan(limit);
+    }
+
+    @Override
+    public List<LeaveType> findByValidAfterDaysGreaterThan(Integer days) {
+        return leaveTypeRepository.findByValidAfterDaysGreaterThan(days);
+    }
 
     public LeaveType save(LeaveType leaveType) {
         return leaveTypeRepository.save(leaveType);

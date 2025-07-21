@@ -9,9 +9,8 @@ import java.math.BigDecimal;
 @Table(name = "position")
 @Getter
 @Setter
-@RequiredArgsConstructor
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Position extends AuditableEntity {
 

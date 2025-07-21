@@ -7,9 +7,8 @@ import lombok.*;
 @Table(name = "leave_type")
 @Getter
 @Setter
-@RequiredArgsConstructor
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class LeaveType extends AuditableEntity {
 

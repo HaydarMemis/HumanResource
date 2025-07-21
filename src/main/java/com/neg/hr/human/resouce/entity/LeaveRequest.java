@@ -11,9 +11,8 @@ import java.time.LocalDateTime;
 @Table(name = "leave_request")
 @Getter
 @Setter
-@RequiredArgsConstructor
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class LeaveRequest extends AuditableEntity {
 

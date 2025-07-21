@@ -8,8 +8,6 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@RequiredArgsConstructor
 public abstract class AuditableEntity {
 
     @Column(name = "deleted", length = 1)

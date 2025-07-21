@@ -9,9 +9,8 @@ import java.time.LocalDateTime;
 @Table(name = "employee")
 @Getter
 @Setter
-@RequiredArgsConstructor
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Employee extends AuditableEntity {
 
