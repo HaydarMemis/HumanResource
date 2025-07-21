@@ -40,7 +40,7 @@ public class LeaveTypeController {
         return ResponseEntity.ok(updated);
     }
 
-    @DeleteMapping("{/id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         leaveTypeService.delete(id);
         return ResponseEntity.noContent().build();
