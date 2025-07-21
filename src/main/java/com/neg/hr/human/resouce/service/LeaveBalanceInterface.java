@@ -1,7 +1,6 @@
 package com.neg.hr.human.resouce.service;
 
 import com.neg.hr.human.resouce.entity.LeaveBalance;
-import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 
