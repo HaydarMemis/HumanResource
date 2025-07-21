@@ -1,4 +1,4 @@
-package com.neg.hr.human.resouce.service.impl;
+package com.neg.hr.human.resouce.service;
 
 import com.neg.hr.human.resouce.entity.Employee;
 import com.neg.hr.human.resouce.repository.EmployeeRepository;
