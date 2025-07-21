@@ -1,7 +1,6 @@
 package com.neg.hr.human.resouce.controller;
 
 import com.neg.hr.human.resouce.entity.Employee;
-import com.neg.hr.human.resouce.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
