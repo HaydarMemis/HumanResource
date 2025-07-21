@@ -1,39 +1,47 @@
 package com.neg.hr.human.resouce.service;
 
-import com.neg.hr.human.resouce.entity.Employee;
-import com.neg.hr.human.resouce.repository.EmployeeRepository;
+import com.neg.hr.human.resouce.entity.LeaveType;
 import com.neg.hr.human.resouce.repository.LeaveTypeRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-public class LeaveTypeServiceImp {
+@Service
+@RequiredArgsConstructor
+public class LeaveTypeService {
 
     private final LeaveTypeRepository leaveTypeRepository;
 
-    public Employee save(Employee employee) {
-        return employeeRepository.save(employee);
+    public LeaveType save(LeaveType leaveType) {
+        return leaveTypeRepository.save(leaveType);
     }
 
-    public Employee findById(Long id) {
-        return employeeRepository.findById(id)
+    public LeaveType findById(Long id) {
+        return leaveTypeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found with id " + id));
     }
 
-    public List<Employee> findAll() {
-        return employeeRepository.findAll();
+    public List<LeaveType> findAll() {
+        return leaveTypeRepository.findAll();
     }
 
     public void delete(Long id) {
-        employeeRepository.deleteById(id);
+        leaveTypeRepository.deleteById(id);
     }
 
-    public Employee update(Long id, Employee employee) {
-        Employee existing = findById(id);
-        existing.setHireDate(employee.getHireDate());
-        existing.setPerson(employee.getPerson());
-        existing.setCompany(employee.getCompany());
-        existing.setPosition(employee.getPosition());
-        return employeeRepository.save(existing);
+    public LeaveType update(Long id, LeaveType leaveType) {
+        LeaveType existing = findById(id);
+        existing.setName(leaveType.getName());
+        existing.setBorrowableLimit(leaveType.getBorrowableLimit());
+        existing.setValidAfterDays(leaveType.getValidAfterDays());
+        existing.setIsAnnual(leaveType.getIsAnnual());
+        existing.setDefaultDays(leaveType.getDefaultDays());
+        existing.setIsUnpaid(leaveType.getIsUnpaid());
+        existing.setGenderRequired(leaveType.getGenderRequired());
+        existing.setResetPeriod(leaveType.getResetPeriod());
+        existing.setValidUntilDays(leaveType.getValidUntilDays());
+        return leaveTypeRepository.save(existing);
     }
 }
