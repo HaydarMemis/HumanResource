@@ -1,7 +1,20 @@
 package com.neg.hr.human.resouce.repository;
 
-import com.neg.hr.human.resouce.entity.EmployeeProject;
+import com.neg.hr.human.resouce.entity.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PersonRepository extends JpaRepository<EmployeeProject,Long> {
+import java.util.List;
+import java.util.Optional;
+
+public interface PersonRepository extends JpaRepository<Person, Long> {
+
+    Optional<Person> findByNationalId(String nationalId);
+
+    List<Person> findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(String firstName, String lastName);
+
+    Optional<Person> findByEmailIgnoreCase(String email);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByNationalId(String nationalId);
 }

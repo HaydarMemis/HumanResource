@@ -1,7 +1,25 @@
 package com.neg.hr.human.resouce.repository;
 
-import com.neg.hr.human.resouce.entity.EmployeeProject;
+import com.neg.hr.human.resouce.entity.LeaveType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface LeaveTypeRepository extends JpaRepository<EmployeeProject,Long> {
+import java.util.List;
+import java.util.Optional;
+
+public interface LeaveTypeRepository extends JpaRepository<LeaveType, Long> {
+
+    Optional<LeaveType> findByName(String name);
+
+    List<LeaveType> findByIsAnnualTrue();
+
+    List<LeaveType> findByIsAnnualFalse();
+
+    List<LeaveType> findByIsUnpaidTrue();
+
+    List<LeaveType> findByGenderRequiredTrue();
+
+    List<LeaveType> findByBorrowableLimitGreaterThan(Integer limit);
+
+    // Belirli gün sonra geçerli olan izin türleri (örneğin işe başladıktan 90 gün sonra)
+    List<LeaveType> findByValidAfterDaysGreaterThan(Integer days);
 }
