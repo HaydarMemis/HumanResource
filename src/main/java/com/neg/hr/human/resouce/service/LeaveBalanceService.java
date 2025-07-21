@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class LeaveBalanceService {
+public class LeaveBalanceService implements LeaveBalanceInterface{
     private final LeaveBalanceRepository leaveBalanceRepository;
 
     public LeaveBalance save(LeaveBalance leaveBalance) {
