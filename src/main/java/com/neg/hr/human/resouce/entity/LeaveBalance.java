@@ -9,9 +9,8 @@ import java.math.BigDecimal;
 @Table(name = "leave_balance")
 @Getter
 @Setter
-@RequiredArgsConstructor
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class LeaveBalance extends AuditableEntity {
 
