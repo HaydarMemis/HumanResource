@@ -1,6 +1,7 @@
 package com.neg.hr.human.resouce.controller;
 
 import com.neg.hr.human.resouce.entity.Employee;
+import com.neg.hr.human.resouce.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,10 +32,10 @@ public class EmployeeController {
     // READ BY ID
     @GetMapping("/{id}")
     public ResponseEntity<Employee> getById(@PathVariable Long id) {
-        return employeeService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Employee employee = employeeService.findById(id);
+        return ResponseEntity.ok(employee);
     }
+
 
     // UPDATE
     @PutMapping("/{id}")
