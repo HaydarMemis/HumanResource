@@ -1,53 +1,97 @@
 package com.neg.hr.human.resouce.controller;
 
-import com.neg.hr.human.resouce.entity.Employee;
 import com.neg.hr.human.resouce.entity.LeaveBalance;
 import com.neg.hr.human.resouce.service.LeaveBalanceService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/leave_balances")
-@RequiredArgsConstructor
 public class LeaveBalanceController {
+
     private final LeaveBalanceService leaveBalanceService;
 
-    // CREATE
-    @PostMapping
-    public ResponseEntity<LeaveBalance> create(@RequestBody LeaveBalance leaveBalance) {
-        LeaveBalance saved = leaveBalanceService.save(leaveBalance);
-        return ResponseEntity.ok(saved);
+    public LeaveBalanceController(LeaveBalanceService leaveBalanceService) {
+        this.leaveBalanceService = leaveBalanceService;
     }
 
-    // READ ALL
+    // Tüm LeaveBalance kayıtlarını getir
     @GetMapping
-    public ResponseEntity<List<LeaveBalance>> getAll() {
-        List<LeaveBalance> leaveBalances = leaveBalanceService.findAll();
-        return ResponseEntity.ok(leaveBalances);
+    public List<LeaveBalance> getAllLeaveBalances() {
+        return leaveBalanceService.findAll();
     }
 
-    // READ BY ID
+    // ID'ye göre LeaveBalance getir
     @GetMapping("/{id}")
-    public ResponseEntity<LeaveBalance> getById(@PathVariable Long id) {
-        LeaveBalance leaveBalance = leaveBalanceService.findById(id);
-        return ResponseEntity.ok(leaveBalance);
+    public ResponseEntity<LeaveBalance> getLeaveBalanceById(@PathVariable Long id) {
+        Optional<LeaveBalance> leaveBalanceOpt = leaveBalanceService.findById(id);
+        return leaveBalanceOpt.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // LeaveBalance oluştur
+    @PostMapping
+    public LeaveBalance createLeaveBalance(@RequestBody LeaveBalance leaveBalance) {
+        return leaveBalanceService.save(leaveBalance);
+    }
 
-    // UPDATE
+    // LeaveBalance güncelle
     @PutMapping("/{id}")
-    public ResponseEntity<LeaveBalance> update(@PathVariable Long id, @RequestBody LeaveBalance leaveBalance) {
-        LeaveBalance updated = leaveBalanceService.update(id, leaveBalance);
+    public ResponseEntity<LeaveBalance> updateLeaveBalance(@PathVariable Long id, @RequestBody LeaveBalance leaveBalance) {
+        Optional<LeaveBalance> existingLeaveBalance = leaveBalanceService.findById(id);
+        if (!existingLeaveBalance.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        leaveBalance.setId(id);
+        LeaveBalance updated = leaveBalanceService.save(leaveBalance);
         return ResponseEntity.ok(updated);
     }
 
-    // DELETE
+    // LeaveBalance sil
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        leaveBalanceService.delete(id);
+    public ResponseEntity<Void> deleteLeaveBalance(@PathVariable Long id) {
+        Optional<LeaveBalance> existingLeaveBalance = leaveBalanceService.findById(id);
+        if (!existingLeaveBalance.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        leaveBalanceService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Çalışan ID'sine göre LeaveBalance getir
+    @GetMapping("/employee/{employeeId}")
+    public List<LeaveBalance> getLeaveBalancesByEmployee(@PathVariable Long employeeId) {
+        return leaveBalanceService.findByEmployeeId(employeeId);
+    }
+
+    // Çalışan ID ve yıla göre LeaveBalance getir
+    @GetMapping("/employee/{employeeId}/year/{year}")
+    public List<LeaveBalance> getLeaveBalancesByEmployeeAndYear(@PathVariable Long employeeId, @PathVariable Integer year) {
+        return leaveBalanceService.findByEmployeeIdAndDate(year, employeeId);
+    }
+
+    // Çalışan ID ve leaveType ID'ye göre LeaveBalance getir
+    @GetMapping("/employee/{employeeId}/leave_type/{leaveTypeId}")
+    public ResponseEntity<LeaveBalance> getLeaveBalanceByEmployeeAndLeaveType(@PathVariable Long employeeId, @PathVariable Long leaveTypeId) {
+        Optional<LeaveBalance> leaveBalanceOpt = leaveBalanceService.findByEmployeeIdAndLeaveTypeId(employeeId, leaveTypeId);
+        return leaveBalanceOpt.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Çalışan ID, leaveType ID ve yıla göre LeaveBalance getir
+    @GetMapping("/employee/{employeeId}/leave_type/{leaveTypeId}/year/{year}")
+    public ResponseEntity<LeaveBalance> getLeaveBalanceByEmployeeLeaveTypeAndYear(@PathVariable Long employeeId, @PathVariable Long leaveTypeId, @PathVariable Integer year) {
+        Optional<LeaveBalance> leaveBalanceOpt = leaveBalanceService.findByEmployeeIdAndLeaveTypeIdAndDate(employeeId, leaveTypeId, year);
+        return leaveBalanceOpt.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // LeaveType ID ve yıla göre LeaveBalance getir
+    @GetMapping("/leave_type/{leaveTypeId}/year/{year}")
+    public List<LeaveBalance> getLeaveBalancesByLeaveTypeAndYear(@PathVariable Long leaveTypeId, @PathVariable Integer year) {
+        return leaveBalanceService.findByLeaveTypeIdAndDate(leaveTypeId, year);
     }
 }
