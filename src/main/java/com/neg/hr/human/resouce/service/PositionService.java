@@ -3,11 +3,13 @@ package com.neg.hr.human.resouce.service;
 import com.neg.hr.human.resouce.entity.Position;
 import com.neg.hr.human.resouce.repository.PositionRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class PositionService implements PositionInterface{
     private final PositionRepository positionRepository;
 
