@@ -49,12 +49,13 @@ public class ProjectController {
     // Proje güncelle
     @PutMapping("/{id}")
     public ResponseEntity<Project> updateProject(@PathVariable Long id, @RequestBody Project project) {
-        try {
-            Project updated = projectService.update(id, project);
-            return ResponseEntity.ok(updated);
-        } catch (Exception e) {
+        Optional<Project> existingProject = projectService.findById(id);
+        if (!existingProject.isPresent()) {
             return ResponseEntity.notFound().build();
         }
+        project.setId(id);
+        Project updated = projectService.save(project);
+        return ResponseEntity.ok(updated);
     }
 
     // Proje sil

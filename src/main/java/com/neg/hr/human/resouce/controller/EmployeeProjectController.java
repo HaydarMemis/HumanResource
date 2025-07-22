@@ -1,5 +1,6 @@
 package com.neg.hr.human.resouce.controller;
 
+import com.neg.hr.human.resouce.entity.Employee;
 import com.neg.hr.human.resouce.entity.EmployeeProject;
 import com.neg.hr.human.resouce.service.EmployeeProjectService;
 import org.springframework.http.ResponseEntity;
@@ -40,12 +41,13 @@ public class EmployeeProjectController {
     // Güncelle
     @PutMapping("/{id}")
     public ResponseEntity<EmployeeProject> update(@PathVariable Long id, @RequestBody EmployeeProject employeeProject) {
-        try {
-            EmployeeProject updated = employeeProjectService.update(id, employeeProject);
-            return ResponseEntity.ok(updated);
-        } catch (Exception e) {
+        Optional<EmployeeProject> existingEmployeeProject = employeeProjectService.findById(id);
+        if (!existingEmployeeProject.isPresent()) {
             return ResponseEntity.notFound().build();
         }
+        employeeProject.setId(id);
+        EmployeeProject updated = employeeProjectService.save(employeeProject);
+        return ResponseEntity.ok(updated);
     }
 
     // ID’ye göre sil

@@ -49,12 +49,13 @@ public class CompanyController {
     // Şirket güncelle
     @PutMapping("/{id}")
     public ResponseEntity<Company> updateCompany(@PathVariable Long id, @RequestBody Company company) {
-        try {
-            Company updated = companyService.update(id, company);
-            return ResponseEntity.ok(updated);
-        } catch (Exception e) {
+        Optional<Company> existingCompany = companyService.findById(id);
+        if (!existingCompany.isPresent()) {
             return ResponseEntity.notFound().build();
         }
+        company.setId(id);
+        Company updated = companyService.save(company);
+        return ResponseEntity.ok(updated);
     }
 
     // Şirket sil
