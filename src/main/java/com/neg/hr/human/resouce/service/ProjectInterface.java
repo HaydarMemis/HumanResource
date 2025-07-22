@@ -3,16 +3,20 @@ package com.neg.hr.human.resouce.service;
 import com.neg.hr.human.resouce.entity.Project;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProjectInterface {
+    Project save(Project project);
 
-    public Project save(Project project);
+    Optional<Project> findById(Long id);
 
-    public Project findById(Long id);
+    Optional<Project> findByName(String name);
 
-    public List<Project> findAll();
+    List<Project> findAll();
 
-    public void delete(Long id);
+    boolean existsByName(String name);
 
-    public Project update(Long id, Project project);
+    void deleteById(Long id);
+
+    Project update(Long id, Project project);
 }

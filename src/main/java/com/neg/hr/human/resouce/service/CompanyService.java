@@ -1,40 +1,59 @@
 package com.neg.hr.human.resouce.service;
 
 import com.neg.hr.human.resouce.entity.Company;
-import com.neg.hr.human.resouce.entity.LeaveBalance;
 import com.neg.hr.human.resouce.repository.CompanyRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class CompanyService implements CompanyInterface {
+
     private final CompanyRepository companyRepository;
 
+    public CompanyService(CompanyRepository companyRepository) {
+        this.companyRepository = companyRepository;
+    }
+
+    @Override
     public Company save(Company company) {
         return companyRepository.save(company);
     }
 
-    public Company findById(Long id) {
-        return companyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Employee not found with id " + id));
+    @Override
+    public Optional<Company> findById(Long id) {
+        return companyRepository.findById(id);
     }
 
+    @Override
+    public Optional<Company> findByName(String name) {
+        return companyRepository.findByName(name);
+    }
+
+    @Override
     public List<Company> findAll() {
         return companyRepository.findAll();
     }
 
-    public void delete(Long id) {
+    @Override
+    public boolean existsByName(String name) {
+        return companyRepository.existsByName(name);
+    }
+
+    @Override
+    public void deleteById(Long id) {
         companyRepository.deleteById(id);
     }
 
+    @Override
     public Company update(Long id, Company company) {
-        Company existing = findById(id);
+        Company existing = companyRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Company not found with id " + id));
+
         existing.setName(company.getName());
+
         return companyRepository.save(existing);
     }
-
 }

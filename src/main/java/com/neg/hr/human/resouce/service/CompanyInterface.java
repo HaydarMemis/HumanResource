@@ -3,15 +3,20 @@ package com.neg.hr.human.resouce.service;
 import com.neg.hr.human.resouce.entity.Company;
 
 import java.util.List;
+import java.util.Optional;
+
 public interface CompanyInterface {
+    Company save(Company company);
 
-    public Company save(Company company);
+    Optional<Company> findById(Long id);
 
-    public Company findById(Long id);
+    Optional<Company> findByName(String name);
 
-    public List<Company> findAll();
+    List<Company> findAll();
 
-    public void delete(Long id);
+    boolean existsByName(String name);
 
-    public Company update(Long id, Company company);
+    void deleteById(Long id);
+
+    Company update(Long id, Company company);
 }
