@@ -1,8 +1,7 @@
-package com.neg.hr.human.resouce.controller;
+package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resouce.entity.LeaveRequest;
-import com.neg.hr.human.resouce.entity.LeaveType;
-import com.neg.hr.human.resouce.service.LeaveRequestService;
+import com.neg.hr.human.resource.entity.LeaveRequest;
+import com.neg.hr.human.resource.service.LeaveRequestService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

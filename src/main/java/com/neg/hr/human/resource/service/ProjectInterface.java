@@ -1,6 +1,6 @@
-package com.neg.hr.human.resouce.service;
+package com.neg.hr.human.resource.service;
 
-import com.neg.hr.human.resouce.entity.Project;
+import com.neg.hr.human.resource.entity.Project;
 
 import java.util.List;
 import java.util.Optional;

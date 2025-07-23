@@ -1,8 +1,7 @@
-package com.neg.hr.human.resouce.service;
+package com.neg.hr.human.resource.service;
 
-import com.neg.hr.human.resouce.entity.LeaveRequest;
-import com.neg.hr.human.resouce.entity.LeaveType;
-import jakarta.persistence.EntityNotFoundException;
+import com.neg.hr.human.resource.entity.LeaveRequest;
+import com.neg.hr.human.resource.entity.LeaveType;
 
 import java.time.LocalDate;
 import java.util.List;

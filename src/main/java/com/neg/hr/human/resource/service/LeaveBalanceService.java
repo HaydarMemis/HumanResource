@@ -1,7 +1,7 @@
-package com.neg.hr.human.resouce.service;
+package com.neg.hr.human.resource.service;
 
-import com.neg.hr.human.resouce.entity.LeaveBalance;
-import com.neg.hr.human.resouce.repository.LeaveBalanceRepository;
+import com.neg.hr.human.resource.entity.LeaveBalance;
+import com.neg.hr.human.resource.repository.LeaveBalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 

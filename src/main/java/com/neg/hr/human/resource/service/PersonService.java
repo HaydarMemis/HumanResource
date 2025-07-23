@@ -1,7 +1,7 @@
-package com.neg.hr.human.resouce.service;
+package com.neg.hr.human.resource.service;
 
-import com.neg.hr.human.resouce.entity.Person;
-import com.neg.hr.human.resouce.repository.PersonRepository;
+import com.neg.hr.human.resource.entity.Person;
+import com.neg.hr.human.resource.repository.PersonRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 

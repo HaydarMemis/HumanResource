@@ -1,6 +1,6 @@
-package com.neg.hr.human.resouce.repository;
+package com.neg.hr.human.resource.repository;
 
-import com.neg.hr.human.resouce.entity.Person;
+import com.neg.hr.human.resource.entity.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;

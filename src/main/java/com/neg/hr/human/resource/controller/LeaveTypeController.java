@@ -1,7 +1,7 @@
-package com.neg.hr.human.resouce.controller;
+package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resouce.entity.LeaveType;
-import com.neg.hr.human.resouce.service.LeaveTypeService;
+import com.neg.hr.human.resource.entity.LeaveType;
+import com.neg.hr.human.resource.service.LeaveTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

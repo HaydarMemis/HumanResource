@@ -1,4 +1,4 @@
-package com.neg.hr.human.resouce.exception;
+package com.neg.hr.human.resource.exception;
 
 public class GlobalExceptionHandler {
 
