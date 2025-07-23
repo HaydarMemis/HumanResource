@@ -1,11 +1,27 @@
+server:
+  port: 8082
+
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/yourdb
-    username: yourusername
-    password: yourpassword
+    url: jdbc:postgresql://localhost:5432/hr_management
+    username: name
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
-server:
-  port: 8080
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
