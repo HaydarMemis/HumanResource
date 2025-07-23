@@ -3,6 +3,7 @@ package com.neg.hr.human.resouce.repository;
 import com.neg.hr.human.resouce.entity.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,4 +18,10 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
     boolean existsByEmail(String email);
 
     boolean existsByNationalId(String nationalId);
+
+    List<Person> findByGenderIgnoreCase(String gender);
+
+    List<Person> findByBirthDateBefore(LocalDate birthDate);
+
+    List<Person> findByMaritalStatusIgnoreCase(String maritalStatus);
 }

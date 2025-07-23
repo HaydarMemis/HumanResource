@@ -1,12 +1,19 @@
 package com.neg.hr.human.resouce.service;
 
-import com.neg.hr.human.resouce.entity.LeaveBalance;
+import com.neg.hr.human.resouce.entity.Person;
 import com.neg.hr.human.resouce.entity.Person;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 public interface PersonInterface {
+    List<Person> findByGenderIgnoreCase(String gender);
+
+    List<Person> findByBirthDateBefore(LocalDate birthDate);
+
+    List<Person> findByMaritalStatusIgnoreCase(String maritalStatus);
+
     Optional<Person> findByNationalId(String nationalId);
 
     List<Person> findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(String firstName, String lastName);
@@ -17,13 +24,13 @@ public interface PersonInterface {
 
     boolean existsByNationalId(String nationalId);
 
-    public LeaveBalance save(LeaveBalance leaveBalance);
+    public Person save(Person person);
 
-    public Optional<LeaveBalance> findById(Long id);
+    public Optional<Person> findById(Long id);
 
-    public List<LeaveBalance> findAll();
+    public List<Person> findAll();
 
     void deleteById(Long id);
 
-    public LeaveBalance update(Long id, LeaveBalance leaveBalance);
+    public Person update(Long id, Person person);
 }
