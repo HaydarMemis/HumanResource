@@ -47,7 +47,7 @@ public class Employee extends AuditableEntity {
     @Column(name = "employment_start_date", nullable = false)
     private LocalDateTime employmentStartDate;
 
-    @Column(name = "employment_start_end")
+    @Column(name = "employment_end_date")
     private LocalDateTime employmentEndDate;
 
     @Column(name = "is_active", nullable = false)
