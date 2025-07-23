@@ -1,7 +1,7 @@
-package com.neg.hr.human.resouce.controller;
+package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resouce.entity.Position;
-import com.neg.hr.human.resouce.service.PositionService;
+import com.neg.hr.human.resource.entity.Position;
+import com.neg.hr.human.resource.service.PositionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,8 +1,7 @@
-package com.neg.hr.human.resouce.service;
+package com.neg.hr.human.resource.service;
 
-import com.neg.hr.human.resouce.entity.Employee;
-import com.neg.hr.human.resouce.repository.EmployeeRepository;
-import com.neg.hr.human.resouce.service.EmployeeService;
+import com.neg.hr.human.resource.entity.Employee;
+import com.neg.hr.human.resource.repository.EmployeeRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

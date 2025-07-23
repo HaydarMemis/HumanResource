@@ -34,3 +34,5 @@ build/
 
 ### Application yml ###
 **/application.yml
+
+.DS_Store

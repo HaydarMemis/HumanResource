@@ -1,7 +1,7 @@
-package com.neg.hr.human.resouce.controller;
+package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resouce.entity.Person;
-import com.neg.hr.human.resouce.service.PersonService;
+import com.neg.hr.human.resource.entity.Person;
+import com.neg.hr.human.resource.service.PersonService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

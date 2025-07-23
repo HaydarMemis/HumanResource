@@ -1,7 +1,6 @@
-package com.neg.hr.human.resouce.service;
+package com.neg.hr.human.resource.service;
 
-import com.neg.hr.human.resouce.entity.Department;
-import com.neg.hr.human.resouce.entity.Position;
+import com.neg.hr.human.resource.entity.Department;
 
 import java.util.List;
 import java.util.Optional;

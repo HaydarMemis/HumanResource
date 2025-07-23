@@ -1,7 +1,7 @@
-package com.neg.hr.human.resouce.service;
+package com.neg.hr.human.resource.service;
 
-import com.neg.hr.human.resouce.entity.LeaveBalance;
-import com.neg.hr.human.resouce.entity.Person;
+import com.neg.hr.human.resource.entity.LeaveBalance;
+import com.neg.hr.human.resource.entity.Person;
 
 import java.util.List;
 import java.util.Optional;

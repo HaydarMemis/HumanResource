@@ -1,6 +1,6 @@
-package com.neg.hr.human.resouce.repository;
+package com.neg.hr.human.resource.repository;
 
-import com.neg.hr.human.resouce.entity.EmployeeProject;
+import com.neg.hr.human.resource.entity.EmployeeProject;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -1,8 +1,7 @@
-package com.neg.hr.human.resouce.controller;
+package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resouce.entity.Employee;
-import com.neg.hr.human.resouce.entity.EmployeeProject;
-import com.neg.hr.human.resouce.service.EmployeeProjectService;
+import com.neg.hr.human.resource.entity.EmployeeProject;
+import com.neg.hr.human.resource.service.EmployeeProjectService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

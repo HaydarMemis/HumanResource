@@ -1,8 +1,8 @@
-package com.neg.hr.human.resouce.service;
+package com.neg.hr.human.resource.service;
 
-import com.neg.hr.human.resouce.entity.LeaveRequest;
-import com.neg.hr.human.resouce.entity.LeaveType;
-import com.neg.hr.human.resouce.repository.LeaveRequestRepository;
+import com.neg.hr.human.resource.entity.LeaveRequest;
+import com.neg.hr.human.resource.entity.LeaveType;
+import com.neg.hr.human.resource.repository.LeaveRequestRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

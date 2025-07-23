@@ -1,13 +1,13 @@
-package com.neg.hr.human.resouce;
+package com.neg.hr.human.resource;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class HumanResouceApplication {
+public class HumanResourceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(HumanResouceApplication.class, args);
+		SpringApplication.run(HumanResourceApplication.class, args);
 	}
 
 }

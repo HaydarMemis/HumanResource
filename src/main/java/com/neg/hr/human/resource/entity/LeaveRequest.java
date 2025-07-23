@@ -1,4 +1,4 @@
-package com.neg.hr.human.resouce.entity;
+package com.neg.hr.human.resource.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

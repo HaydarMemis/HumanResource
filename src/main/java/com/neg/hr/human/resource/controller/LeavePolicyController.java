@@ -1,8 +1,8 @@
-package com.neg.hr.human.resouce.controller;
+package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resouce.entity.Employee;
-import com.neg.hr.human.resouce.service.EmployeeService;
-import com.neg.hr.human.resouce.service.LeavePolicyService;
+import com.neg.hr.human.resource.entity.Employee;
+import com.neg.hr.human.resource.service.EmployeeService;
+import com.neg.hr.human.resource.service.LeavePolicyService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
