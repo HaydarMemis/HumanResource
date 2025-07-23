@@ -1,7 +1,10 @@
 server:
-  port: 8082
+  port: 8085
 
 spring:
+  main:
+    web-application-type: servlet
+
   datasource:
     url: jdbc:postgresql://localhost:5432/hr_management
     username: haydar
