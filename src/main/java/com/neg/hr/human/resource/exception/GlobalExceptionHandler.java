@@ -15,7 +15,6 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-
     @ExceptionHandler(EmployeeNotFoundException.class)
     public ResponseEntity<Object> handleEmployeeNotFound(EmployeeNotFoundException ex) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -26,6 +25,30 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(DepartmentNotFoundException.class)
+    public ResponseEntity<Object> handleDepartmentNotFound(DepartmentNotFoundException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ProjectNotFoundException.class)
+    public ResponseEntity<Object> handleProjectNotFound(ProjectNotFoundException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PositionNotFoundException.class)
+    public ResponseEntity<Object> handlePositionNotFound(PositionNotFoundException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(LeaveTypeNotFoundException.class)
+    public ResponseEntity<Object> handleLeaveTypeNotFound(LeaveTypeNotFoundException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(LeaveBalanceExceededException.class)
+    public ResponseEntity<Object> handleLeaveBalanceExceeded(LeaveBalanceExceededException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationErrors(MethodArgumentNotValidException ex) {
@@ -55,12 +78,10 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(message, HttpStatus.BAD_REQUEST);
     }
 
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneric(Exception ex) {
         return buildErrorResponse("Beklenmeyen bir hata oluştu: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
 
     private ResponseEntity<Object> buildErrorResponse(String message, HttpStatus status) {
         Map<String, Object> body = new HashMap<>();
