@@ -43,10 +43,10 @@ public class PersonController {
         if (!existingPerson.isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        person.setId(id);
-        Person updated = personService.save(person);
+        Person updated = personService.update(id, person);
         return ResponseEntity.ok(updated);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePerson(@PathVariable Long id) {

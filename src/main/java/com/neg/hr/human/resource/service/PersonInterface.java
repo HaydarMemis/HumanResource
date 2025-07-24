@@ -1,8 +1,9 @@
 package com.neg.hr.human.resource.service;
 
-import com.neg.hr.human.resource.entity.LeaveBalance;
+import com.neg.hr.human.resource.entity.Person;
 import com.neg.hr.human.resource.entity.Person;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,17 +14,23 @@ public interface PersonInterface {
 
     Optional<Person> findByEmailIgnoreCase(String email);
 
+    List<Person> findByGenderIgnoreCase(String gender);
+
+    List<Person> findByBirthDateBefore(LocalDate birthDate);
+
+    List<Person> findByMaritalStatusIgnoreCase(String maritalStatus);
+
     boolean existsByEmail(String email);
 
     boolean existsByNationalId(String nationalId);
 
-    public LeaveBalance save(LeaveBalance leaveBalance);
+    public Person save(Person person);
 
-    public Optional<LeaveBalance> findById(Long id);
+    public Optional<Person> findById(Long id);
 
-    public List<LeaveBalance> findAll();
+    public List<Person> findAll();
 
     void deleteById(Long id);
 
-    public LeaveBalance update(Long id, LeaveBalance leaveBalance);
+    public Person update(Long id, Person leaveBalance);
 }
