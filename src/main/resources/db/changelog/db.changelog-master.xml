@@ -16,4 +16,6 @@
     <include file="db.changelog-1.8-create-leave-balance.xml" relativeToChangelogFile="true"/>
     <include file="db.changelog-1.9-create-leave-request.xml" relativeToChangelogFile="true"/>
 
+    <include file="dummy/db.changelog-1.0-insert-dummy-data-company.xml" relativeToChangelogFile="true" context="dev"/>
+
 </databaseChangeLog>
