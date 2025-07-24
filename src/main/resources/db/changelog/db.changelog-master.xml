@@ -17,5 +17,14 @@
     <include file="db.changelog-1.9-create-leave-request.xml" relativeToChangelogFile="true"/>
 
     <include file="dummy/db.changelog-1.0-insert-dummy-data-company.xml" relativeToChangelogFile="true" context="dev"/>
+    <include file="dummy/db.changelog-1.1-insert-dummy-data-department.xml" relativeToChangelogFile="true" context="dev"/>
+    <include file="dummy/db.changelog-1.2-insert-dummy-data-position.xml" relativeToChangelogFile="true" context="dev"/>
+    <include file="dummy/db.changelog-1.3-insert-dummy-data-person.xml" relativeToChangelogFile="true" context="dev"/>
+    <include file="dummy/db.changelog-1.4-insert-dummy-data-project.xml" relativeToChangelogFile="true" context="dev"/>
+    <include file="dummy/db.changelog-1.5-insert-dummy-data-employee.xml" relativeToChangelogFile="true" context="dev"/>
+    <include file="dummy/db.changelog-1.6-insert-dummy-data-employee-project.xml" relativeToChangelogFile="true" context="dev"/>
+    <include file="dummy/db.changelog-1.7-insert-dummy-data-leave-type.xml" relativeToChangelogFile="true" context="dev"/>
+    <include file="dummy/db.changelog-1.8-insert-dummy-data-leave-balance.xml" relativeToChangelogFile="true" context="dev"/>
+    <include file="dummy/db.changelog-1.9-insert-dummy-data-leave-request.xml" relativeToChangelogFile="true" context="dev"/>
 
 </databaseChangeLog>

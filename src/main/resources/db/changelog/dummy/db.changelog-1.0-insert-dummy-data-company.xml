@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="dummy-data-1" author="Ayşe Şule" context="dev">
+    <changeSet id="1-insert-dummy-company" author="Ayşe Şule" context="dev">
         <insert tableName="company">
             <column name="name" value="ADJDJ"/>
             <column name="deleted" value="N"/>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="4-insert-dummy-person" author="Ayşe Şule">
+        <insert tableName="person">
+            <column name="first_name" value="Elif"/>
+            <column name="last_name" value="Yılmaz"/>
+            <column name="national_id" value="12345678901"/>
+            <column name="birth_date" valueDate="1998-05-20"/>
+            <column name="gender" value="Female"/>
+            <column name="email" value="elif.yilmaz@example.com"/>
+            <column name="phone" value="+905551234567"/>
+            <column name="address" value="Ankara, Turkey"/>
+            <column name="marital_status" value="Single"/>
+            <column name="deleted" value="N"/>
+            <column name="created_at" valueDate="2025-07-24T09:30:00"/>
+            <column name="updated_at" valueDate="2025-07-24T09:30:00"/>
+        </insert>
+
+        <insert tableName="person">
+            <column name="first_name" value="Ahmet"/>
+            <column name="last_name" value="Demir"/>
+            <column name="national_id" value="23456789012"/>
+            <column name="birth_date" valueDate="1995-11-10"/>
+            <column name="gender" value="Male"/>
+            <column name="email" value="ahmet.demir@example.com"/>
+            <column name="phone" value="+905552345678"/>
+            <column name="address" value="Istanbul, Turkey"/>
+            <column name="marital_status" value="Married"/>
+            <column name="deleted" value="N"/>
+            <column name="created_at" valueDate="2025-07-24T09:35:00"/>
+            <column name="updated_at" valueDate="2025-07-24T09:35:00"/>
+        </insert>
+
+        <insert tableName="person">
+            <column name="first_name" value="Mehmet"/>
+            <column name="last_name" value="Kaya"/>
+            <column name="national_id" value="34567890123"/>
+            <column name="birth_date" valueDate="1990-02-15"/>
+            <column name="gender" value="Male"/>
+            <column name="email" value="mehmet.kaya@example.com"/>
+            <column name="phone" value="+905553456789"/>
+            <column name="address" value="Izmir, Turkey"/>
+            <column name="marital_status" value="Single"/>
+            <column name="deleted" value="N"/>
+            <column name="created_at" valueDate="2025-07-24T09:40:00"/>
+            <column name="updated_at" valueDate="2025-07-24T09:40:00"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
