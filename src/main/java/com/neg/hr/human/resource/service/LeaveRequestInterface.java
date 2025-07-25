@@ -7,13 +7,14 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface LeaveRequestInterface {
+
     List<LeaveRequest> findByEmployeeId(Long employeeId);
 
     List<LeaveRequest> findByStartDateBetween(LocalDate start, LocalDate end);
 
     List<LeaveRequest> findByEmployeeIdAndStatus(Long employeeId, String status);
 
-    List<LeaveRequest> findByStatus(String status);  // örn: APPROVED, PENDING, REJECTED, CANCELLED
+    List<LeaveRequest> findByStatus(String status);
 
     List<LeaveRequest> findByIsCancelledTrue();
 
@@ -21,20 +22,17 @@ public interface LeaveRequestInterface {
 
     List<LeaveRequest> findByLeaveType(LeaveType leaveType);
 
-    List<LeaveRequest> findByEmployeeIdAndLeaveTypeIdAndStartDateBetween(
-            Long employeeId,
-            Long leaveTypeId,
-            LocalDate startDate,
-            LocalDate endDate
-    );
+    List<LeaveRequest> findByEmployeeIdAndLeaveTypeIdAndStartDateBetween(Long employeeId, Long leaveTypeId, LocalDate startDate, LocalDate endDate);
 
     List<LeaveRequest> findOverlappingRequests(Long employeeId, LocalDate startDate, LocalDate endDate);
 
-    public LeaveRequest save(LeaveRequest leaveRequest);
+    LeaveRequest save(LeaveRequest leaveRequest);
 
-    public LeaveRequest findById(Long id);
+    LeaveRequest findById(Long id);
 
-    public List<LeaveRequest> findAll();
+    List<LeaveRequest> findAll();
 
-    public void deleteById(Long id);
+    void deleteById(Long id);
+
+    LeaveRequest update(Long id, LeaveRequest leaveRequest);
 }

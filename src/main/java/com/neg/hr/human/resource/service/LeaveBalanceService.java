@@ -1,5 +1,6 @@
 package com.neg.hr.human.resource.service;
 
+import com.neg.hr.human.resource.business.BusinessLogger;
 import com.neg.hr.human.resource.entity.LeaveBalance;
 import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.LeaveBalanceRepository;
@@ -13,7 +14,6 @@ public class LeaveBalanceService implements LeaveBalanceInterface {
 
     private final LeaveBalanceRepository leaveBalanceRepository;
 
-    // Constructor injection
     public LeaveBalanceService(LeaveBalanceRepository leaveBalanceRepository) {
         this.leaveBalanceRepository = leaveBalanceRepository;
     }
@@ -50,7 +50,9 @@ public class LeaveBalanceService implements LeaveBalanceInterface {
 
     @Override
     public LeaveBalance save(LeaveBalance leaveBalance) {
-        return leaveBalanceRepository.save(leaveBalance);
+        LeaveBalance saved = leaveBalanceRepository.save(leaveBalance);
+        BusinessLogger.logCreated(LeaveBalance.class, saved.getId(), "LeaveBalance");
+        return saved;
     }
 
     @Override
@@ -64,6 +66,7 @@ public class LeaveBalanceService implements LeaveBalanceInterface {
             throw new ResourceNotFoundException("Leave Balance", id);
         }
         leaveBalanceRepository.deleteById(id);
+        BusinessLogger.logDeleted(LeaveBalance.class, id);
     }
 
     @Override
@@ -76,7 +79,9 @@ public class LeaveBalanceService implements LeaveBalanceInterface {
         existing.setDate(leaveBalance.getDate());
         existing.setAmount(leaveBalance.getAmount());
 
-        return leaveBalanceRepository.save(existing);
+        LeaveBalance updated = leaveBalanceRepository.save(existing);
+        BusinessLogger.logUpdated(LeaveBalance.class, updated.getId(), "LeaveBalance");
+        return updated;
     }
 
     @Override

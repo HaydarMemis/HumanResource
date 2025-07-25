@@ -1,5 +1,6 @@
 package com.neg.hr.human.resource.service;
 
+import com.neg.hr.human.resource.business.BusinessLogger;
 import com.neg.hr.human.resource.entity.LeaveRequest;
 import com.neg.hr.human.resource.entity.LeaveType;
 import com.neg.hr.human.resource.exception.ResourceNotFoundException;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class LeaveRequestService implements LeaveRequestInterface{
+public class LeaveRequestService implements LeaveRequestInterface {
 
     private final LeaveRequestRepository leaveRequestRepository;
 
@@ -61,29 +62,37 @@ public class LeaveRequestService implements LeaveRequestInterface{
         return leaveRequestRepository.findOverlappingRequests(employeeId, startDate, endDate);
     }
 
+    @Override
     public LeaveRequest save(LeaveRequest leaveRequest) {
-        return leaveRequestRepository.save(leaveRequest);
+        LeaveRequest saved = leaveRequestRepository.save(leaveRequest);
+        BusinessLogger.logCreated(LeaveRequest.class, saved.getId(), "LeaveRequest");
+        return saved;
     }
 
+    @Override
     public LeaveRequest findById(Long id) {
         return leaveRequestRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Request",id));
+                .orElseThrow(() -> new ResourceNotFoundException("Leave Request", id));
     }
 
+    @Override
     public List<LeaveRequest> findAll() {
         return leaveRequestRepository.findAll();
     }
 
+    @Override
     public void deleteById(Long id) {
         if (!leaveRequestRepository.existsById(id)) {
             throw new ResourceNotFoundException("Leave Request", id);
         }
         leaveRequestRepository.deleteById(id);
+        BusinessLogger.logDeleted(LeaveRequest.class, id);
     }
 
+    @Override
     public LeaveRequest update(Long id, LeaveRequest leaveRequest) {
         LeaveRequest existing = leaveRequestRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Leave Request",id));
+                .orElseThrow(() -> new ResourceNotFoundException("Leave Request", id));
 
         existing.setEmployee(leaveRequest.getEmployee());
         existing.setRequestedDays(leaveRequest.getRequestedDays());
@@ -97,10 +106,10 @@ public class LeaveRequestService implements LeaveRequestInterface{
         existing.setCancellationReason(leaveRequest.getCancellationReason());
         existing.setStartDate(leaveRequest.getStartDate());
         existing.setEndDate(leaveRequest.getEndDate());
-        existing.setIsCancelled(leaveRequest.getIsCancelled());
-        existing.setApprovedBy(leaveRequest.getApprovedBy());
         existing.setLeaveType(leaveRequest.getLeaveType());
 
-        return leaveRequestRepository.save(existing);
+        LeaveRequest updated = leaveRequestRepository.save(existing);
+        BusinessLogger.logUpdated(LeaveRequest.class, updated.getId(), "LeaveRequest");
+        return updated;
     }
 }

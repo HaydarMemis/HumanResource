@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.service;
 
+import com.neg.hr.human.resource.business.BusinessLogger;
 import com.neg.hr.human.resource.entity.Person;
 import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.PersonRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,7 +15,6 @@ public class PersonService implements PersonInterface {
 
     private final PersonRepository personRepository;
 
-    // Constructor injection
     public PersonService(PersonRepository personRepository) {
         this.personRepository = personRepository;
     }
@@ -62,7 +61,9 @@ public class PersonService implements PersonInterface {
 
     @Override
     public Person save(Person person) {
-        return personRepository.save(person);
+        Person saved = personRepository.save(person);
+        BusinessLogger.logCreated(Person.class, saved.getId(), saved.getFirstName() + " " + saved.getLastName());
+        return saved;
     }
 
     @Override
@@ -81,6 +82,7 @@ public class PersonService implements PersonInterface {
             throw new ResourceNotFoundException("Person", id);
         }
         personRepository.deleteById(id);
+        BusinessLogger.logDeleted(Person.class, id);
     }
 
     @Override
@@ -98,6 +100,8 @@ public class PersonService implements PersonInterface {
         existing.setAddress(person.getAddress());
         existing.setMaritalStatus(person.getMaritalStatus());
 
-        return personRepository.save(existing);
+        Person updated = personRepository.save(existing);
+        BusinessLogger.logUpdated(Person.class, updated.getId(), updated.getFirstName() + " " + updated.getLastName());
+        return updated;
     }
 }

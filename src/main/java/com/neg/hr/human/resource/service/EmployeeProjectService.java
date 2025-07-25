@@ -1,5 +1,6 @@
 package com.neg.hr.human.resource.service;
 
+import com.neg.hr.human.resource.business.BusinessLogger;
 import com.neg.hr.human.resource.entity.EmployeeProject;
 import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.EmployeeProjectRepository;
@@ -17,7 +18,9 @@ public class EmployeeProjectService implements EmployeeProjectInterface {
 
     @Override
     public EmployeeProject save(EmployeeProject employeeProject) {
-        return employeeProjectRepository.save(employeeProject);
+        EmployeeProject saved = employeeProjectRepository.save(employeeProject);
+        BusinessLogger.logCreated(EmployeeProject.class, saved.getId(), "EmployeeProject");
+        return saved;
     }
 
     @Override
@@ -36,22 +39,25 @@ public class EmployeeProjectService implements EmployeeProjectInterface {
             throw new ResourceNotFoundException("Employee Project", id);
         }
         employeeProjectRepository.deleteById(id);
+        BusinessLogger.logDeleted(EmployeeProject.class, id);
     }
 
     @Override
     public void deleteByEmployeeId(Long employeeId) {
-        if (!employeeProjectRepository.existsById(employeeId)) {
+        if (!employeeProjectRepository.existsByEmployee_Id(employeeId)) {
             throw new ResourceNotFoundException("Employee Project", employeeId);
         }
-         employeeProjectRepository.deleteByEmployeeId(employeeId);
+        employeeProjectRepository.deleteByEmployee_Id(employeeId);
+        BusinessLogger.logDeleted(EmployeeProject.class, employeeId);
     }
 
     @Override
     public void deleteByProjectId(Long projectId) {
-        if (!employeeProjectRepository.existsById(projectId)) {
+        if (!employeeProjectRepository.existsByProject_Id(projectId)) {
             throw new ResourceNotFoundException("Employee Project", projectId);
         }
-        employeeProjectRepository.deleteByProjectId(projectId);
+        employeeProjectRepository.deleteByProject_Id(projectId);
+        BusinessLogger.logDeleted(EmployeeProject.class, projectId);
     }
 
     @Override
@@ -61,7 +67,9 @@ public class EmployeeProjectService implements EmployeeProjectInterface {
 
         existing.setEmployee(employeeProject.getEmployee());
         existing.setProject(employeeProject.getProject());
-        return employeeProjectRepository.save(existing);
+        EmployeeProject updated = employeeProjectRepository.save(existing);
+        BusinessLogger.logUpdated(EmployeeProject.class, updated.getId(), "EmployeeProject");
+        return updated;
     }
 
     @Override
@@ -76,6 +84,6 @@ public class EmployeeProjectService implements EmployeeProjectInterface {
 
     @Override
     public boolean existsByEmployeeIdAndProjectId(Long employeeId, Long projectId) {
-        return employeeProjectRepository.existsByEmployeeIdAndProjectId(employeeId, projectId);
+        return employeeProjectRepository.existsByEmployee_IdAndProject_Id(employeeId, projectId);
     }
 }

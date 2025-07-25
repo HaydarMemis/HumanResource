@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.service;
 
+import com.neg.hr.human.resource.business.BusinessLogger;
 import com.neg.hr.human.resource.entity.Position;
 import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.PositionRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class PositionService implements PositionInterface{
+public class PositionService implements PositionInterface {
+
     private final PositionRepository positionRepository;
 
     public PositionService(PositionRepository positionRepository) {
@@ -35,7 +36,9 @@ public class PositionService implements PositionInterface{
 
     @Override
     public Position save(Position position) {
-        return positionRepository.save(position);
+        Position saved = positionRepository.save(position);
+        BusinessLogger.logCreated(Position.class, saved.getId(), saved.getTitle());
+        return saved;
     }
 
     @Override
@@ -50,19 +53,22 @@ public class PositionService implements PositionInterface{
 
     @Override
     public void deleteById(Long id) {
-        if(!positionRepository.existsById(id)){
-            throw new ResourceNotFoundException("Position",id);
+        if(!positionRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Position", id);
         }
         positionRepository.deleteById(id);
+        BusinessLogger.logDeleted(Position.class, id);
     }
 
     @Override
     public Position update(Long id, Position position) {
         Position existing = positionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Position",id));
+                .orElseThrow(() -> new ResourceNotFoundException("Position", id));
         existing.setTitle(position.getTitle());
         existing.setBaseSalary(position.getBaseSalary());
 
-        return positionRepository.save(existing);
+        Position updated = positionRepository.save(existing);
+        BusinessLogger.logUpdated(Position.class, updated.getId(), updated.getTitle());
+        return updated;
     }
 }

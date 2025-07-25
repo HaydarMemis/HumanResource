@@ -78,7 +78,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Employee save(Employee employee) {
         Employee saved = employeeRepository.save(employee);
 
-        // Full name birleştiriliyor (Person'da firstName ve lastName olduğunu varsayalım)
         String fullName = saved.getPerson().getFirstName() + " " + saved.getPerson().getLastName();
         BusinessLogger.logEmployeeCreated(saved.getId(), fullName);
 
@@ -120,6 +119,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         existing.setManager(employee.getManager());
         existing.setRegistrationNumber(employee.getRegistrationNumber());
 
-        return employeeRepository.save(existing);
+        Employee updated = employeeRepository.save(existing);
+
+        String fullName = updated.getPerson().getFirstName() + " " + updated.getPerson().getLastName();
+        BusinessLogger.logEmployeeUpdated(updated.getId(), fullName);
+
+        return updated;
     }
 }

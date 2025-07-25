@@ -3,6 +3,7 @@ package com.neg.hr.human.resource.service;
 import com.neg.hr.human.resource.entity.Department;
 import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.DepartmentRepository;
+import com.neg.hr.human.resource.business.BusinessLogger;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Optional;
 
 @Service
 public class DepartmentService implements DepartmentInterface {
+
     private final DepartmentRepository departmentRepository;
 
     public DepartmentService(DepartmentRepository departmentRepository) {
@@ -38,7 +40,9 @@ public class DepartmentService implements DepartmentInterface {
 
     @Override
     public Department save(Department department) {
-        return departmentRepository.save(department);
+        Department saved = departmentRepository.save(department);
+        BusinessLogger.logCreated(Department.class, saved.getId(), saved.getName());
+        return saved;
     }
 
     @Override
@@ -57,14 +61,19 @@ public class DepartmentService implements DepartmentInterface {
             throw new ResourceNotFoundException("Department", id);
         }
         departmentRepository.deleteById(id);
+        BusinessLogger.logDeleted(Department.class, id);
     }
 
     @Override
     public Department update(Long id, Department department) {
         Department existing = departmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Department",id));
+                .orElseThrow(() -> new ResourceNotFoundException("Department", id));
+
         existing.setName(department.getName());
         existing.setLocation(department.getLocation());
-        return departmentRepository.save(existing);
+
+        Department updated = departmentRepository.save(existing);
+        BusinessLogger.logUpdated(Department.class, updated.getId(), updated.getName());
+        return updated;
     }
 }

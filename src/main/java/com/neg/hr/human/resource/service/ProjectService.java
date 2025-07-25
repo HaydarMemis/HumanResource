@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.service;
 
+import com.neg.hr.human.resource.business.BusinessLogger;
 import com.neg.hr.human.resource.entity.Project;
 import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.ProjectRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +20,9 @@ public class ProjectService implements ProjectInterface {
 
     @Override
     public Project save(Project project) {
-        return projectRepository.save(project);
+        Project saved = projectRepository.save(project);
+        BusinessLogger.logCreated(Project.class, saved.getId(), saved.getName());
+        return saved;
     }
 
     @Override
@@ -45,19 +47,22 @@ public class ProjectService implements ProjectInterface {
 
     @Override
     public void deleteById(Long id) {
-        if(!projectRepository.existsById(id)){
-            throw new ResourceNotFoundException("Project",id);
+        if(!projectRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Project", id);
         }
         projectRepository.deleteById(id);
+        BusinessLogger.logDeleted(Project.class, id);
     }
 
     @Override
     public Project update(Long id, Project project) {
         Project existing = projectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Project",id));
+                .orElseThrow(() -> new ResourceNotFoundException("Project", id));
 
         existing.setName(project.getName());
 
-        return projectRepository.save(existing);
+        Project updated = projectRepository.save(existing);
+        BusinessLogger.logUpdated(Project.class, updated.getId(), updated.getName());
+        return updated;
     }
 }

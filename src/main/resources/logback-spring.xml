@@ -5,8 +5,9 @@
 
     <appender name="BUSINESS" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/business.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/business.%d{yyyy-MM-dd}.log</fileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/business.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -14,8 +15,15 @@
         </encoder>
     </appender>
 
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <logger name="com.neg.hr.human.resource.business" level="INFO" additivity="false">
         <appender-ref ref="BUSINESS"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
 
 </configuration>

@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.service;
 
+import com.neg.hr.human.resource.business.BusinessLogger;
 import com.neg.hr.human.resource.entity.LeaveType;
 import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.LeaveTypeRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -51,26 +51,34 @@ public class LeaveTypeService implements LeaveTypeInterface {
         return leaveTypeRepository.findByValidAfterDaysGreaterThan(days);
     }
 
+    @Override
     public LeaveType save(LeaveType leaveType) {
-        return leaveTypeRepository.save(leaveType);
+        LeaveType saved = leaveTypeRepository.save(leaveType);
+        BusinessLogger.logCreated(LeaveType.class, saved.getId(), saved.getName());
+        return saved;
     }
 
+    @Override
     public LeaveType findById(Long id) {
         return leaveTypeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Leave Type", id));
     }
 
+    @Override
     public List<LeaveType> findAll() {
         return leaveTypeRepository.findAll();
     }
 
+    @Override
     public void delete(Long id) {
         if(!leaveTypeRepository.existsById(id)) {
             throw new ResourceNotFoundException("Leave Type", id);
         }
         leaveTypeRepository.deleteById(id);
+        BusinessLogger.logDeleted(LeaveType.class, id);
     }
 
+    @Override
     public LeaveType update(Long id, LeaveType leaveType) {
         LeaveType existing = leaveTypeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Leave Type", id));
@@ -85,6 +93,8 @@ public class LeaveTypeService implements LeaveTypeInterface {
         existing.setResetPeriod(leaveType.getResetPeriod());
         existing.setValidUntilDays(leaveType.getValidUntilDays());
 
-        return leaveTypeRepository.save(existing);
+        LeaveType updated = leaveTypeRepository.save(existing);
+        BusinessLogger.logUpdated(LeaveType.class, updated.getId(), updated.getName());
+        return updated;
     }
 }
