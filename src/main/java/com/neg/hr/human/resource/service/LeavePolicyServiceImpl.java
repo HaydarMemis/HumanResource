@@ -16,13 +16,11 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     }
 
     private LocalDate getBirthDate(Employee employee) {
-        if (employee.getPerson() == null) return null;
-        return employee.getPerson().getBirthDate();
+        return employee.getPerson() != null ? employee.getPerson().getBirthDate() : null;
     }
 
     private String getGender(Employee employee) {
-        if (employee.getPerson() == null) return null;
-        return employee.getPerson().getGender();
+        return employee.getPerson() != null ? employee.getPerson().getGender() : null;
     }
 
     private int calculateYearsBetween(LocalDate startDate, LocalDate endDate) {
@@ -37,15 +35,17 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
 
         if (yearsWorked < 1) return 0;
         if (yearsWorked < 5) return 14;
-        else if (yearsWorked < 15) return 20;
-        else return 26;
+        if (yearsWorked < 15) return 20;
+        return 26;
     }
 
     @Override
     public int calculateAgeBasedLeaveBonus(Employee employee) {
         LocalDate birthDate = getBirthDate(employee);
+        LocalDate startDate = getEmploymentStartDate(employee);
+
         int age = calculateYearsBetween(birthDate, LocalDate.now());
-        int seniority = calculateYearsBetween(getEmploymentStartDate(employee), LocalDate.now());
+        int seniority = calculateYearsBetween(startDate, LocalDate.now());
 
         return (age >= 50 && seniority >= 1) ? 20 : 0;
     }
@@ -54,35 +54,25 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     public boolean isBirthdayLeaveEligible(Employee employee, LocalDate date) {
         LocalDate birthDate = getBirthDate(employee);
         if (birthDate == null) return false;
-
-        return birthDate.getMonth() == date.getMonth()
-                && birthDate.getDayOfMonth() == date.getDayOfMonth();
+        return birthDate.getMonth() == date.getMonth() &&
+                birthDate.getDayOfMonth() == date.getDayOfMonth();
     }
 
     @Override
     public int calculateMaternityLeaveDays(Employee employee, boolean multiplePregnancy) {
         String gender = getGender(employee);
-        if (gender == null || !gender.equalsIgnoreCase("female")) {
-            return 0;
-        }
-        return multiplePregnancy ? 224 : 168; // gün olarak (32 veya 24 hafta)
+        if (gender == null || !gender.equalsIgnoreCase("female")) return 0;
+        return multiplePregnancy ? 224 : 168;
     }
 
     @Override
     public int calculateBereavementLeaveDays(String relation) {
-        switch (relation.toLowerCase()) {
-            case "parent":
-            case "sibling":
-            case "child":
-            case "spouse":
-                return 3;
-            case "grandparent":
-            case "aunt":
-            case "uncle":
-                return 1;
-            default:
-                return 0;
-        }
+        if (relation == null) return 0;
+        return switch (relation.toLowerCase()) {
+            case "parent", "sibling", "child", "spouse" -> 3;
+            case "grandparent", "aunt", "uncle" -> 1;
+            default -> 0;
+        };
     }
 
     @Override
@@ -100,10 +90,8 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
         LocalDate startDate = getEmploymentStartDate(employee);
         if (startDate == null) return false;
 
-        int maxBorrowable = 7;
         int yearsWorked = calculateYearsBetween(startDate, LocalDate.now());
-
-        if (yearsWorked < 1) maxBorrowable = 3;
+        int maxBorrowable = (yearsWorked < 1) ? 3 : 7;
 
         return (currentBorrowed + requestedDays) <= maxBorrowable;
     }

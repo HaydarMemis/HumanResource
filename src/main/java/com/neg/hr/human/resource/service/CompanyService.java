@@ -1,8 +1,8 @@
 package com.neg.hr.human.resource.service;
 
 import com.neg.hr.human.resource.entity.Company;
+import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.CompanyRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,13 +44,16 @@ public class CompanyService implements CompanyInterface {
 
     @Override
     public void deleteById(Long id) {
+        if (!companyRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Company",id);
+        }
         companyRepository.deleteById(id);
     }
 
     @Override
     public Company update(Long id, Company company) {
         Company existing = companyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Company not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Company", id));
 
         existing.setName(company.getName());
 

@@ -1,8 +1,8 @@
 package com.neg.hr.human.resource.service;
 
 import com.neg.hr.human.resource.entity.Department;
+import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.DepartmentRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,13 +53,16 @@ public class DepartmentService implements DepartmentInterface {
 
     @Override
     public void deleteById(Long id) {
+        if (!departmentRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Department", id);
+        }
         departmentRepository.deleteById(id);
     }
 
     @Override
     public Department update(Long id, Department department) {
         Department existing = departmentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Department not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Department",id));
         existing.setName(department.getName());
         existing.setLocation(department.getLocation());
         return departmentRepository.save(existing);

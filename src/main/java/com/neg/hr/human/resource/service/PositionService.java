@@ -1,6 +1,7 @@
 package com.neg.hr.human.resource.service;
 
 import com.neg.hr.human.resource.entity.Position;
+import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.PositionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -49,12 +50,16 @@ public class PositionService implements PositionInterface{
 
     @Override
     public void deleteById(Long id) {
+        if(!positionRepository.existsById(id)){
+            throw new ResourceNotFoundException("Position",id);
+        }
         positionRepository.deleteById(id);
     }
 
     @Override
     public Position update(Long id, Position position) {
-        Position existing = positionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Position not found with id " + id));
+        Position existing = positionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Position",id));
         existing.setTitle(position.getTitle());
         existing.setBaseSalary(position.getBaseSalary());
 

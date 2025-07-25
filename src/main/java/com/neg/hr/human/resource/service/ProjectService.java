@@ -1,6 +1,7 @@
 package com.neg.hr.human.resource.service;
 
 import com.neg.hr.human.resource.entity.Project;
+import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.ProjectRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -44,13 +45,16 @@ public class ProjectService implements ProjectInterface {
 
     @Override
     public void deleteById(Long id) {
+        if(!projectRepository.existsById(id)){
+            throw new ResourceNotFoundException("Project",id);
+        }
         projectRepository.deleteById(id);
     }
 
     @Override
     public Project update(Long id, Project project) {
         Project existing = projectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Project",id));
 
         existing.setName(project.getName());
 

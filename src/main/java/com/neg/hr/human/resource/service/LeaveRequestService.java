@@ -2,8 +2,8 @@ package com.neg.hr.human.resource.service;
 
 import com.neg.hr.human.resource.entity.LeaveRequest;
 import com.neg.hr.human.resource.entity.LeaveType;
+import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.LeaveRequestRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -67,7 +67,7 @@ public class LeaveRequestService implements LeaveRequestInterface{
 
     public LeaveRequest findById(Long id) {
         return leaveRequestRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("LeaveRequest not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Leave Request",id));
     }
 
     public List<LeaveRequest> findAll() {
@@ -75,11 +75,16 @@ public class LeaveRequestService implements LeaveRequestInterface{
     }
 
     public void deleteById(Long id) {
+        if (!leaveRequestRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Leave Request", id);
+        }
         leaveRequestRepository.deleteById(id);
     }
 
     public LeaveRequest update(Long id, LeaveRequest leaveRequest) {
-        LeaveRequest existing = findById(id);
+        LeaveRequest existing = leaveRequestRepository.findById(id)
+                .orElseThrow(()->new ResourceNotFoundException("Leave Request",id));
+
         existing.setEmployee(leaveRequest.getEmployee());
         existing.setRequestedDays(leaveRequest.getRequestedDays());
         existing.setStatus(leaveRequest.getStatus());
@@ -95,6 +100,7 @@ public class LeaveRequestService implements LeaveRequestInterface{
         existing.setIsCancelled(leaveRequest.getIsCancelled());
         existing.setApprovedBy(leaveRequest.getApprovedBy());
         existing.setLeaveType(leaveRequest.getLeaveType());
+
         return leaveRequestRepository.save(existing);
     }
 }

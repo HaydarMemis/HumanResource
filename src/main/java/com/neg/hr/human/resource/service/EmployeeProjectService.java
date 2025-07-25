@@ -1,8 +1,8 @@
 package com.neg.hr.human.resource.service;
 
 import com.neg.hr.human.resource.entity.EmployeeProject;
+import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.EmployeeProjectRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,26 +32,32 @@ public class EmployeeProjectService implements EmployeeProjectInterface {
 
     @Override
     public void deleteById(Long id) {
+        if (!employeeProjectRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Employee Project", id);
+        }
         employeeProjectRepository.deleteById(id);
     }
 
     @Override
     public void deleteByEmployeeId(Long employeeId) {
+        if (!employeeProjectRepository.existsById(employeeId)) {
+            throw new ResourceNotFoundException("Employee Project", employeeId);
+        }
          employeeProjectRepository.deleteByEmployeeId(employeeId);
-
     }
 
     @Override
     public void deleteByProjectId(Long projectId) {
+        if (!employeeProjectRepository.existsById(projectId)) {
+            throw new ResourceNotFoundException("Employee Project", projectId);
+        }
         employeeProjectRepository.deleteByProjectId(projectId);
-
-
     }
 
     @Override
     public EmployeeProject update(Long id, EmployeeProject employeeProject) {
         EmployeeProject existing = employeeProjectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("EmployeeProject not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee Project", id));
 
         existing.setEmployee(employeeProject.getEmployee());
         existing.setProject(employeeProject.getProject());

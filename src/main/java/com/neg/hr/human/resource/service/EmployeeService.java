@@ -36,4 +36,6 @@ public interface EmployeeService {
     List<Employee> findAll();
 
     Optional<Employee> findById(Long id);
+
+    Employee update(Long id, Employee employee);
 }

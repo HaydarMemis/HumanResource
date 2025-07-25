@@ -1,6 +1,7 @@
 package com.neg.hr.human.resource.service;
 
 import com.neg.hr.human.resource.entity.Employee;
+import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.EmployeeRepository;
 import org.springframework.stereotype.Service;
 
@@ -80,6 +81,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public void deleteById(Long id) {
+        if(!employeeRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Employee", id);
+        }
         employeeRepository.deleteById(id);
     }
 
@@ -91,5 +95,24 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Optional<Employee> findById(Long id) {
         return employeeRepository.findById(id);
+    }
+
+    @Override
+    public Employee update(Long id, Employee employee) {
+        Employee existing = employeeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", id));
+
+        existing.setCompany(employee.getCompany());
+        existing.setHireDate(employee.getHireDate());
+        existing.setEmploymentStartDate(employee.getEmploymentStartDate());
+        existing.setEmploymentEndDate(employee.getEmploymentEndDate());
+        existing.setIsActive(employee.getIsActive());
+        existing.setDepartment(employee.getDepartment());
+        existing.setPosition(employee.getPosition());
+        existing.setPerson(employee.getPerson());
+        existing.setManager(employee.getManager());
+        existing.setRegistrationNumber(employee.getRegistrationNumber());
+
+        return employeeRepository.save(existing);
     }
 }

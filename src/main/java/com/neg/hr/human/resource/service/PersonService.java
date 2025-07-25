@@ -1,6 +1,7 @@
 package com.neg.hr.human.resource.service;
 
 import com.neg.hr.human.resource.entity.Person;
+import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.PersonRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -77,7 +78,7 @@ public class PersonService implements PersonInterface {
     @Override
     public void deleteById(Long id) {
         if (!personRepository.existsById(id)) {
-            throw new EntityNotFoundException("Person not found with id " + id);
+            throw new ResourceNotFoundException("Person", id);
         }
         personRepository.deleteById(id);
     }
@@ -85,7 +86,7 @@ public class PersonService implements PersonInterface {
     @Override
     public Person update(Long id, Person person) {
         Person existing = personRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Person not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Person", id));
 
         existing.setFirstName(person.getFirstName());
         existing.setLastName(person.getLastName());

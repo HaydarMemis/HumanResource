@@ -1,6 +1,7 @@
 package com.neg.hr.human.resource.service;
 
 import com.neg.hr.human.resource.entity.LeaveType;
+import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.LeaveTypeRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,7 @@ public class LeaveTypeService implements LeaveTypeInterface {
 
     public LeaveType findById(Long id) {
         return leaveTypeRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Employee not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Leave Type", id));
     }
 
     public List<LeaveType> findAll() {
@@ -64,11 +65,16 @@ public class LeaveTypeService implements LeaveTypeInterface {
     }
 
     public void delete(Long id) {
+        if(!leaveTypeRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Leave Type", id);
+        }
         leaveTypeRepository.deleteById(id);
     }
 
     public LeaveType update(Long id, LeaveType leaveType) {
-        LeaveType existing = findById(id);
+        LeaveType existing = leaveTypeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Leave Type", id));
+
         existing.setName(leaveType.getName());
         existing.setBorrowableLimit(leaveType.getBorrowableLimit());
         existing.setValidAfterDays(leaveType.getValidAfterDays());
@@ -78,6 +84,7 @@ public class LeaveTypeService implements LeaveTypeInterface {
         existing.setGenderRequired(leaveType.getGenderRequired());
         existing.setResetPeriod(leaveType.getResetPeriod());
         existing.setValidUntilDays(leaveType.getValidUntilDays());
+
         return leaveTypeRepository.save(existing);
     }
 }

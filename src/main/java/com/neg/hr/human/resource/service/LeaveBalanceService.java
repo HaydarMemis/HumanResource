@@ -1,8 +1,8 @@
 package com.neg.hr.human.resource.service;
 
 import com.neg.hr.human.resource.entity.LeaveBalance;
+import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.LeaveBalanceRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,13 +60,16 @@ public class LeaveBalanceService implements LeaveBalanceInterface {
 
     @Override
     public void deleteById(Long id) {
+        if(!leaveBalanceRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Leave Balance", id);
+        }
         leaveBalanceRepository.deleteById(id);
     }
 
     @Override
     public LeaveBalance update(Long id, LeaveBalance leaveBalance) {
         LeaveBalance existing = leaveBalanceRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("LeaveBalance not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Leave Balance", id));
 
         existing.setEmployee(leaveBalance.getEmployee());
         existing.setLeaveType(leaveBalance.getLeaveType());
