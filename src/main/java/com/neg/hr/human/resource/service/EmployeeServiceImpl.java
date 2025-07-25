@@ -1,5 +1,6 @@
 package com.neg.hr.human.resource.service;
 
+import com.neg.hr.human.resource.business.BusinessLogger;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.EmployeeRepository;
@@ -14,7 +15,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
 
-    // Constructor injection
     public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
     }
@@ -76,15 +76,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Employee save(Employee employee) {
-        return employeeRepository.save(employee);
+        Employee saved = employeeRepository.save(employee);
+
+        // Full name birleştiriliyor (Person'da firstName ve lastName olduğunu varsayalım)
+        String fullName = saved.getPerson().getFirstName() + " " + saved.getPerson().getLastName();
+        BusinessLogger.logEmployeeCreated(saved.getId(), fullName);
+
+        return saved;
     }
 
     @Override
     public void deleteById(Long id) {
-        if(!employeeRepository.existsById(id)) {
+        if (!employeeRepository.existsById(id)) {
             throw new ResourceNotFoundException("Employee", id);
         }
         employeeRepository.deleteById(id);
+        BusinessLogger.logEmployeeDeleted(id);
     }
 
     @Override
