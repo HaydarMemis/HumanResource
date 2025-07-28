@@ -37,5 +37,6 @@ build/
 
 ### Application yml ###
 **/application.yml
+**/business.log
 
 .DS_Store
