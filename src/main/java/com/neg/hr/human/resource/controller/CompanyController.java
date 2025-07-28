@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.entity.Company;
-import com.neg.hr.human.resource.service.CompanyService;
+import com.neg.hr.human.resource.service.impl.CompanyServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +12,9 @@ import java.util.Optional;
 @RequestMapping("/api/companies")
 public class CompanyController {
 
-    private final CompanyService companyService;
+    private final CompanyServiceImpl companyService;
 
-    public CompanyController(CompanyService companyService) {
+    public CompanyController(CompanyServiceImpl companyService) {
         this.companyService = companyService;
     }
 

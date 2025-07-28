@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.entity.LeaveBalance;
-import com.neg.hr.human.resource.service.LeaveBalanceService;
+import com.neg.hr.human.resource.service.impl.LeaveBalanceServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +12,9 @@ import java.util.Optional;
 @RequestMapping("/api/leave_balances")
 public class LeaveBalanceController {
 
-    private final LeaveBalanceService leaveBalanceService;
+    private final LeaveBalanceServiceImpl leaveBalanceService;
 
-    public LeaveBalanceController(LeaveBalanceService leaveBalanceService) {
+    public LeaveBalanceController(LeaveBalanceServiceImpl leaveBalanceService) {
         this.leaveBalanceService = leaveBalanceService;
     }
 

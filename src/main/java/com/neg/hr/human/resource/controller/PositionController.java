@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.entity.Position;
-import com.neg.hr.human.resource.service.PositionService;
+import com.neg.hr.human.resource.service.impl.PositionServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,10 +13,10 @@ import java.util.Optional;
 @RequestMapping("/api/positions")
 public class PositionController {
 
-    private final PositionService positionService;
+    private final PositionServiceImpl positionService;
 
     // Constructor injection
-    public PositionController(PositionService positionService) {
+    public PositionController(PositionServiceImpl positionService) {
         this.positionService = positionService;
     }
 

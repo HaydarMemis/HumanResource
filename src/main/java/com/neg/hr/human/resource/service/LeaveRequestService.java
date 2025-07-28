@@ -1,115 +1,38 @@
 package com.neg.hr.human.resource.service;
 
-import com.neg.hr.human.resource.business.BusinessLogger;
 import com.neg.hr.human.resource.entity.LeaveRequest;
 import com.neg.hr.human.resource.entity.LeaveType;
-import com.neg.hr.human.resource.exception.ResourceNotFoundException;
-import com.neg.hr.human.resource.repository.LeaveRequestRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Service
-@RequiredArgsConstructor
-public class LeaveRequestService implements LeaveRequestInterface {
+public interface LeaveRequestService {
 
-    private final LeaveRequestRepository leaveRequestRepository;
+    List<LeaveRequest> findByEmployeeId(Long employeeId);
 
-    @Override
-    public List<LeaveRequest> findByEmployeeId(Long employeeId) {
-        return leaveRequestRepository.findByEmployeeId(employeeId);
-    }
+    List<LeaveRequest> findByStartDateBetween(LocalDate start, LocalDate end);
 
-    @Override
-    public List<LeaveRequest> findByStartDateBetween(LocalDate start, LocalDate end) {
-        return leaveRequestRepository.findByStartDateBetween(start, end);
-    }
+    List<LeaveRequest> findByEmployeeIdAndStatus(Long employeeId, String status);
 
-    @Override
-    public List<LeaveRequest> findByEmployeeIdAndStatus(Long employeeId, String status) {
-        return leaveRequestRepository.findByEmployeeIdAndStatus(employeeId, status);
-    }
+    List<LeaveRequest> findByStatus(String status);
 
-    @Override
-    public List<LeaveRequest> findByStatus(String status) {
-        return leaveRequestRepository.findByStatus(status);
-    }
+    List<LeaveRequest> findByIsCancelledTrue();
 
-    @Override
-    public List<LeaveRequest> findByIsCancelledTrue() {
-        return leaveRequestRepository.findByIsCancelledTrue();
-    }
+    List<LeaveRequest> findByApprovedById(Long approverId);
 
-    @Override
-    public List<LeaveRequest> findByApprovedById(Long approverId) {
-        return leaveRequestRepository.findByApprovedById(approverId);
-    }
+    List<LeaveRequest> findByLeaveType(LeaveType leaveType);
 
-    @Override
-    public List<LeaveRequest> findByLeaveType(LeaveType leaveType) {
-        return leaveRequestRepository.findByLeaveType(leaveType);
-    }
+    List<LeaveRequest> findByEmployeeIdAndLeaveTypeIdAndStartDateBetween(Long employeeId, Long leaveTypeId, LocalDate startDate, LocalDate endDate);
 
-    @Override
-    public List<LeaveRequest> findByEmployeeIdAndLeaveTypeIdAndStartDateBetween(Long employeeId, Long leaveTypeId, LocalDate startDate, LocalDate endDate) {
-        return leaveRequestRepository.findByEmployeeIdAndLeaveTypeIdAndStartDateBetween(employeeId, leaveTypeId, startDate, endDate);
-    }
+    List<LeaveRequest> findOverlappingRequests(Long employeeId, LocalDate startDate, LocalDate endDate);
 
-    @Override
-    public List<LeaveRequest> findOverlappingRequests(Long employeeId, LocalDate startDate, LocalDate endDate) {
-        return leaveRequestRepository.findOverlappingRequests(employeeId, startDate, endDate);
-    }
+    LeaveRequest save(LeaveRequest leaveRequest);
 
-    @Override
-    public LeaveRequest save(LeaveRequest leaveRequest) {
-        LeaveRequest saved = leaveRequestRepository.save(leaveRequest);
-        BusinessLogger.logCreated(LeaveRequest.class, saved.getId(), "LeaveRequest");
-        return saved;
-    }
+    LeaveRequest findById(Long id);
 
-    @Override
-    public LeaveRequest findById(Long id) {
-        return leaveRequestRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Request", id));
-    }
+    List<LeaveRequest> findAll();
 
-    @Override
-    public List<LeaveRequest> findAll() {
-        return leaveRequestRepository.findAll();
-    }
+    void deleteById(Long id);
 
-    @Override
-    public void deleteById(Long id) {
-        if (!leaveRequestRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Leave Request", id);
-        }
-        leaveRequestRepository.deleteById(id);
-        BusinessLogger.logDeleted(LeaveRequest.class, id);
-    }
-
-    @Override
-    public LeaveRequest update(Long id, LeaveRequest leaveRequest) {
-        LeaveRequest existing = leaveRequestRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Request", id));
-
-        existing.setEmployee(leaveRequest.getEmployee());
-        existing.setRequestedDays(leaveRequest.getRequestedDays());
-        existing.setStatus(leaveRequest.getStatus());
-        existing.setReason(leaveRequest.getReason());
-        existing.setApprovedBy(leaveRequest.getApprovedBy());
-        existing.setApprovedAt(leaveRequest.getApprovedAt());
-        existing.setApprovalNote(leaveRequest.getApprovalNote());
-        existing.setIsCancelled(leaveRequest.getIsCancelled());
-        existing.setCancelledAt(leaveRequest.getCancelledAt());
-        existing.setCancellationReason(leaveRequest.getCancellationReason());
-        existing.setStartDate(leaveRequest.getStartDate());
-        existing.setEndDate(leaveRequest.getEndDate());
-        existing.setLeaveType(leaveRequest.getLeaveType());
-
-        LeaveRequest updated = leaveRequestRepository.save(existing);
-        BusinessLogger.logUpdated(LeaveRequest.class, updated.getId(), "LeaveRequest");
-        return updated;
-    }
+    LeaveRequest update(Long id, LeaveRequest leaveRequest);
 }

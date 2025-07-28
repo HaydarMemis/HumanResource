@@ -1,9 +1,10 @@
-package com.neg.hr.human.resource.service;
+package com.neg.hr.human.resource.service.impl;
 
 import com.neg.hr.human.resource.business.BusinessLogger;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.EmployeeRepository;
+import com.neg.hr.human.resource.service.EmployeeService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

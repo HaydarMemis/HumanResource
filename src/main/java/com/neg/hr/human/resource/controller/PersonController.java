@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.entity.Person;
-import com.neg.hr.human.resource.service.PersonService;
+import com.neg.hr.human.resource.service.impl.PersonServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,10 +13,10 @@ import java.util.Optional;
 @RequestMapping("/api/persons")
 public class PersonController {
 
-    private final PersonService personService;
+    private final PersonServiceImpl personService;
 
     // Constructor injection (Spring automatically injects)
-    public PersonController(PersonService personService) {
+    public PersonController(PersonServiceImpl personService) {
         this.personService = personService;
     }
 

@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.entity.Project;
-import com.neg.hr.human.resource.service.ProjectService;
+import com.neg.hr.human.resource.service.impl.ProjectServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +12,9 @@ import java.util.Optional;
 @RequestMapping("/api/projects")
 public class ProjectController {
 
-    private final ProjectService projectService;
+    private final ProjectServiceImpl projectService;
 
-    public ProjectController(ProjectService projectService) {
+    public ProjectController(ProjectServiceImpl projectService) {
         this.projectService = projectService;
     }
 

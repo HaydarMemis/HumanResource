@@ -1,62 +1,22 @@
 package com.neg.hr.human.resource.service;
 
 import com.neg.hr.human.resource.entity.Company;
-import com.neg.hr.human.resource.exception.ResourceNotFoundException;
-import com.neg.hr.human.resource.repository.CompanyRepository;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
-public class CompanyService implements CompanyInterface {
+public interface CompanyService {
+    Company save(Company company);
 
-    private final CompanyRepository companyRepository;
+    Optional<Company> findById(Long id);
 
-    public CompanyService(CompanyRepository companyRepository) {
-        this.companyRepository = companyRepository;
-    }
+    Optional<Company> findByName(String name);
 
-    @Override
-    public Company save(Company company) {
-        return companyRepository.save(company);
-    }
+    List<Company> findAll();
 
-    @Override
-    public Optional<Company> findById(Long id) {
-        return companyRepository.findById(id);
-    }
+    boolean existsByName(String name);
 
-    @Override
-    public Optional<Company> findByName(String name) {
-        return companyRepository.findByName(name);
-    }
+    void deleteById(Long id);
 
-    @Override
-    public List<Company> findAll() {
-        return companyRepository.findAll();
-    }
-
-    @Override
-    public boolean existsByName(String name) {
-        return companyRepository.existsByName(name);
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        if (!companyRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Company",id);
-        }
-        companyRepository.deleteById(id);
-    }
-
-    @Override
-    public Company update(Long id, Company company) {
-        Company existing = companyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Company", id));
-
-        existing.setName(company.getName());
-
-        return companyRepository.save(existing);
-    }
+    Company update(Long id, Company company);
 }

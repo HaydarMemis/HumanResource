@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.entity.LeaveRequest;
-import com.neg.hr.human.resource.service.LeaveRequestService;
+import com.neg.hr.human.resource.service.impl.LeaveRequestServiceImpl;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +13,9 @@ import java.util.List;
 @RequestMapping("/api/leave-requests")
 public class LeaveRequestController {
 
-    private final LeaveRequestService leaveRequestService;
+    private final LeaveRequestServiceImpl leaveRequestService;
 
-    public LeaveRequestController(LeaveRequestService leaveRequestService) {
+    public LeaveRequestController(LeaveRequestServiceImpl leaveRequestService) {
         this.leaveRequestService = leaveRequestService;
     }
 

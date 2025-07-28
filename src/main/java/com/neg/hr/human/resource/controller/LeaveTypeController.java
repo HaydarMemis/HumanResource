@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.entity.LeaveType;
-import com.neg.hr.human.resource.service.LeaveTypeService;
+import com.neg.hr.human.resource.service.impl.LeaveTypeServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LeaveTypeController {
 
-    private final LeaveTypeService leaveTypeService;
+    private final LeaveTypeServiceImpl leaveTypeService;
 
     // Get all leave types
     @GetMapping

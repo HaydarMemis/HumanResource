@@ -2,7 +2,7 @@ package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.service.EmployeeService;
-import com.neg.hr.human.resource.service.LeavePolicyService;
+import com.neg.hr.human.resource.service.impl.LeavePolicyServiceImpl;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +13,10 @@ import java.time.LocalDate;
 @RequestMapping("/api/leave_policies")
 public class LeavePolicyController {
 
-    private final LeavePolicyService leavePolicyService;
+    private final LeavePolicyServiceImpl leavePolicyService;
     private final EmployeeService employeeService;
 
-    public LeavePolicyController(LeavePolicyService leavePolicyService, EmployeeService employeeService) {
+    public LeavePolicyController(LeavePolicyServiceImpl leavePolicyService, EmployeeService employeeService) {
         this.leavePolicyService = leavePolicyService;
         this.employeeService = employeeService;
     }

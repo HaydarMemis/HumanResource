@@ -1,7 +1,8 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.entity.EmployeeProject;
-import com.neg.hr.human.resource.service.EmployeeProjectService;
+import com.neg.hr.human.resource.service.impl.EmployeeProjectServiceImpl;
+import com.neg.hr.human.resource.service.impl.EmployeeProjectServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +13,9 @@ import java.util.Optional;
 @RequestMapping("/api/employee-projects")
 public class EmployeeProjectController {
 
-    private final EmployeeProjectService employeeProjectService;
+    private final EmployeeProjectServiceImpl employeeProjectService;
 
-    public EmployeeProjectController(EmployeeProjectService employeeProjectService) {
+    public EmployeeProjectController(EmployeeProjectServiceImpl employeeProjectService) {
         this.employeeProjectService = employeeProjectService;
     }
 

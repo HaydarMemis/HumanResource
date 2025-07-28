@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.entity.Department;
-import com.neg.hr.human.resource.service.DepartmentService;
+import com.neg.hr.human.resource.service.impl.DepartmentServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,10 +12,10 @@ import java.util.Optional;
 @RequestMapping("/api/departments")
 public class DepartmentController {
 
-    private final DepartmentService departmentService;
+    private final DepartmentServiceImpl departmentService;
 
     // Constructor injection
-    public DepartmentController(DepartmentService departmentService) {
+    public DepartmentController(DepartmentServiceImpl departmentService) {
         this.departmentService = departmentService;
     }
 

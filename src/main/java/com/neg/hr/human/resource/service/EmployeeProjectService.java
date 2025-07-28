@@ -1,89 +1,28 @@
 package com.neg.hr.human.resource.service;
 
-import com.neg.hr.human.resource.business.BusinessLogger;
 import com.neg.hr.human.resource.entity.EmployeeProject;
-import com.neg.hr.human.resource.exception.ResourceNotFoundException;
-import com.neg.hr.human.resource.repository.EmployeeProjectRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
-@RequiredArgsConstructor
-public class EmployeeProjectService implements EmployeeProjectInterface {
+public interface EmployeeProjectService {
+    EmployeeProject save(EmployeeProject employeeProject);
 
-    private final EmployeeProjectRepository employeeProjectRepository;
+    Optional<EmployeeProject> findById(Long id);
 
-    @Override
-    public EmployeeProject save(EmployeeProject employeeProject) {
-        EmployeeProject saved = employeeProjectRepository.save(employeeProject);
-        BusinessLogger.logCreated(EmployeeProject.class, saved.getId(), "EmployeeProject");
-        return saved;
-    }
+    List<EmployeeProject> findAll();
 
-    @Override
-    public Optional<EmployeeProject> findById(Long id) {
-        return employeeProjectRepository.findById(id);
-    }
+    List<EmployeeProject> findByEmployeeId(Long employeeId);
 
-    @Override
-    public List<EmployeeProject> findAll() {
-        return employeeProjectRepository.findAll();
-    }
+    List<EmployeeProject> findByProjectId(Long projectId);
 
-    @Override
-    public void deleteById(Long id) {
-        if (!employeeProjectRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Employee Project", id);
-        }
-        employeeProjectRepository.deleteById(id);
-        BusinessLogger.logDeleted(EmployeeProject.class, id);
-    }
+    boolean existsByEmployeeIdAndProjectId(Long employeeId, Long projectId);
 
-    @Override
-    public void deleteByEmployeeId(Long employeeId) {
-        if (!employeeProjectRepository.existsByEmployee_Id(employeeId)) {
-            throw new ResourceNotFoundException("Employee Project", employeeId);
-        }
-        employeeProjectRepository.deleteByEmployee_Id(employeeId);
-        BusinessLogger.logDeleted(EmployeeProject.class, employeeId);
-    }
+    void deleteById(Long id);
 
-    @Override
-    public void deleteByProjectId(Long projectId) {
-        if (!employeeProjectRepository.existsByProject_Id(projectId)) {
-            throw new ResourceNotFoundException("Employee Project", projectId);
-        }
-        employeeProjectRepository.deleteByProject_Id(projectId);
-        BusinessLogger.logDeleted(EmployeeProject.class, projectId);
-    }
+    void deleteByEmployeeId(Long employeeId);
 
-    @Override
-    public EmployeeProject update(Long id, EmployeeProject employeeProject) {
-        EmployeeProject existing = employeeProjectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee Project", id));
+    void deleteByProjectId(Long projectId);
 
-        existing.setEmployee(employeeProject.getEmployee());
-        existing.setProject(employeeProject.getProject());
-        EmployeeProject updated = employeeProjectRepository.save(existing);
-        BusinessLogger.logUpdated(EmployeeProject.class, updated.getId(), "EmployeeProject");
-        return updated;
-    }
-
-    @Override
-    public List<EmployeeProject> findByEmployeeId(Long employeeId) {
-        return employeeProjectRepository.findByEmployeeId(employeeId);
-    }
-
-    @Override
-    public List<EmployeeProject> findByProjectId(Long projectId) {
-        return employeeProjectRepository.findByProjectId(projectId);
-    }
-
-    @Override
-    public boolean existsByEmployeeIdAndProjectId(Long employeeId, Long projectId) {
-        return employeeProjectRepository.existsByEmployee_IdAndProject_Id(employeeId, projectId);
-    }
+    EmployeeProject update(Long id, EmployeeProject employeeProject);
 }

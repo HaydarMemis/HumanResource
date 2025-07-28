@@ -1,100 +1,33 @@
 package com.neg.hr.human.resource.service;
 
-import com.neg.hr.human.resource.business.BusinessLogger;
 import com.neg.hr.human.resource.entity.LeaveType;
-import com.neg.hr.human.resource.exception.ResourceNotFoundException;
-import com.neg.hr.human.resource.repository.LeaveTypeRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
-@RequiredArgsConstructor
-public class LeaveTypeService implements LeaveTypeInterface {
+public interface LeaveTypeService {
+    Optional<LeaveType> findByName(String name);
 
-    private final LeaveTypeRepository leaveTypeRepository;
+    List<LeaveType> findByIsAnnualTrue();
 
-    @Override
-    public Optional<LeaveType> findByName(String name) {
-        return leaveTypeRepository.findByName(name);
-    }
+    List<LeaveType> findByIsAnnualFalse();
 
-    @Override
-    public List<LeaveType> findByIsAnnualTrue() {
-        return leaveTypeRepository.findByIsAnnualTrue();
-    }
+    List<LeaveType> findByIsUnpaidTrue();
 
-    @Override
-    public List<LeaveType> findByIsAnnualFalse() {
-        return leaveTypeRepository.findByIsAnnualFalse();
-    }
+    List<LeaveType> findByGenderRequiredTrue();
 
-    @Override
-    public List<LeaveType> findByIsUnpaidTrue() {
-        return leaveTypeRepository.findByIsUnpaidTrue();
-    }
+    List<LeaveType> findByBorrowableLimitGreaterThan(Integer limit);
 
-    @Override
-    public List<LeaveType> findByGenderRequiredTrue() {
-        return leaveTypeRepository.findByGenderRequiredTrue();
-    }
+    List<LeaveType> findByValidAfterDaysGreaterThan(Integer days);
 
-    @Override
-    public List<LeaveType> findByBorrowableLimitGreaterThan(Integer limit) {
-        return leaveTypeRepository.findByBorrowableLimitGreaterThan(limit);
-    }
 
-    @Override
-    public List<LeaveType> findByValidAfterDaysGreaterThan(Integer days) {
-        return leaveTypeRepository.findByValidAfterDaysGreaterThan(days);
-    }
+    public LeaveType save(LeaveType leaveType);
 
-    @Override
-    public LeaveType save(LeaveType leaveType) {
-        LeaveType saved = leaveTypeRepository.save(leaveType);
-        BusinessLogger.logCreated(LeaveType.class, saved.getId(), saved.getName());
-        return saved;
-    }
+    public LeaveType findById(Long id);
 
-    @Override
-    public LeaveType findById(Long id) {
-        return leaveTypeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Type", id));
-    }
+    public List<LeaveType> findAll();
 
-    @Override
-    public List<LeaveType> findAll() {
-        return leaveTypeRepository.findAll();
-    }
+    public void delete(Long id);
 
-    @Override
-    public void delete(Long id) {
-        if(!leaveTypeRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Leave Type", id);
-        }
-        leaveTypeRepository.deleteById(id);
-        BusinessLogger.logDeleted(LeaveType.class, id);
-    }
-
-    @Override
-    public LeaveType update(Long id, LeaveType leaveType) {
-        LeaveType existing = leaveTypeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Type", id));
-
-        existing.setName(leaveType.getName());
-        existing.setBorrowableLimit(leaveType.getBorrowableLimit());
-        existing.setValidAfterDays(leaveType.getValidAfterDays());
-        existing.setIsAnnual(leaveType.getIsAnnual());
-        existing.setDefaultDays(leaveType.getDefaultDays());
-        existing.setIsUnpaid(leaveType.getIsUnpaid());
-        existing.setGenderRequired(leaveType.getGenderRequired());
-        existing.setResetPeriod(leaveType.getResetPeriod());
-        existing.setValidUntilDays(leaveType.getValidUntilDays());
-
-        LeaveType updated = leaveTypeRepository.save(existing);
-        BusinessLogger.logUpdated(LeaveType.class, updated.getId(), updated.getName());
-        return updated;
-    }
+    public LeaveType update(Long id, LeaveType leaveType);
 }
