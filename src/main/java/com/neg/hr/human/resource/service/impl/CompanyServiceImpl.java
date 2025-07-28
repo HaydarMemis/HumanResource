@@ -1,5 +1,6 @@
 package com.neg.hr.human.resource.service.impl;
 
+import com.neg.hr.human.resource.business.BusinessLogger;
 import com.neg.hr.human.resource.entity.Company;
 import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.repository.CompanyRepository;
@@ -20,7 +21,9 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public Company save(Company company) {
-        return companyRepository.save(company);
+        Company saved = companyRepository.save(company);
+        BusinessLogger.logCreated(Company.class, saved.getId(), saved.getName());
+        return saved;
     }
 
     @Override
@@ -49,6 +52,7 @@ public class CompanyServiceImpl implements CompanyService {
             throw new ResourceNotFoundException("Company",id);
         }
         companyRepository.deleteById(id);
+        BusinessLogger.logDeleted(Company.class, id);
     }
 
     @Override
@@ -58,6 +62,8 @@ public class CompanyServiceImpl implements CompanyService {
 
         existing.setName(company.getName());
 
-        return companyRepository.save(existing);
+       Company updated = companyRepository.save(existing);
+       BusinessLogger.logUpdated(Company.class, updated.getId(), updated.getName());
+       return updated;
     }
 }
