@@ -1,0 +1,17 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /logs/*.log
+
+setup.template.name: "business-logs"
+setup.template.pattern: "business-logs*"
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  username: "elastic"
+  password: ""  # Elastic kullanıcı şifren varsa buraya ekle
+  index: "business-logs"
+
+setup.kibana:
+  host: "http://kibana:5601"
