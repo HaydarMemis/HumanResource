@@ -1,9 +1,13 @@
 package com.neg.hr.human.resource.controller;
 
+import com.neg.hr.human.resource.dto.CreateEmployeeDTO;
+import com.neg.hr.human.resource.dto.UpdateEmployeeDTO;
 import com.neg.hr.human.resource.dto.EmployeeDTO;
-import com.neg.hr.human.resource.entity.Employee;
+import com.neg.hr.human.resource.entity.*;
 import com.neg.hr.human.resource.mapper.EmployeeMapper;
+import com.neg.hr.human.resource.repository.*;
 import com.neg.hr.human.resource.service.EmployeeService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,12 +20,27 @@ import java.util.Optional;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final PersonRepository personRepository;
+    private final DepartmentRepository departmentRepository;
+    private final PositionRepository positionRepository;
+    private final CompanyRepository companyRepository;
+    private final EmployeeRepository employeeRepository;
 
-    public EmployeeController(EmployeeService employeeService) {
+    public EmployeeController(EmployeeService employeeService,
+                              PersonRepository personRepository,
+                              DepartmentRepository departmentRepository,
+                              PositionRepository positionRepository,
+                              CompanyRepository companyRepository,
+                              EmployeeRepository employeeRepository) {
         this.employeeService = employeeService;
+        this.personRepository = personRepository;
+        this.departmentRepository = departmentRepository;
+        this.positionRepository = positionRepository;
+        this.companyRepository = companyRepository;
+        this.employeeRepository = employeeRepository;
     }
 
-    // Get all employees (DTO view)
+    // GET all (DTO)
     @GetMapping
     public List<EmployeeDTO> getAllEmployees() {
         return employeeService.findAll()
@@ -29,33 +48,79 @@ public class EmployeeController {
                 .toList();
     }
 
-    // Get employee by ID (DTO view)
+    // GET by ID (DTO)
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable Long id) {
-        Optional<Employee> employeeOpt = employeeService.findById(id);
-        return employeeOpt.map(emp -> ResponseEntity.ok(EmployeeMapper.toDTO(emp)))
+        return employeeService.findById(id)
+                .map(emp -> ResponseEntity.ok(EmployeeMapper.toDTO(emp)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Create employee (raw entity for now)
+    // POST - Create Employee
     @PostMapping
-    public Employee createEmployee(@RequestBody Employee employee) {
-        return employeeService.save(employee);
-    }
+    public ResponseEntity<EmployeeDTO> createEmployee(@Valid @RequestBody CreateEmployeeDTO dto) {
+        Person person = personRepository.findById(dto.getPersonId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid person ID"));
+        Department department = departmentRepository.findById(dto.getDepartmentId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid department ID"));
+        Position position = positionRepository.findById(dto.getPositionId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid position ID"));
+        Company company = companyRepository.findById(dto.getCompanyId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid company ID"));
 
-    // Update employee (raw entity for now)
-    @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
-        Optional<Employee> existingEmployee = employeeService.findById(id);
-        if (existingEmployee.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        Employee manager = null;
+        if (dto.getManagerId() != null) {
+            manager = employeeRepository.findById(dto.getManagerId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid manager ID"));
         }
-        employee.setId(id);
-        Employee updated = employeeService.save(employee);
-        return ResponseEntity.ok(updated);
+
+        Employee employee = EmployeeMapper.toEntity(dto, person, department, position, company, manager);
+        Employee saved = employeeService.save(employee);
+
+        return ResponseEntity.ok(EmployeeMapper.toDTO(saved));
     }
 
-    // Delete employee
+    // PUT - Update Employee
+    @PutMapping("/{id}")
+    public ResponseEntity<EmployeeDTO> updateEmployee(@PathVariable Long id,
+                                                      @Valid @RequestBody UpdateEmployeeDTO dto) {
+        Optional<Employee> existingOpt = employeeService.findById(id);
+        if (existingOpt.isEmpty()) return ResponseEntity.notFound().build();
+
+        Employee existing = existingOpt.get();
+
+        Person person = (dto.getPersonId() != null)
+                ? personRepository.findById(dto.getPersonId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid person ID"))
+                : null;
+
+        Department department = (dto.getDepartmentId() != null)
+                ? departmentRepository.findById(dto.getDepartmentId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid department ID"))
+                : null;
+
+        Position position = (dto.getPositionId() != null)
+                ? positionRepository.findById(dto.getPositionId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid position ID"))
+                : null;
+
+        Company company = (dto.getCompanyId() != null)
+                ? companyRepository.findById(dto.getCompanyId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid company ID"))
+                : null;
+
+        Employee manager = (dto.getManagerId() != null)
+                ? employeeRepository.findById(dto.getManagerId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid manager ID"))
+                : null;
+
+        EmployeeMapper.updateEntity(existing, dto, person, department, position, company, manager);
+        Employee updated = employeeService.save(existing);
+
+        return ResponseEntity.ok(EmployeeMapper.toDTO(updated));
+    }
+
+    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         Optional<Employee> existingEmployee = employeeService.findById(id);
@@ -66,7 +131,7 @@ public class EmployeeController {
         return ResponseEntity.noContent().build();
     }
 
-    // Active employees (DTO view)
+    // Additional GETs (DTO views)
     @GetMapping("/active")
     public List<EmployeeDTO> getActiveEmployees() {
         return employeeService.findByIsActiveTrue()
@@ -74,7 +139,6 @@ public class EmployeeController {
                 .toList();
     }
 
-    // Inactive employees (DTO view)
     @GetMapping("/inactive")
     public List<EmployeeDTO> getInactiveEmployees() {
         return employeeService.findByIsActiveFalse()
@@ -82,7 +146,6 @@ public class EmployeeController {
                 .toList();
     }
 
-    // Employees by manager (DTO view)
     @GetMapping("/manager/{managerId}")
     public List<EmployeeDTO> getEmployeesByManager(@PathVariable Long managerId) {
         return employeeService.findByManagerId(managerId)
@@ -90,7 +153,6 @@ public class EmployeeController {
                 .toList();
     }
 
-    // Employees by department (DTO view)
     @GetMapping("/department/{departmentId}")
     public List<EmployeeDTO> getEmployeesByDepartment(@PathVariable Long departmentId) {
         return employeeService.findByDepartmentId(departmentId)
@@ -98,7 +160,6 @@ public class EmployeeController {
                 .toList();
     }
 
-    // Employees by position (DTO view)
     @GetMapping("/position/{positionId}")
     public List<EmployeeDTO> getEmployeesByPosition(@PathVariable Long positionId) {
         return employeeService.findByPositionId(positionId)
@@ -106,7 +167,6 @@ public class EmployeeController {
                 .toList();
     }
 
-    // Employees by company (DTO view)
     @GetMapping("/company/{companyId}")
     public List<EmployeeDTO> getEmployeesByCompany(@PathVariable Long companyId) {
         return employeeService.findByCompanyId(companyId)
@@ -114,7 +174,6 @@ public class EmployeeController {
                 .toList();
     }
 
-    // Employees hired before a date (DTO view)
     @GetMapping("/hired-before/{date}")
     public List<EmployeeDTO> getEmployeesHiredBefore(@PathVariable String date) {
         LocalDateTime dateTime = LocalDateTime.parse(date);
@@ -123,7 +182,6 @@ public class EmployeeController {
                 .toList();
     }
 
-    // Employees whose employment ended before a date (DTO view)
     @GetMapping("/ended-before/{date}")
     public List<EmployeeDTO> getEmployeesEmploymentEndedBefore(@PathVariable String date) {
         LocalDateTime dateTime = LocalDateTime.parse(date);
