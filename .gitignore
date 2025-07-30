@@ -38,5 +38,6 @@ build/
 ### Application yml ###
 **/application.yml
 **/business.log
+**/docker-compose.yml
 
 .DS_Store
