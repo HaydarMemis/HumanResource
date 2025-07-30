@@ -6,11 +6,10 @@ filebeat.inputs:
 
 setup.template.name: "business-logs"
 setup.template.pattern: "business-logs*"
+setup.ilm.enabled: false
 
 output.elasticsearch:
   hosts: ["http://elasticsearch:9200"]
-  username: "elastic"
-  password: ""  # Elastic kullanıcı şifren varsa buraya ekle
   index: "business-logs"
 
 setup.kibana:
