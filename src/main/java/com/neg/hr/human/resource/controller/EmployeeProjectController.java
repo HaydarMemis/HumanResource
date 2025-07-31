@@ -1,5 +1,6 @@
 package com.neg.hr.human.resource.controller;
 
+import com.neg.hr.human.resource.business.EmployeeProjectValidator;
 import com.neg.hr.human.resource.dto.CreateEmployeeProjectDTO;
 import com.neg.hr.human.resource.dto.UpdateEmployeeProjectDTO;
 import com.neg.hr.human.resource.dto.EmployeeProjectDTO;
@@ -24,13 +25,16 @@ public class EmployeeProjectController {
     private final EmployeeProjectServiceImpl employeeProjectService;
     private final EmployeeRepository employeeRepository;
     private final ProjectRepository projectRepository;
+    private final EmployeeProjectValidator employeeProjectValidator;
 
     public EmployeeProjectController(EmployeeProjectServiceImpl employeeProjectService,
                                      EmployeeRepository employeeRepository,
-                                     ProjectRepository projectRepository) {
+                                     ProjectRepository projectRepository,
+                                     EmployeeProjectValidator employeeProjectValidator) {
         this.employeeProjectService = employeeProjectService;
         this.employeeRepository = employeeRepository;
         this.projectRepository = projectRepository;
+        this.employeeProjectValidator = employeeProjectValidator;
     }
 
     // GET all
@@ -54,6 +58,7 @@ public class EmployeeProjectController {
     // POST - Create new record with CreateEmployeeProjectDTO
     @PostMapping
     public ResponseEntity<EmployeeProjectDTO> create(@Valid @RequestBody CreateEmployeeProjectDTO dto) {
+        employeeProjectValidator.validateCreateDTO(dto);
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"));
         Project project = projectRepository.findById(dto.getProjectId())
@@ -73,6 +78,8 @@ public class EmployeeProjectController {
         if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+
+        employeeProjectValidator.validateUpdateDTO(id, dto);
 
         EmployeeProject existing = existingOpt.get();
 
