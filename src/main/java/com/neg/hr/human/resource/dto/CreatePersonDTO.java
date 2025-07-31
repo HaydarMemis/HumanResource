@@ -1,9 +1,6 @@
 package com.neg.hr.human.resource.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +14,7 @@ import java.time.LocalDate;
 @Builder
 public class CreatePersonDTO {
 
-    @NotBlank(message = "First name is required")
+    @NotNull(message = "First name is required")
     private String firstName;
 
     private String lastName;
