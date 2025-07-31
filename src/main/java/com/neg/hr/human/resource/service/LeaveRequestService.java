@@ -5,6 +5,7 @@ import com.neg.hr.human.resource.entity.LeaveType;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface LeaveRequestService {
 
@@ -28,7 +29,7 @@ public interface LeaveRequestService {
 
     LeaveRequest save(LeaveRequest leaveRequest);
 
-    LeaveRequest findById(Long id);
+    Optional<LeaveRequest> findById(Long id);
 
     List<LeaveRequest> findAll();
 

@@ -1,7 +1,18 @@
 package com.neg.hr.human.resource.controller;
 
+import com.neg.hr.human.resource.business.LeaveRequestValidator;
+import com.neg.hr.human.resource.dto.CreateLeaveBalanceDTO;
+import com.neg.hr.human.resource.dto.CreateLeaveRequestDTO;
+import com.neg.hr.human.resource.dto.LeaveRequestDTO;
+import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.LeaveRequest;
+import com.neg.hr.human.resource.entity.LeaveType;
+import com.neg.hr.human.resource.mapper.LeaveBalanceMapper;
+import com.neg.hr.human.resource.mapper.LeaveRequestMapper;
+import com.neg.hr.human.resource.repository.EmployeeRepository;
+import com.neg.hr.human.resource.repository.LeaveTypeRepository;
 import com.neg.hr.human.resource.service.impl.LeaveRequestServiceImpl;
+import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,25 +25,46 @@ import java.util.List;
 public class LeaveRequestController {
 
     private final LeaveRequestServiceImpl leaveRequestService;
+    private final EmployeeRepository employeeRepository;
+    private final LeaveTypeRepository leaveTypeRepository;
+    private final LeaveRequestValidator leaveRequestValidator;
 
-    public LeaveRequestController(LeaveRequestServiceImpl leaveRequestService) {
+    public LeaveRequestController(LeaveRequestServiceImpl leaveRequestService, EmployeeRepository employeeRepository, LeaveTypeRepository leaveTypeRepository) {
         this.leaveRequestService = leaveRequestService;
+        this.employeeRepository = employeeRepository;
+        this.leaveTypeRepository = leaveTypeRepository;
+        this.leaveRequestValidator = new LeaveRequestValidator();
     }
 
     @GetMapping
-    public List<LeaveRequest> getAllLeaveRequests() {
-        return leaveRequestService.findAll();
+    public List<LeaveRequestDTO> getAllLeaveRequests() {
+        return leaveRequestService.findAll()
+                .stream().map(LeaveRequestMapper::toDTO).toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LeaveRequest> getLeaveRequestById(@PathVariable Long id) {
-        LeaveRequest leaveRequest = leaveRequestService.findById(id);
-        return ResponseEntity.ok(leaveRequest);
+    public ResponseEntity<LeaveRequestDTO> getLeaveRequestById(@PathVariable Long id) {
+        return leaveRequestService.findById(id)
+                .map(LeaveRequestMapper::toDTO)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public LeaveRequest createLeaveRequest(@RequestBody LeaveRequest leaveRequest) {
-        return leaveRequestService.save(leaveRequest);
+    public ResponseEntity<LeaveRequestDTO> createLeaveRequest(@Valid @RequestBody CreateLeaveRequestDTO dto) {
+        LeaveType leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid leave type ID"));
+
+        Employee employee = employeeRepository.findById(dto.getEmployeeId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"));
+
+        Employee approver = employeeRepository.findById(dto.getApprovedById())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"));
+
+        LeaveRequest leaveRequest = LeaveRequestMapper.toEntity(dto, employee, leaveType, approver);
+        LeaveRequest savedLeaveRequest = leaveRequestService.save(leaveRequest);
+
+        return ResponseEntity.ok(LeaveRequestMapper.toDTO(savedLeaveRequest));
     }
 
     @PutMapping("/{id}")

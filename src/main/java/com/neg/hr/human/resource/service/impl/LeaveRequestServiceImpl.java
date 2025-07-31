@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -71,10 +72,10 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     }
 
     @Override
-    public LeaveRequest findById(Long id) {
-        return leaveRequestRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Request", id));
+    public Optional<LeaveRequest> findById(Long id) {
+        return leaveRequestRepository.findById(id);
     }
+
 
     @Override
     public List<LeaveRequest> findAll() {

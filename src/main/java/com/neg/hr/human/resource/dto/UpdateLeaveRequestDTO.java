@@ -1,10 +1,7 @@
 package com.neg.hr.human.resource.dto;
 
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,6 +13,10 @@ import java.time.LocalDateTime;
 @Builder
 public class UpdateLeaveRequestDTO {
 
+    private Long employeeId;
+
+    private Long leaveTypeId;
+
     private LocalDate startDate;
 
     private LocalDate endDate;
@@ -26,6 +27,8 @@ public class UpdateLeaveRequestDTO {
     private String status;
 
     private String reason;
+
+    private Long approvedById;
 
     private LocalDateTime approvedAt;
 
