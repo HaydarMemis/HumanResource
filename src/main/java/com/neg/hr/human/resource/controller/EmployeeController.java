@@ -1,8 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
+import com.neg.hr.human.resource.business.EmployeeValidator;
 import com.neg.hr.human.resource.dto.CreateEmployeeDTO;
-import com.neg.hr.human.resource.dto.UpdateEmployeeDTO;
 import com.neg.hr.human.resource.dto.EmployeeDTO;
+import com.neg.hr.human.resource.dto.UpdateEmployeeDTO;
 import com.neg.hr.human.resource.entity.*;
 import com.neg.hr.human.resource.mapper.EmployeeMapper;
 import com.neg.hr.human.resource.repository.*;
@@ -25,19 +26,22 @@ public class EmployeeController {
     private final PositionRepository positionRepository;
     private final CompanyRepository companyRepository;
     private final EmployeeRepository employeeRepository;
+    private final EmployeeValidator employeeValidator;
 
     public EmployeeController(EmployeeService employeeService,
                               PersonRepository personRepository,
                               DepartmentRepository departmentRepository,
                               PositionRepository positionRepository,
                               CompanyRepository companyRepository,
-                              EmployeeRepository employeeRepository) {
+                              EmployeeRepository employeeRepository,
+                              EmployeeValidator employeeValidator) {
         this.employeeService = employeeService;
         this.personRepository = personRepository;
         this.departmentRepository = departmentRepository;
         this.positionRepository = positionRepository;
         this.companyRepository = companyRepository;
         this.employeeRepository = employeeRepository;
+        this.employeeValidator = employeeValidator;
     }
 
     // GET all (DTO)
@@ -59,19 +63,16 @@ public class EmployeeController {
     // POST - Create Employee
     @PostMapping
     public ResponseEntity<EmployeeDTO> createEmployee(@Valid @RequestBody CreateEmployeeDTO dto) {
-        Person person = personRepository.findById(dto.getPersonId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid person ID"));
-        Department department = departmentRepository.findById(dto.getDepartmentId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid department ID"));
-        Position position = positionRepository.findById(dto.getPositionId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid position ID"));
-        Company company = companyRepository.findById(dto.getCompanyId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid company ID"));
+        employeeValidator.validateCreateDTO(dto);
+
+        Person person = personRepository.findById(dto.getPersonId()).get();
+        Department department = departmentRepository.findById(dto.getDepartmentId()).get();
+        Position position = positionRepository.findById(dto.getPositionId()).get();
+        Company company = companyRepository.findById(dto.getCompanyId()).get();
 
         Employee manager = null;
         if (dto.getManagerId() != null) {
-            manager = employeeRepository.findById(dto.getManagerId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid manager ID"));
+            manager = employeeRepository.findById(dto.getManagerId()).get();
         }
 
         Employee employee = EmployeeMapper.toEntity(dto, person, department, position, company, manager);
@@ -87,32 +88,15 @@ public class EmployeeController {
         Optional<Employee> existingOpt = employeeService.findById(id);
         if (existingOpt.isEmpty()) return ResponseEntity.notFound().build();
 
+        employeeValidator.validateUpdateDTO(dto);
+
         Employee existing = existingOpt.get();
 
-        Person person = (dto.getPersonId() != null)
-                ? personRepository.findById(dto.getPersonId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid person ID"))
-                : null;
-
-        Department department = (dto.getDepartmentId() != null)
-                ? departmentRepository.findById(dto.getDepartmentId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid department ID"))
-                : null;
-
-        Position position = (dto.getPositionId() != null)
-                ? positionRepository.findById(dto.getPositionId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid position ID"))
-                : null;
-
-        Company company = (dto.getCompanyId() != null)
-                ? companyRepository.findById(dto.getCompanyId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid company ID"))
-                : null;
-
-        Employee manager = (dto.getManagerId() != null)
-                ? employeeRepository.findById(dto.getManagerId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid manager ID"))
-                : null;
+        Person person = (dto.getPersonId() != null) ? personRepository.findById(dto.getPersonId()).get() : null;
+        Department department = (dto.getDepartmentId() != null) ? departmentRepository.findById(dto.getDepartmentId()).get() : null;
+        Position position = (dto.getPositionId() != null) ? positionRepository.findById(dto.getPositionId()).get() : null;
+        Company company = (dto.getCompanyId() != null) ? companyRepository.findById(dto.getCompanyId()).get() : null;
+        Employee manager = (dto.getManagerId() != null) ? employeeRepository.findById(dto.getManagerId()).get() : null;
 
         EmployeeMapper.updateEntity(existing, dto, person, department, position, company, manager);
         Employee updated = employeeService.save(existing);
