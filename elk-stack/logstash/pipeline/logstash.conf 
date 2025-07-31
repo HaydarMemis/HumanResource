@@ -1,0 +1,20 @@
+input {
+  beats {
+    port => 5044
+  }
+}
+
+filter {
+  grok {
+    match => {
+      "message" => "%{YEAR}-%{MONTHNUM}-%{MONTHDAY} %{TIME} %{LOGLEVEL:level} %{GREEDYDATA:message}"
+    }
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["http://elasticsearch:9200"]
+    index => "business-logs-%{+YYYY.MM.dd}"
+  }
+}
