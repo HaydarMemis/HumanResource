@@ -14,6 +14,5 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
     List<Department> findByLocationContainingIgnoreCase(String keyword);
 
-    //  İsim benzersiz mi? (yeni oluştururken kontrol amaçlı)
     boolean existsByName(String name);
 }

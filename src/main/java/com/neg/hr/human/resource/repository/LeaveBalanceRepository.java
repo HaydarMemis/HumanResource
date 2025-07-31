@@ -18,7 +18,6 @@ public interface LeaveBalanceRepository extends JpaRepository<LeaveBalance, Long
 
     List<LeaveBalance> findByLeaveTypeIdAndDate(Long leaveTypeId, Integer year);
 
-    //  Kullanıcının izin hakkı var mı? (exists kontrolü)
     boolean existsByEmployeeIdAndLeaveTypeIdAndDate(Long employeeId, Long leaveTypeId, Integer year);
 
     void deleteById(Long id);
