@@ -14,6 +14,8 @@ public class EmployeeProjectMapper {
         return EmployeeProjectDTO.builder()
                 .id(employeeProject.getId())
                 .projectName(employeeProject.getProject().getName())
+                .employeeFirstName(employeeProject.getEmployee().getPerson().getFirstName())
+                .employeeLastName(employeeProject.getEmployee().getPerson().getLastName())
                 .build();
     }
 
