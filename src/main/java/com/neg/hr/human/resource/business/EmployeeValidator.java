@@ -3,8 +3,9 @@ package com.neg.hr.human.resource.business;
 import com.neg.hr.human.resource.dto.CreateEmployeeDTO;
 import com.neg.hr.human.resource.dto.UpdateEmployeeDTO;
 import com.neg.hr.human.resource.repository.*;
-import jakarta.validation.constraints.NotNull;
+import org.springframework.stereotype.Service;
 
+@Service
 public class EmployeeValidator {
     private final PersonRepository personRepository;
     private final EmployeeRepository employeeRepository;

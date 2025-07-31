@@ -1,7 +1,8 @@
 package com.neg.hr.human.resource.controller;
 
+import com.neg.hr.human.resource.dto.EmployeeProjectDTO;
 import com.neg.hr.human.resource.entity.EmployeeProject;
-import com.neg.hr.human.resource.service.impl.EmployeeProjectServiceImpl;
+import com.neg.hr.human.resource.mapper.EmployeeProjectMapper;
 import com.neg.hr.human.resource.service.impl.EmployeeProjectServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,15 +22,20 @@ public class EmployeeProjectController {
 
     // Tüm kayıtları getir
     @GetMapping
-    public List<EmployeeProject> getAll() {
-        return employeeProjectService.findAll();
+    public List<EmployeeProjectDTO> getAll() {
+        return employeeProjectService.findAll()
+                .stream()
+                .map(EmployeeProjectMapper::toDTO)
+                .toList();
     }
 
     // ID’ye göre getir
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeeProject> getById(@PathVariable Long id) {
-        Optional<EmployeeProject> ep = employeeProjectService.findById(id);
-        return ep.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<EmployeeProjectDTO> getById(@PathVariable Long id) {
+        return employeeProjectService.findById(id)
+                .map(EmployeeProjectMapper::toDTO)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Yeni kayıt oluştur
@@ -78,14 +84,20 @@ public class EmployeeProjectController {
 
     // Çalışan ID’sine göre listele
     @GetMapping("/employee/list/{employeeId}")
-    public List<EmployeeProject> getByEmployeeId(@PathVariable Long employeeId) {
-        return employeeProjectService.findByEmployeeId(employeeId);
+    public List<EmployeeProjectDTO> getByEmployeeId(@PathVariable Long employeeId) {
+        return employeeProjectService.findByEmployeeId(employeeId)
+                .stream()
+                .map(EmployeeProjectMapper::toDTO)
+                .toList();
     }
 
     // Proje ID’sine göre listele
     @GetMapping("/project/list/{projectId}")
-    public List<EmployeeProject> getByProjectId(@PathVariable Long projectId) {
-        return employeeProjectService.findByProjectId(projectId);
+    public List<EmployeeProjectDTO> getByProjectId(@PathVariable Long projectId) {
+        return employeeProjectService.findByProjectId(projectId)
+                .stream()
+                .map(EmployeeProjectMapper::toDTO)
+                .toList();
     }
 
     // Belirli çalışan ve proje için kayıt var mı?

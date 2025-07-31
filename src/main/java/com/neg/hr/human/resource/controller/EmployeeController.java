@@ -2,8 +2,8 @@ package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.business.EmployeeValidator;
 import com.neg.hr.human.resource.dto.CreateEmployeeDTO;
-import com.neg.hr.human.resource.dto.UpdateEmployeeDTO;
 import com.neg.hr.human.resource.dto.EmployeeDTO;
+import com.neg.hr.human.resource.dto.UpdateEmployeeDTO;
 import com.neg.hr.human.resource.entity.*;
 import com.neg.hr.human.resource.mapper.EmployeeMapper;
 import com.neg.hr.human.resource.repository.*;
