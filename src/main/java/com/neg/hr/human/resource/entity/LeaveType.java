@@ -1,5 +1,6 @@
 package com.neg.hr.human.resource.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -49,6 +50,12 @@ public class LeaveType extends AuditableEntity {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     public enum Gender {
-        MALE, FEMALE, NONE
+        MALE, FEMALE, NONE;
+
+        @JsonCreator
+        public static Gender fromString(String value) {
+            if (value == null) return null;
+            return Gender.valueOf(value.trim().toUpperCase());
+        }
     }
 }
