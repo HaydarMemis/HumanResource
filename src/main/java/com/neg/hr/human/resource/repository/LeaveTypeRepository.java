@@ -21,6 +21,5 @@ public interface LeaveTypeRepository extends JpaRepository<LeaveType, Long> {
 
     List<LeaveType> findByBorrowableLimitGreaterThan(Integer limit);
 
-    // Belirli gün sonra geçerli olan izin türleri (örneğin işe başladıktan 90 gün sonra)
     List<LeaveType> findByValidAfterDaysGreaterThan(Integer days);
 }
