@@ -1,7 +1,13 @@
 package com.neg.hr.human.resource.controller;
 
+import com.neg.hr.human.resource.business.ProjectValidator;
+import com.neg.hr.human.resource.dto.CreateProjectDTO;
+import com.neg.hr.human.resource.dto.ProjectDTO;
+import com.neg.hr.human.resource.dto.UpdateProjectDTO;
 import com.neg.hr.human.resource.entity.Project;
-import com.neg.hr.human.resource.service.impl.ProjectServiceImpl;
+import com.neg.hr.human.resource.mapper.ProjectMapper;
+import com.neg.hr.human.resource.service.ProjectService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,65 +18,67 @@ import java.util.Optional;
 @RequestMapping("/api/projects")
 public class ProjectController {
 
-    private final ProjectServiceImpl projectService;
+    private final ProjectService projectService;
+    private final ProjectValidator projectValidator;
 
-    public ProjectController(ProjectServiceImpl projectService) {
+    public ProjectController(ProjectService projectService, ProjectValidator projectValidator) {
         this.projectService = projectService;
+        this.projectValidator = projectValidator;
     }
 
-    // Tüm projeleri getir
     @GetMapping
-    public List<Project> getAllProjects() {
-        return projectService.findAll();
+    public List<ProjectDTO> getAllProjects() {
+        return projectService.findAll()
+                .stream()
+                .map(ProjectMapper::toDTO)
+                .toList();
     }
 
-    // ID'ye göre proje getir
     @GetMapping("/{id}")
-    public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
-        Optional<Project> projectOpt = projectService.findById(id);
-        return projectOpt.map(ResponseEntity::ok)
+    public ResponseEntity<ProjectDTO> getProjectById(@PathVariable Long id) {
+        Optional<Project> opt = projectService.findById(id);
+        return opt.map(project -> ResponseEntity.ok(ProjectMapper.toDTO(project)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // İsimle proje getir
     @GetMapping("/name/{name}")
-    public ResponseEntity<Project> getProjectByName(@PathVariable String name) {
-        Optional<Project> projectOpt = projectService.findByName(name);
-        return projectOpt.map(ResponseEntity::ok)
+    public ResponseEntity<ProjectDTO> getProjectByName(@PathVariable String name) {
+        Optional<Project> opt = projectService.findByName(name);
+        return opt.map(project -> ResponseEntity.ok(ProjectMapper.toDTO(project)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Yeni proje oluştur
     @PostMapping
-    public Project createProject(@RequestBody Project project) {
-        return projectService.save(project);
+    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody CreateProjectDTO dto) {
+        projectValidator.validateCreate(dto);
+        Project project = ProjectMapper.toEntity(dto);
+        Project saved = projectService.save(project);
+        return ResponseEntity.ok(ProjectMapper.toDTO(saved));
     }
 
-    // Proje güncelle
     @PutMapping("/{id}")
-    public ResponseEntity<Project> updateProject(@PathVariable Long id, @RequestBody Project project) {
-        Optional<Project> existingProject = projectService.findById(id);
-        if (!existingProject.isPresent()) {
+    public ResponseEntity<ProjectDTO> updateProject(@PathVariable Long id, @Valid @RequestBody UpdateProjectDTO dto) {
+        Optional<Project> existingOpt = projectService.findById(id);
+        if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        project.setId(id);
-        Project updated = projectService.save(project);
-        return ResponseEntity.ok(updated);
+        projectValidator.validateUpdate(dto, id);
+        Project existing = existingOpt.get();
+        ProjectMapper.updateEntity(existing, dto);
+        Project updated = projectService.save(existing);
+        return ResponseEntity.ok(ProjectMapper.toDTO(updated));
     }
 
-    // Proje sil
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
-        Optional<Project> existing = projectService.findById(id);
-        if (existing.isPresent()) {
-            projectService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
+        Optional<Project> existingOpt = projectService.findById(id);
+        if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+        projectService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
-    // İsimle proje var mı kontrolü
     @GetMapping("/exists/{name}")
     public boolean existsByName(@PathVariable String name) {
         return projectService.existsByName(name);
