@@ -1,7 +1,6 @@
 package com.neg.hr.human.resource.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CreateDepartmentDTO {
 
-    @NotNull(message = "Department name is required")
+    @NotBlank(message = "Department name is required")
     @Size(max = 100, message = "Department name must be at most 100 characters")
     private String name;
 

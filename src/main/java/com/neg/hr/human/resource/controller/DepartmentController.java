@@ -1,7 +1,13 @@
 package com.neg.hr.human.resource.controller;
 
+import com.neg.hr.human.resource.business.DepartmentValidator;
+import com.neg.hr.human.resource.dto.CreateDepartmentDTO;
+import com.neg.hr.human.resource.dto.DepartmentDTO;
+import com.neg.hr.human.resource.dto.UpdateDepartmentDTO;
 import com.neg.hr.human.resource.entity.Department;
-import com.neg.hr.human.resource.service.impl.DepartmentServiceImpl;
+import com.neg.hr.human.resource.mapper.DepartmentMapper;
+import com.neg.hr.human.resource.service.DepartmentService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,73 +18,85 @@ import java.util.Optional;
 @RequestMapping("/api/departments")
 public class DepartmentController {
 
-    private final DepartmentServiceImpl departmentService;
+    private final DepartmentService departmentService;
+    private final DepartmentValidator departmentValidator;
 
-    // Constructor injection
-    public DepartmentController(DepartmentServiceImpl departmentService) {
+    public DepartmentController(DepartmentService departmentService, DepartmentValidator departmentValidator) {
         this.departmentService = departmentService;
+        this.departmentValidator = departmentValidator;
     }
 
     @GetMapping
-    public List<Department> getAllDepartments() {
-        return departmentService.findAll();
+    public List<DepartmentDTO> getAllDepartments() {
+        return departmentService.findAll()
+                .stream()
+                .map(DepartmentMapper::toDTO)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Department> getDepartmentById(@PathVariable Long id) {
-        Optional<Department> departmentOpt = departmentService.findById(id);
-        return departmentOpt.map(ResponseEntity::ok)
+    public ResponseEntity<DepartmentDTO> getDepartmentById(@PathVariable Long id) {
+        Optional<Department> opt = departmentService.findById(id);
+        return opt.map(department -> ResponseEntity.ok(DepartmentMapper.toDTO(department)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/name/{name}")
+    public ResponseEntity<DepartmentDTO> getDepartmentByName(@PathVariable String name) {
+        Optional<Department> opt = departmentService.findByName(name);
+        return opt.map(department -> ResponseEntity.ok(DepartmentMapper.toDTO(department)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Department createDepartment(@RequestBody Department department) {
-        return departmentService.save(department);
+    public ResponseEntity<DepartmentDTO> createDepartment(@Valid @RequestBody CreateDepartmentDTO dto) {
+        departmentValidator.validateCreate(dto);
+        Department department = DepartmentMapper.toEntity(dto);
+        Department saved = departmentService.save(department);
+        return ResponseEntity.ok(DepartmentMapper.toDTO(saved));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Department> updateDepartment(@PathVariable Long id, @RequestBody Department department) {
-        Optional<Department> existingDepartment = departmentService.findById(id);
-        if (!existingDepartment.isPresent()) {
+    public ResponseEntity<DepartmentDTO> updateDepartment(@PathVariable Long id, @Valid @RequestBody UpdateDepartmentDTO dto) {
+        Optional<Department> existingOpt = departmentService.findById(id);
+        if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        Department updated = departmentService.update(id, department);
-        return ResponseEntity.ok(updated);
+        departmentValidator.validateUpdate(dto, id);
+        Department existing = existingOpt.get();
+        DepartmentMapper.updateEntity(existing, dto);
+        Department updated = departmentService.save(existing);
+        return ResponseEntity.ok(DepartmentMapper.toDTO(updated));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
-        Optional<Department> existingDepartment = departmentService.findById(id);
-        if (!existingDepartment.isPresent()) {
+        Optional<Department> existingOpt = departmentService.findById(id);
+        if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         departmentService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    // Find by exact name
-    @GetMapping("/name/{name}")
-    public ResponseEntity<Department> getDepartmentByName(@PathVariable String name) {
-        Optional<Department> departmentOpt = departmentService.findByName(name);
-        return departmentOpt.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    // Check if department exists by name
     @GetMapping("/exists/{name}")
     public boolean existsByName(@PathVariable String name) {
         return departmentService.existsByName(name);
     }
 
-    // Find departments by exact location
     @GetMapping("/location/{location}")
-    public List<Department> getDepartmentsByLocation(@PathVariable String location) {
-        return departmentService.findByLocation(location);
+    public List<DepartmentDTO> getDepartmentsByLocation(@PathVariable String location) {
+        return departmentService.findByLocation(location)
+                .stream()
+                .map(DepartmentMapper::toDTO)
+                .toList();
     }
 
-    // Find departments where location contains keyword (case-insensitive)
     @GetMapping("/location-contains/{keyword}")
-    public List<Department> getDepartmentsByLocationContaining(@PathVariable String keyword) {
-        return departmentService.findByLocationContainingIgnoreCase(keyword);
+    public List<DepartmentDTO> getDepartmentsByLocationContaining(@PathVariable String keyword) {
+        return departmentService.findByLocationContainingIgnoreCase(keyword)
+                .stream()
+                .map(DepartmentMapper::toDTO)
+                .toList();
     }
 }
