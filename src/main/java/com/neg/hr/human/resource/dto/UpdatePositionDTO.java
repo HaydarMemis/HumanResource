@@ -1,6 +1,8 @@
 package com.neg.hr.human.resource.dto;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,9 +15,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class UpdatePositionDTO {
-
+    @NotBlank(message = "Title must not be empty")
     private String title;
 
-    @Digits(integer=10, fraction=2, message = "Base salary must be a valid monetary amount")
+    @DecimalMin(value = "0.0", inclusive = true, message = "Base salary must be zero or positive")
     private BigDecimal baseSalary;
 }

@@ -1,7 +1,13 @@
 package com.neg.hr.human.resource.controller;
 
+import com.neg.hr.human.resource.business.PositionValidator;
+import com.neg.hr.human.resource.dto.CreatePositionDTO;
+import com.neg.hr.human.resource.dto.PositionDTO;
+import com.neg.hr.human.resource.dto.UpdatePositionDTO;
 import com.neg.hr.human.resource.entity.Position;
-import com.neg.hr.human.resource.service.impl.PositionServiceImpl;
+import com.neg.hr.human.resource.mapper.PositionMapper;
+import com.neg.hr.human.resource.service.PositionService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,67 +19,79 @@ import java.util.Optional;
 @RequestMapping("/api/positions")
 public class PositionController {
 
-    private final PositionServiceImpl positionService;
+    private final PositionService positionService;
+    private final PositionValidator positionValidator;
 
-    // Constructor injection
-    public PositionController(PositionServiceImpl positionService) {
+    public PositionController(PositionService positionService, PositionValidator positionValidator) {
         this.positionService = positionService;
+        this.positionValidator = positionValidator;
     }
 
     @GetMapping
-    public List<Position> getAllPositions() {
-        return positionService.findAll();
+    public List<PositionDTO> getAllPositions() {
+        return positionService.findAll()
+                .stream()
+                .map(PositionMapper::toDTO)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Position> getPositionById(@PathVariable Long id) {
-        Optional<Position> positionOpt = positionService.findById(id);
-        return positionOpt.map(ResponseEntity::ok)
+    public ResponseEntity<PositionDTO> getPositionById(@PathVariable Long id) {
+        Optional<Position> opt = positionService.findById(id);
+        return opt.map(position -> ResponseEntity.ok(PositionMapper.toDTO(position)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Position createPosition(@RequestBody Position position) {
-        return positionService.save(position);
+    public ResponseEntity<PositionDTO> createPosition(@Valid @RequestBody CreatePositionDTO dto) {
+        positionValidator.validateCreate(dto);
+        Position position = PositionMapper.toEntity(dto);
+        Position saved = positionService.save(position);
+        return ResponseEntity.ok(PositionMapper.toDTO(saved));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Position> updatePosition(@PathVariable Long id, @RequestBody Position position) {
-        Optional<Position> existingPosition = positionService.findById(id);
-        if (!existingPosition.isPresent()) {
+    public ResponseEntity<PositionDTO> updatePosition(@PathVariable Long id, @Valid @RequestBody UpdatePositionDTO dto) {
+        Optional<Position> existingOpt = positionService.findById(id);
+        if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        Position updated = positionService.update(id, position);
-        return ResponseEntity.ok(updated);
+        positionValidator.validateUpdate(dto, id);
+        Position existing = existingOpt.get();
+        PositionMapper.updateEntity(existing, dto);
+        Position updated = positionService.save(existing);
+        return ResponseEntity.ok(PositionMapper.toDTO(updated));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePosition(@PathVariable Long id) {
-        Optional<Position> existingPosition = positionService.findById(id);
-        if (!existingPosition.isPresent()) {
+        Optional<Position> existingOpt = positionService.findById(id);
+        if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         positionService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    // Find by title
+    // Additional GETs
+
     @GetMapping("/title/{title}")
-    public ResponseEntity<Position> getPositionByTitle(@PathVariable String title) {
-        Optional<Position> positionOpt = positionService.findByTitle(title);
-        return positionOpt.map(ResponseEntity::ok)
+    public ResponseEntity<PositionDTO> getPositionByTitle(@PathVariable String title) {
+        Optional<Position> opt = positionService.findByTitle(title);
+        return opt.map(position -> ResponseEntity.ok(PositionMapper.toDTO(position)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Check if position exists by title
     @GetMapping("/exists/{title}")
     public boolean existsByTitle(@PathVariable String title) {
         return positionService.existsByTitle(title);
     }
 
-    // Find positions with base salary >= provided salary
     @GetMapping("/salary/{salary}")
-    public List<Position> getPositionsByBaseSalaryGreaterThanEqual(@PathVariable BigDecimal salary) {
-        return positionService.findByBaseSalaryGreaterThanEqual(salary);
+    public List<PositionDTO> getPositionsByBaseSalaryGreaterThanEqual(@PathVariable BigDecimal salary) {
+        return positionService.findByBaseSalaryGreaterThanEqual(salary)
+                .stream()
+                .map(PositionMapper::toDTO)
+                .toList();
     }
 }
