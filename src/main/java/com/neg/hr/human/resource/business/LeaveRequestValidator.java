@@ -73,15 +73,26 @@ public class LeaveRequestValidator {
             throw new ValidationException("Inactive employees cannot request leave");
         }
 
-        String requiredGender = leaveType.getGenderRequired();
-        String employeeGender = employee.getPerson().getGender();
+        LeaveType.Gender requiredGender = leaveType.getGenderRequired();
+        String employeeGenderStr = employee.getPerson().getGender();
 
-        if (requiredGender != null && !requiredGender.trim().isEmpty()) {
-            if (employeeGender == null || !requiredGender.equalsIgnoreCase(employeeGender)) {
-                throw new ValidationException("This leave type is restricted to " +
-                        requiredGender.toLowerCase() + " employees only.");
+        if (requiredGender != null) {
+            if (employeeGenderStr == null) {
+                throw new ValidationException("Employee gender is not specified.");
+            }
+
+            try {
+                LeaveType.Gender employeeGender = LeaveType.Gender.valueOf(employeeGenderStr.toUpperCase());
+
+                if (!requiredGender.equals(employeeGender)) {
+                    throw new ValidationException("This leave type is restricted to " +
+                            requiredGender.name().toLowerCase() + " employees only.");
+                }
+            } catch (IllegalArgumentException e) {
+                throw new ValidationException("Invalid gender value for employee: " + employeeGenderStr);
             }
         }
+
 
         LocalDate now = LocalDate.now();
         long daysUntilStart = ChronoUnit.DAYS.between(now, startDate);
@@ -94,4 +105,5 @@ public class LeaveRequestValidator {
             throw new ValidationException("Leave request too far in advance");
         }
     }
+
 }
