@@ -40,5 +40,5 @@ build/
 **/application.yml
 **/business.log
 **/docker-compose.yml
-
+**/filebeat.yml
 
