@@ -1,8 +1,17 @@
 package com.neg.hr.human.resource.controller;
 
+import com.neg.hr.human.resource.business.EmployeeProjectValidator;
+import com.neg.hr.human.resource.dto.CreateEmployeeProjectDTO;
+import com.neg.hr.human.resource.dto.UpdateEmployeeProjectDTO;
+import com.neg.hr.human.resource.dto.EmployeeProjectDTO;
+import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.EmployeeProject;
+import com.neg.hr.human.resource.entity.Project;
+import com.neg.hr.human.resource.mapper.EmployeeProjectMapper;
+import com.neg.hr.human.resource.repository.EmployeeRepository;
+import com.neg.hr.human.resource.repository.ProjectRepository;
 import com.neg.hr.human.resource.service.impl.EmployeeProjectServiceImpl;
-import com.neg.hr.human.resource.service.impl.EmployeeProjectServiceImpl;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,43 +23,83 @@ import java.util.Optional;
 public class EmployeeProjectController {
 
     private final EmployeeProjectServiceImpl employeeProjectService;
+    private final EmployeeRepository employeeRepository;
+    private final ProjectRepository projectRepository;
+    private final EmployeeProjectValidator employeeProjectValidator;
 
-    public EmployeeProjectController(EmployeeProjectServiceImpl employeeProjectService) {
+    public EmployeeProjectController(EmployeeProjectServiceImpl employeeProjectService,
+                                     EmployeeRepository employeeRepository,
+                                     ProjectRepository projectRepository,
+                                     EmployeeProjectValidator employeeProjectValidator) {
         this.employeeProjectService = employeeProjectService;
+        this.employeeRepository = employeeRepository;
+        this.projectRepository = projectRepository;
+        this.employeeProjectValidator = employeeProjectValidator;
     }
 
-    // Tüm kayıtları getir
+    // GET all
     @GetMapping
-    public List<EmployeeProject> getAll() {
-        return employeeProjectService.findAll();
+    public List<EmployeeProjectDTO> getAll() {
+        return employeeProjectService.findAll()
+                .stream()
+                .map(EmployeeProjectMapper::toDTO)
+                .toList();
     }
 
-    // ID’ye göre getir
+    // GET by ID
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeeProject> getById(@PathVariable Long id) {
-        Optional<EmployeeProject> ep = employeeProjectService.findById(id);
-        return ep.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<EmployeeProjectDTO> getById(@PathVariable Long id) {
+        return employeeProjectService.findById(id)
+                .map(EmployeeProjectMapper::toDTO)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Yeni kayıt oluştur
+    // POST - Create new record with CreateEmployeeProjectDTO
     @PostMapping
-    public EmployeeProject create(@RequestBody EmployeeProject employeeProject) {
-        return employeeProjectService.save(employeeProject);
+    public ResponseEntity<EmployeeProjectDTO> create(@Valid @RequestBody CreateEmployeeProjectDTO dto) {
+        employeeProjectValidator.validateCreateDTO(dto);
+        Employee employee = employeeRepository.findById(dto.getEmployeeId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"));
+        Project project = projectRepository.findById(dto.getProjectId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
+
+        EmployeeProject employeeProject = EmployeeProjectMapper.toEntity(dto, employee, project);
+        EmployeeProject saved = employeeProjectService.save(employeeProject);
+
+        return ResponseEntity.ok(EmployeeProjectMapper.toDTO(saved));
     }
 
-    // Güncelle
+    // PUT - Update with UpdateEmployeeProjectDTO
     @PutMapping("/{id}")
-    public ResponseEntity<EmployeeProject> update(@PathVariable Long id, @RequestBody EmployeeProject employeeProject) {
-        Optional<EmployeeProject> existingEmployeeProject = employeeProjectService.findById(id);
-        if (!existingEmployeeProject.isPresent()) {
+    public ResponseEntity<EmployeeProjectDTO> update(@PathVariable Long id,
+                                                     @Valid @RequestBody UpdateEmployeeProjectDTO dto) {
+        Optional<EmployeeProject> existingOpt = employeeProjectService.findById(id);
+        if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        employeeProject.setId(id);
-        EmployeeProject updated = employeeProjectService.save(employeeProject);
-        return ResponseEntity.ok(updated);
+
+        employeeProjectValidator.validateUpdateDTO(id, dto);
+
+        EmployeeProject existing = existingOpt.get();
+
+        Employee employee = (dto.getEmployeeId() != null)
+                ? employeeRepository.findById(dto.getEmployeeId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"))
+                : null;
+
+        Project project = (dto.getProjectId() != null)
+                ? projectRepository.findById(dto.getProjectId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"))
+                : null;
+
+        EmployeeProjectMapper.updateEntity(existing, dto, employee, project);
+        EmployeeProject updated = employeeProjectService.save(existing);
+
+        return ResponseEntity.ok(EmployeeProjectMapper.toDTO(updated));
     }
 
-    // ID’ye göre sil
+    // DELETE by ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         Optional<EmployeeProject> existing = employeeProjectService.findById(id);
@@ -62,37 +111,42 @@ public class EmployeeProjectController {
         }
     }
 
-    // Çalışan ID’sine göre sil
+    // DELETE by Employee ID
     @DeleteMapping("/employee/{employeeId}")
     public ResponseEntity<Void> deleteByEmployeeId(@PathVariable Long employeeId) {
         employeeProjectService.deleteByEmployeeId(employeeId);
         return ResponseEntity.noContent().build();
     }
 
-    // Proje ID’sine göre sil
+    // DELETE by Project ID
     @DeleteMapping("/project/{projectId}")
     public ResponseEntity<Void> deleteByProjectId(@PathVariable Long projectId) {
         employeeProjectService.deleteByProjectId(projectId);
         return ResponseEntity.noContent().build();
     }
 
-    // Çalışan ID’sine göre listele
+    // GET list by Employee ID
     @GetMapping("/employee/list/{employeeId}")
-    public List<EmployeeProject> getByEmployeeId(@PathVariable Long employeeId) {
-        return employeeProjectService.findByEmployeeId(employeeId);
+    public List<EmployeeProjectDTO> getByEmployeeId(@PathVariable Long employeeId) {
+        return employeeProjectService.findByEmployeeId(employeeId)
+                .stream()
+                .map(EmployeeProjectMapper::toDTO)
+                .toList();
     }
 
-    // Proje ID’sine göre listele
+    // GET list by Project ID
     @GetMapping("/project/list/{projectId}")
-    public List<EmployeeProject> getByProjectId(@PathVariable Long projectId) {
-        return employeeProjectService.findByProjectId(projectId);
+    public List<EmployeeProjectDTO> getByProjectId(@PathVariable Long projectId) {
+        return employeeProjectService.findByProjectId(projectId)
+                .stream()
+                .map(EmployeeProjectMapper::toDTO)
+                .toList();
     }
 
-    // Belirli çalışan ve proje için kayıt var mı?
+    // Check if relationship exists
     @GetMapping("/exists")
-    public boolean existsByEmployeeAndProject(
-            @RequestParam Long employeeId,
-            @RequestParam Long projectId) {
+    public boolean existsByEmployeeAndProject(@RequestParam Long employeeId,
+                                              @RequestParam Long projectId) {
         return employeeProjectService.existsByEmployeeIdAndProjectId(employeeId, projectId);
     }
 }

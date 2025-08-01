@@ -39,7 +39,7 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
 
     @Override
     public List<LeaveType> findByGenderRequiredTrue() {
-        return leaveTypeRepository.findByGenderRequiredTrue();
+       return leaveTypeRepository.findByGenderRequiredIsNotNull();
     }
 
     @Override
@@ -72,7 +72,7 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
 
     @Override
     public void delete(Long id) {
-        if(!leaveTypeRepository.existsById(id)) {
+        if (!leaveTypeRepository.existsById(id)) {
             throw new ResourceNotFoundException("Leave Type", id);
         }
         leaveTypeRepository.deleteById(id);
@@ -90,7 +90,9 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
         existing.setIsAnnual(leaveType.getIsAnnual());
         existing.setDefaultDays(leaveType.getDefaultDays());
         existing.setIsUnpaid(leaveType.getIsUnpaid());
+
         existing.setGenderRequired(leaveType.getGenderRequired());
+
         existing.setResetPeriod(leaveType.getResetPeriod());
         existing.setValidUntilDays(leaveType.getValidUntilDays());
 

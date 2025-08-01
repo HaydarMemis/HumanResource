@@ -1,6 +1,8 @@
 package com.neg.hr.human.resource.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -19,11 +21,13 @@ public class LeaveType extends AuditableEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "is_annual",nullable = false)
+    @Column(name = "is_annual", nullable = false)
     private Boolean isAnnual;
 
-    @Column(name = "gender_required",nullable = false)
-    private Boolean genderRequired;
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    @Column(name = "gender_required")
+    private Gender genderRequired;
 
     @Column(name = "default_days")
     private Integer defaultDays;
@@ -34,7 +38,7 @@ public class LeaveType extends AuditableEntity {
     @Column(name = "valid_until_days")
     private Integer validUntilDays;
 
-    @Column(name = "is_unpaid",nullable = false)
+    @Column(name = "is_unpaid", nullable = false)
     private Boolean isUnpaid;
 
     @Column(name = "reset_period")
@@ -42,4 +46,9 @@ public class LeaveType extends AuditableEntity {
 
     @Column(name = "borrowable_limit")
     private Integer borrowableLimit;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    public enum Gender {
+        MALE, FEMALE, NONE
+    }
 }

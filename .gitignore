@@ -12,6 +12,7 @@ target/
 .settings
 .springBeans
 .sts4-cache
+.DS_Store
 
 ### IntelliJ IDEA ###
 .idea
@@ -40,4 +41,4 @@ build/
 **/business.log
 **/docker-compose.yml
 
-.DS_Store
+

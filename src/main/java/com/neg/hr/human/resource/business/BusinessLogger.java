@@ -20,7 +20,6 @@ public class BusinessLogger {
         logger.info("{} updated - ID: {}, Name: {}", clazz.getSimpleName(), id, name);
     }
 
-    // Employee için özel log metotları (isteğe bağlı, genel metotları da kullanabilirsin)
     public static void logEmployeeCreated(Long id, String fullName) {
         logger.info("Employee created - ID: {}, Name: {}", id, fullName);
     }

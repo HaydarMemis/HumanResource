@@ -20,9 +20,8 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="gender_required" type="BOOLEAN">
-                <constraints nullable="false"/>
-            </column>
+            <!-- Changed from BOOLEAN to VARCHAR -->
+            <column name="gender_required" type="VARCHAR(10)"/>
 
             <column name="default_days" type="INTEGER"/>
             <column name="valid_after_days" type="INTEGER"/>

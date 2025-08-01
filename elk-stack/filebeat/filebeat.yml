@@ -8,9 +8,8 @@ setup.template.name: "business-logs"
 setup.template.pattern: "business-logs*"
 setup.ilm.enabled: false
 
-output.elasticsearch:
-  hosts: ["http://elasticsearch:9200"]
-  index: "business-logs"
+output.logstash:
+  hosts: ["logstash:5044"]
 
 setup.kibana:
   host: "http://kibana:5601"
