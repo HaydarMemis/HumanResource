@@ -1,12 +1,9 @@
 package com.neg.hr.human.resource.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import com.neg.hr.human.resource.entity.LeaveType.Gender;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
@@ -14,14 +11,15 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CreateLeaveTypeDTO {
 
-    @NotBlank(message = "Leave type name is required")
+    @NotNull(message = "Leave type name must not be null")
+    @Size(min = 2, max = 100)
     private String name;
 
-    @NotNull(message = "isAnnual flag is required")
+    @NotNull(message = "isAnnual must not be null")
     private Boolean isAnnual;
 
-    @NotNull(message = "genderRequired flag is required")
-    private Boolean genderRequired;
+    @NotNull(message = "genderRequired must not be null")
+    private Gender genderRequired;
 
     private Integer defaultDays;
 
@@ -29,7 +27,7 @@ public class CreateLeaveTypeDTO {
 
     private Integer validUntilDays;
 
-    @NotNull(message = "isUnpaid flag is required")
+    @NotNull(message = "isUnpaid must not be null")
     private Boolean isUnpaid;
 
     private String resetPeriod;

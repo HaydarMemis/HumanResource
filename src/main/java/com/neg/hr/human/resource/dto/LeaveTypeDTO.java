@@ -12,22 +12,8 @@ import lombok.NoArgsConstructor;
 public class LeaveTypeDTO {
 
     private Long id;
-
     private String name;
-
     private Boolean isAnnual;
-
-    private Boolean genderRequired;
-
-    private Integer defaultDays;
-
-    private Integer validAfterDays;
-
-    private Integer validUntilDays;
-
+    private String genderRequired;
     private Boolean isUnpaid;
-
-    private String resetPeriod;
-
-    private Integer borrowableLimit;
 }

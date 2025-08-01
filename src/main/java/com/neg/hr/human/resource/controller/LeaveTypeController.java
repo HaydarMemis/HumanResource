@@ -1,12 +1,19 @@
 package com.neg.hr.human.resource.controller;
 
+import com.neg.hr.human.resource.business.LeaveTypeValidator;
+import com.neg.hr.human.resource.dto.CreateLeaveTypeDTO;
+import com.neg.hr.human.resource.dto.LeaveTypeDTO;
+import com.neg.hr.human.resource.dto.UpdateLeaveTypeDTO;
 import com.neg.hr.human.resource.entity.LeaveType;
+import com.neg.hr.human.resource.mapper.LeaveTypeMapper;
 import com.neg.hr.human.resource.service.impl.LeaveTypeServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/leave_types")
@@ -14,93 +21,103 @@ import java.util.List;
 public class LeaveTypeController {
 
     private final LeaveTypeServiceImpl leaveTypeService;
+    private final LeaveTypeValidator leaveTypeValidator;
 
-    // Get all leave types
+    // GET all leave types (as DTO)
     @GetMapping
-    public List<LeaveType> getAllLeaveTypes() {
-        return leaveTypeService.findAll();
+    public List<LeaveTypeDTO> getAllLeaveTypes() {
+        return leaveTypeService.findAll()
+                .stream()
+                .map(LeaveTypeMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    // Get leave type by ID
+    // GET by ID (DTO)
     @GetMapping("/{id}")
-    public ResponseEntity<LeaveType> getLeaveTypeById(@PathVariable Long id) {
-        try {
-            LeaveType leaveType = leaveTypeService.findById(id);
-            return ResponseEntity.ok(leaveType);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<LeaveTypeDTO> getLeaveTypeById(@PathVariable Long id) {
+        return leaveTypeService.findById(id) != null
+                ? ResponseEntity.ok(LeaveTypeMapper.toDTO(leaveTypeService.findById(id)))
+                : ResponseEntity.notFound().build();
     }
 
-    // Create new leave type
+    // POST - Create LeaveType
     @PostMapping
-    public LeaveType createLeaveType(@RequestBody LeaveType leaveType) {
-        return leaveTypeService.save(leaveType);
+    public ResponseEntity<LeaveTypeDTO> createLeaveType(@Valid @RequestBody CreateLeaveTypeDTO dto) {
+        leaveTypeValidator.validateCreate(dto);
+        LeaveType entity = LeaveTypeMapper.toEntity(dto);
+        LeaveType saved = leaveTypeService.save(entity);
+        return ResponseEntity.ok(LeaveTypeMapper.toDTO(saved));
     }
 
-    // Update leave type
+    // PUT - Update LeaveType
     @PutMapping("/{id}")
-    public ResponseEntity<LeaveType> updateLeaveType(@PathVariable Long id, @RequestBody LeaveType leaveType) {
-        try {
-            LeaveType updated = leaveTypeService.update(id, leaveType);
-            return ResponseEntity.ok(updated);
-        } catch (Exception e) {
+    public ResponseEntity<LeaveTypeDTO> updateLeaveType(@PathVariable Long id,
+                                                        @Valid @RequestBody UpdateLeaveTypeDTO dto) {
+        if (leaveTypeService.findById(id) == null) {
             return ResponseEntity.notFound().build();
         }
+
+        leaveTypeValidator.validateUpdate(dto);
+
+        LeaveType existing = leaveTypeService.findById(id);
+        LeaveTypeMapper.updateEntity(existing, dto);
+        LeaveType updated = leaveTypeService.save(existing);
+
+        return ResponseEntity.ok(LeaveTypeMapper.toDTO(updated));
     }
 
-    // Delete leave type
+    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLeaveType(@PathVariable Long id) {
-        try {
-            leaveTypeService.delete(id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
+        if (leaveTypeService.findById(id) == null) {
             return ResponseEntity.notFound().build();
         }
+        leaveTypeService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
-    // Get leave types by name
+    // Additional filtered GET endpoints returning DTO lists
     @GetMapping("/name/{name}")
-    public ResponseEntity<LeaveType> getLeaveTypeByName(@PathVariable String name) {
+    public ResponseEntity<LeaveTypeDTO> getLeaveTypeByName(@PathVariable String name) {
         return leaveTypeService.findByName(name)
+                .map(LeaveTypeMapper::toDTO)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Get annual leave types
     @GetMapping("/annual/true")
-    public List<LeaveType> getAnnualLeaveTypes() {
-        return leaveTypeService.findByIsAnnualTrue();
+    public List<LeaveTypeDTO> getAnnualLeaveTypes() {
+        return leaveTypeService.findByIsAnnualTrue()
+                .stream().map(LeaveTypeMapper::toDTO).collect(Collectors.toList());
     }
 
-    // Get non-annual leave types
     @GetMapping("/annual/false")
-    public List<LeaveType> getNonAnnualLeaveTypes() {
-        return leaveTypeService.findByIsAnnualFalse();
+    public List<LeaveTypeDTO> getNonAnnualLeaveTypes() {
+        return leaveTypeService.findByIsAnnualFalse()
+                .stream().map(LeaveTypeMapper::toDTO).collect(Collectors.toList());
     }
 
-    // Get unpaid leave types
     @GetMapping("/unpaid/true")
-    public List<LeaveType> getUnpaidLeaveTypes() {
-        return leaveTypeService.findByIsUnpaidTrue();
+    public List<LeaveTypeDTO> getUnpaidLeaveTypes() {
+        return leaveTypeService.findByIsUnpaidTrue()
+                .stream().map(LeaveTypeMapper::toDTO).collect(Collectors.toList());
     }
 
-    // Get gender-specific leave types (where genderRequired is not null)
     @GetMapping("/gender_required/specific")
-    public List<LeaveType> getGenderSpecificLeaveTypes() {
-        return leaveTypeService.findByGenderRequiredTrue();
+    public List<LeaveTypeDTO> getGenderSpecificLeaveTypes() {
+        return leaveTypeService.findByGenderRequiredTrue()
+                .stream().map(LeaveTypeMapper::toDTO).collect(Collectors.toList());
     }
 
-    // Get leave types with borrowable limit greater than specified limit
     @GetMapping("/borrowable_limit_greater_than/{limit}")
-    public List<LeaveType> getLeaveTypesByBorrowableLimit(@PathVariable Integer limit) {
-        return leaveTypeService.findByBorrowableLimitGreaterThan(limit);
+    public List<LeaveTypeDTO> getLeaveTypesByBorrowableLimit(@PathVariable Integer limit) {
+        return leaveTypeService.findByBorrowableLimitGreaterThan(limit)
+                .stream().map(LeaveTypeMapper::toDTO).collect(Collectors.toList());
     }
 
-    // Get leave types with valid after days greater than specified days
     @GetMapping("/valid_after_days_greater_than/{days}")
-    public List<LeaveType> getLeaveTypesByValidAfterDays(@PathVariable Integer days) {
-        return leaveTypeService.findByValidAfterDaysGreaterThan(days);
+    public List<LeaveTypeDTO> getLeaveTypesByValidAfterDays(@PathVariable Integer days) {
+        return leaveTypeService.findByValidAfterDaysGreaterThan(days)
+                .stream().map(LeaveTypeMapper::toDTO).collect(Collectors.toList());
     }
 }
