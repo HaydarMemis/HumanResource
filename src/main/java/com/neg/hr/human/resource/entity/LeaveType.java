@@ -19,11 +19,11 @@ public class LeaveType extends AuditableEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "is_annual",nullable = false)
+    @Column(name = "is_annual", nullable = false)
     private Boolean isAnnual;
 
-    @Column(name = "gender_required",nullable = false)
-    private Boolean genderRequired;
+    @Column(name = "gender_required")
+    private String genderRequired;
 
     @Column(name = "default_days")
     private Integer defaultDays;
@@ -34,7 +34,7 @@ public class LeaveType extends AuditableEntity {
     @Column(name = "valid_until_days")
     private Integer validUntilDays;
 
-    @Column(name = "is_unpaid",nullable = false)
+    @Column(name = "is_unpaid", nullable = false)
     private Boolean isUnpaid;
 
     @Column(name = "reset_period")

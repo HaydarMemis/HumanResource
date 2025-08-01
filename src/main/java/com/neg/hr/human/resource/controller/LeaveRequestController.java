@@ -1,18 +1,18 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.business.LeaveRequestValidator;
-import com.neg.hr.human.resource.dto.CreateLeaveBalanceDTO;
 import com.neg.hr.human.resource.dto.CreateLeaveRequestDTO;
 import com.neg.hr.human.resource.dto.LeaveRequestDTO;
+import com.neg.hr.human.resource.dto.UpdateLeaveRequestDTO;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.LeaveRequest;
 import com.neg.hr.human.resource.entity.LeaveType;
-import com.neg.hr.human.resource.mapper.LeaveBalanceMapper;
 import com.neg.hr.human.resource.mapper.LeaveRequestMapper;
 import com.neg.hr.human.resource.repository.EmployeeRepository;
 import com.neg.hr.human.resource.repository.LeaveTypeRepository;
 import com.neg.hr.human.resource.service.impl.LeaveRequestServiceImpl;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,26 +22,24 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/leave-requests")
+@RequiredArgsConstructor
 public class LeaveRequestController {
 
     private final LeaveRequestServiceImpl leaveRequestService;
     private final EmployeeRepository employeeRepository;
     private final LeaveTypeRepository leaveTypeRepository;
-    private final LeaveRequestValidator leaveRequestValidator;
+    private final LeaveRequestValidator validator;
 
-    public LeaveRequestController(LeaveRequestServiceImpl leaveRequestService, EmployeeRepository employeeRepository, LeaveTypeRepository leaveTypeRepository) {
-        this.leaveRequestService = leaveRequestService;
-        this.employeeRepository = employeeRepository;
-        this.leaveTypeRepository = leaveTypeRepository;
-        this.leaveRequestValidator = new LeaveRequestValidator();
-    }
-
+    // GET all leave requests
     @GetMapping
     public List<LeaveRequestDTO> getAllLeaveRequests() {
         return leaveRequestService.findAll()
-                .stream().map(LeaveRequestMapper::toDTO).toList();
+                .stream()
+                .map(LeaveRequestMapper::toDTO)
+                .toList();
     }
 
+    // GET leave request by ID
     @GetMapping("/{id}")
     public ResponseEntity<LeaveRequestDTO> getLeaveRequestById(@PathVariable Long id) {
         return leaveRequestService.findById(id)
@@ -50,81 +48,116 @@ public class LeaveRequestController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // POST create new leave request
     @PostMapping
     public ResponseEntity<LeaveRequestDTO> createLeaveRequest(@Valid @RequestBody CreateLeaveRequestDTO dto) {
-        LeaveType leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid leave type ID"));
+        validator.validateCreateDTO(dto);
 
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"));
 
+        LeaveType leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid leave type ID"));
+
         Employee approver = employeeRepository.findById(dto.getApprovedById())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid approver ID"));
 
-        LeaveRequest leaveRequest = LeaveRequestMapper.toEntity(dto, employee, leaveType, approver);
-        LeaveRequest savedLeaveRequest = leaveRequestService.save(leaveRequest);
-
-        return ResponseEntity.ok(LeaveRequestMapper.toDTO(savedLeaveRequest));
+        LeaveRequest entity = LeaveRequestMapper.toEntity(dto, employee, leaveType, approver);
+        LeaveRequest saved = leaveRequestService.save(entity);
+        return ResponseEntity.ok(LeaveRequestMapper.toDTO(saved));
     }
 
+    // PUT update leave request
     @PutMapping("/{id}")
-    public ResponseEntity<LeaveRequest> updateLeaveRequest(@PathVariable Long id, @RequestBody LeaveRequest leaveRequest) {
-        LeaveRequest updated = leaveRequestService.update(id, leaveRequest);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<LeaveRequestDTO> updateLeaveRequest(@PathVariable Long id, @Valid @RequestBody UpdateLeaveRequestDTO dto) {
+        validator.validateUpdateDTO(dto);
+
+        LeaveRequest existing = leaveRequestService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Leave request not found"));
+
+        Employee employee = (dto.getEmployeeId() != null)
+                ? employeeRepository.findById(dto.getEmployeeId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"))
+                : null;
+
+        LeaveType leaveType = (dto.getLeaveTypeId() != null)
+                ? leaveTypeRepository.findById(dto.getLeaveTypeId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid leave type ID"))
+                : null;
+
+        Employee approver = (dto.getApprovedById() != null)
+                ? employeeRepository.findById(dto.getApprovedById())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid approver ID"))
+                : null;
+
+        LeaveRequestMapper.updateEntity(existing, dto, employee, leaveType, approver);
+        LeaveRequest updated = leaveRequestService.save(existing);
+        return ResponseEntity.ok(LeaveRequestMapper.toDTO(updated));
     }
 
+    // DELETE leave request
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLeaveRequest(@PathVariable Long id) {
         leaveRequestService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
+    // === Filtered Queries ===
+
     @GetMapping("/employee/{employeeId}")
-    public List<LeaveRequest> getLeaveRequestsByEmployee(@PathVariable Long employeeId) {
-        return leaveRequestService.findByEmployeeId(employeeId);
+    public List<LeaveRequestDTO> getLeaveRequestsByEmployee(@PathVariable Long employeeId) {
+        return leaveRequestService.findByEmployeeId(employeeId)
+                .stream().map(LeaveRequestMapper::toDTO).toList();
     }
 
     @GetMapping("/status/{status}")
-    public List<LeaveRequest> getLeaveRequestsByStatus(@PathVariable String status) {
-        return leaveRequestService.findByStatus(status);
+    public List<LeaveRequestDTO> getLeaveRequestsByStatus(@PathVariable String status) {
+        return leaveRequestService.findByStatus(status)
+                .stream().map(LeaveRequestMapper::toDTO).toList();
     }
 
     @GetMapping("/cancelled")
-    public List<LeaveRequest> getCancelledLeaveRequests() {
-        return leaveRequestService.findByIsCancelledTrue();
+    public List<LeaveRequestDTO> getCancelledLeaveRequests() {
+        return leaveRequestService.findByIsCancelledTrue()
+                .stream().map(LeaveRequestMapper::toDTO).toList();
     }
 
     @GetMapping("/approver/{approverId}")
-    public List<LeaveRequest> getLeaveRequestsByApprover(@PathVariable Long approverId) {
-        return leaveRequestService.findByApprovedById(approverId);
+    public List<LeaveRequestDTO> getLeaveRequestsByApprover(@PathVariable Long approverId) {
+        return leaveRequestService.findByApprovedById(approverId)
+                .stream().map(LeaveRequestMapper::toDTO).toList();
     }
 
     @GetMapping("/employee/{employeeId}/status/{status}")
-    public List<LeaveRequest> getLeaveRequestsByEmployeeAndStatus(@PathVariable Long employeeId, @PathVariable String status) {
-        return leaveRequestService.findByEmployeeIdAndStatus(employeeId, status);
+    public List<LeaveRequestDTO> getLeaveRequestsByEmployeeAndStatus(@PathVariable Long employeeId, @PathVariable String status) {
+        return leaveRequestService.findByEmployeeIdAndStatus(employeeId, status)
+                .stream().map(LeaveRequestMapper::toDTO).toList();
     }
 
     @GetMapping("/date-range")
-    public List<LeaveRequest> getLeaveRequestsByDateRange(
+    public List<LeaveRequestDTO> getLeaveRequestsByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
-        return leaveRequestService.findByStartDateBetween(start, end);
+        return leaveRequestService.findByStartDateBetween(start, end)
+                .stream().map(LeaveRequestMapper::toDTO).toList();
     }
 
     @GetMapping("/employee/{employeeId}/leave-type/{leaveTypeId}/date-range")
-    public List<LeaveRequest> getLeaveRequestsByEmployeeLeaveTypeAndDateRange(
+    public List<LeaveRequestDTO> getLeaveRequestsByEmployeeLeaveTypeAndDateRange(
             @PathVariable Long employeeId,
             @PathVariable Long leaveTypeId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
-        return leaveRequestService.findByEmployeeIdAndLeaveTypeIdAndStartDateBetween(employeeId, leaveTypeId, start, end);
+        return leaveRequestService.findByEmployeeIdAndLeaveTypeIdAndStartDateBetween(employeeId, leaveTypeId, start, end)
+                .stream().map(LeaveRequestMapper::toDTO).toList();
     }
 
     @GetMapping("/overlapping")
-    public List<LeaveRequest> getOverlappingLeaveRequests(
+    public List<LeaveRequestDTO> getOverlappingLeaveRequests(
             @RequestParam Long employeeId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
-        return leaveRequestService.findOverlappingRequests(employeeId, start, end);
+        return leaveRequestService.findOverlappingRequests(employeeId, start, end)
+                .stream().map(LeaveRequestMapper::toDTO).toList();
     }
 }

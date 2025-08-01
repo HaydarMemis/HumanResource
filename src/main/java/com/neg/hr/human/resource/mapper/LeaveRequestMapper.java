@@ -40,7 +40,6 @@ public class LeaveRequestMapper {
                 .status(dto.getStatus())
                 .reason(dto.getReason())
                 .approvedBy(approver)
-                // approvedAt, approvalNote etc are not set on create
                 .build();
     }
 

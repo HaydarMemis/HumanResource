@@ -86,9 +86,9 @@ public class LeaveTypeController {
         return leaveTypeService.findByIsUnpaidTrue();
     }
 
-    // Get leave types requiring gender
-    @GetMapping("/gender_required/true")
-    public List<LeaveType> getGenderRequiredLeaveTypes() {
+    // Get gender-specific leave types (where genderRequired is not null)
+    @GetMapping("/gender_required/specific")
+    public List<LeaveType> getGenderSpecificLeaveTypes() {
         return leaveTypeService.findByGenderRequiredTrue();
     }
 

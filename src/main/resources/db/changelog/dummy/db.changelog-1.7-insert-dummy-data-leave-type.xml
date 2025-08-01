@@ -10,7 +10,7 @@
         <insert tableName="leave_type">
             <column name="name" value="Annual Leave"/>
             <column name="is_annual" valueBoolean="true"/>
-            <column name="gender_required" valueBoolean="false"/>
+            <column name="gender_required" value="" />
             <column name="default_days" valueNumeric="14"/>
             <column name="valid_after_days" valueNumeric="0"/>
             <column name="valid_until_days" valueNumeric="365"/>
@@ -25,7 +25,7 @@
         <insert tableName="leave_type">
             <column name="name" value="Maternity Leave"/>
             <column name="is_annual" valueBoolean="false"/>
-            <column name="gender_required" valueBoolean="true"/>
+            <column name="gender_required" value="FEMALE"/>
             <column name="default_days" valueNumeric="112"/>
             <column name="valid_after_days" valueNumeric="0"/>
             <column name="valid_until_days" valueNumeric="365"/>
@@ -40,7 +40,7 @@
         <insert tableName="leave_type">
             <column name="name" value="Unpaid Leave"/>
             <column name="is_annual" valueBoolean="false"/>
-            <column name="gender_required" valueBoolean="false"/>
+            <column name="gender_required" value="" />
             <column name="default_days" valueNumeric="30"/>
             <column name="valid_after_days" valueNumeric="0"/>
             <column name="valid_until_days" valueNumeric="365"/>

@@ -2,99 +2,96 @@ package com.neg.hr.human.resource.business;
 
 import com.neg.hr.human.resource.dto.CreateLeaveRequestDTO;
 import com.neg.hr.human.resource.dto.UpdateLeaveRequestDTO;
-import com.neg.hr.human.resource.entity.Employee;
-import com.neg.hr.human.resource.entity.LeaveBalance;
-import com.neg.hr.human.resource.entity.LeaveType;
-import com.neg.hr.human.resource.repository.EmployeeRepository;
-import com.neg.hr.human.resource.repository.LeaveBalanceRepository;
-import com.neg.hr.human.resource.repository.LeaveTypeRepository;
+import com.neg.hr.human.resource.entity.*;
+import com.neg.hr.human.resource.repository.*;
 import jakarta.validation.ValidationException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class LeaveRequestValidator {
 
     private final EmployeeRepository employeeRepository;
     private final LeaveTypeRepository leaveTypeRepository;
     private final LeaveBalanceRepository leaveBalanceRepository;
 
-    public LeaveRequestValidator(EmployeeRepository employeeRepository,
-                                 LeaveTypeRepository leaveTypeRepository,
-                                 LeaveBalanceRepository leaveBalanceRepository) {
-        this.employeeRepository = employeeRepository;
-        this.leaveTypeRepository = leaveTypeRepository;
-        this.leaveBalanceRepository = leaveBalanceRepository;
+    public void validateCreateDTO(CreateLeaveRequestDTO dto) {
+        validateCommon(dto.getEmployeeId(), dto.getLeaveTypeId(), dto.getStartDate(), dto.getEndDate());
+
+        Employee employee = employeeRepository.findById(dto.getEmployeeId())
+                .orElseThrow(() -> new ValidationException("Employee not found"));
+
+        LeaveType leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
+                .orElseThrow(() -> new ValidationException("Leave type not found"));
+
+        LeaveBalance balance = leaveBalanceRepository
+                .findByEmployeeIdAndLeaveTypeId(employee.getId(), leaveType.getId())
+                .orElseThrow(() -> new ValidationException("Leave balance not found"));
+
+        long requestedDays = ChronoUnit.DAYS.between(dto.getStartDate(), dto.getEndDate()) + 1;
+        if (requestedDays > balance.getAmount().intValue()) {
+            throw new ValidationException("Requested days exceed leave balance");
+        }
+
+        validateExtraRules(employee, leaveType, dto.getStartDate(), dto.getEndDate());
     }
 
-    public void validate(CreateLeaveRequestDTO dto) {
-        validateCommonRules(
-                dto.getEmployeeId(),
-                dto.getLeaveTypeId(),
-                dto.getStartDate(),
-                dto.getEndDate(),
-                dto.getApprovedById()
-        );
+    public void validateUpdateDTO(UpdateLeaveRequestDTO dto) {
+        if (dto.getEmployeeId() != null && dto.getLeaveTypeId() != null &&
+                dto.getStartDate() != null && dto.getEndDate() != null) {
+
+            validateCommon(dto.getEmployeeId(), dto.getLeaveTypeId(), dto.getStartDate(), dto.getEndDate());
+
+            Employee employee = employeeRepository.findById(dto.getEmployeeId())
+                    .orElseThrow(() -> new ValidationException("Employee not found"));
+
+            LeaveType leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
+                    .orElseThrow(() -> new ValidationException("Leave type not found"));
+
+            validateExtraRules(employee, leaveType, dto.getStartDate(), dto.getEndDate());
+        }
     }
 
-    public void validate(UpdateLeaveRequestDTO dto) {
-        validateCommonRules(
-                dto.getEmployeeId(),
-                dto.getLeaveTypeId(),
-                dto.getStartDate(),
-                dto.getEndDate(),
-                dto.getApprovedById()
-        );
+    private void validateCommon(Long employeeId, Long leaveTypeId, LocalDate startDate, LocalDate endDate) {
+        if (employeeId == null || leaveTypeId == null) {
+            throw new ValidationException("Employee ID and Leave Type ID are required");
+        }
+        if (startDate == null || endDate == null) {
+            throw new ValidationException("Start date and End date are required");
+        }
+        if (startDate.isAfter(endDate)) {
+            throw new ValidationException("Start date cannot be after end date");
+        }
     }
 
-    private void validateCommonRules(Long employeeId, Long leaveTypeId,
-                                     LocalDate startDate, LocalDate endDate, Long approvedById) {
-        // Null checks
-        if (employeeId == null || leaveTypeId == null || startDate == null || endDate == null || approvedById == null) {
-            throw new ValidationException("Required fields must not be null.");
+    private void validateExtraRules(Employee employee, LeaveType leaveType, LocalDate startDate, LocalDate endDate) {
+        if (!Boolean.TRUE.equals(employee.getIsActive())) {
+            throw new ValidationException("Inactive employees cannot request leave");
         }
 
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new ValidationException("Employee not found."));
+        String requiredGender = leaveType.getGenderRequired();
+        String employeeGender = employee.getPerson().getGender();
 
-        if (!employee.getIsActive()) {
-            throw new ValidationException("Inactive employees cannot make leave requests.");
+        if (requiredGender != null && !requiredGender.trim().isEmpty()) {
+            if (employeeGender == null || !requiredGender.equalsIgnoreCase(employeeGender)) {
+                throw new ValidationException("This leave type is restricted to " +
+                        requiredGender.toLowerCase() + " employees only.");
+            }
         }
 
-        LeaveType leaveType = leaveTypeRepository.findById(leaveTypeId)
-                .orElseThrow(() -> new ValidationException("Leave type not found."));
+        LocalDate now = LocalDate.now();
+        long daysUntilStart = ChronoUnit.DAYS.between(now, startDate);
 
-        // Gender requirement
-        if (leaveType.getGenderRequired() != null &&
-                !leaveType.getGenderRequired().equalsIgnoreCase(employee.getPerson().getGender())) {
-            throw new ValidationException("Employee does not meet the gender requirement for this leave type.");
+        if (leaveType.getValidAfterDays() != null && daysUntilStart < leaveType.getValidAfterDays()) {
+            throw new ValidationException("Leave request too early");
         }
 
-        // Valid leave window
-        if (!leaveType.isDateWithinValidRange(startDate)) { // assume helper inside LeaveType
-            throw new ValidationException("Leave start date is not within the valid range of this leave type.");
-        }
-
-        // Date order
-        if (endDate.isBefore(startDate)) {
-            throw new ValidationException("End date cannot be before start date.");
-        }
-
-        // Balance check
-        Optional<LeaveBalance> optionalBalance = leaveBalanceRepository
-                .findByEmployeeIdAndLeaveTypeId(employeeId, leaveTypeId);
-
-        if (optionalBalance.isEmpty()) {
-            throw new ValidationException("No leave balance found for this leave type and employee.");
-        }
-
-        LeaveBalance leaveBalance = optionalBalance.get();
-        long daysRequested = ChronoUnit.DAYS.between(startDate, endDate) + 1;
-        if (daysRequested > leaveBalance.getAmount()) {
-            throw new ValidationException("Leave request exceeds available leave balance.");
+        if (leaveType.getValidUntilDays() != null && daysUntilStart > leaveType.getValidUntilDays()) {
+            throw new ValidationException("Leave request too far in advance");
         }
     }
 }
