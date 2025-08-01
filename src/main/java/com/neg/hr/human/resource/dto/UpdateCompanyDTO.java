@@ -1,5 +1,6 @@
 package com.neg.hr.human.resource.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class UpdateCompanyDTO {
-    @Size(max = 50, message = "Company name must be at most 100 characters")
+    @NotBlank(message = "Company name must not be empty")
+    @Size(max = 100, message = "Company name must be at most 100 characters")
     private String name;
 }

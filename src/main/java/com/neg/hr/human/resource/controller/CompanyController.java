@@ -1,7 +1,13 @@
 package com.neg.hr.human.resource.controller;
 
+import com.neg.hr.human.resource.business.CompanyValidator;
+import com.neg.hr.human.resource.dto.CompanyDTO;
+import com.neg.hr.human.resource.dto.CreateCompanyDTO;
+import com.neg.hr.human.resource.dto.UpdateCompanyDTO;
 import com.neg.hr.human.resource.entity.Company;
-import com.neg.hr.human.resource.service.impl.CompanyServiceImpl;
+import com.neg.hr.human.resource.mapper.CompanyMapper;
+import com.neg.hr.human.resource.service.CompanyService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,65 +18,67 @@ import java.util.Optional;
 @RequestMapping("/api/companies")
 public class CompanyController {
 
-    private final CompanyServiceImpl companyService;
+    private final CompanyService companyService;
+    private final CompanyValidator companyValidator;
 
-    public CompanyController(CompanyServiceImpl companyService) {
+    public CompanyController(CompanyService companyService, CompanyValidator companyValidator) {
         this.companyService = companyService;
+        this.companyValidator = companyValidator;
     }
 
-    // Tüm şirketleri getir
     @GetMapping
-    public List<Company> getAllCompanies() {
-        return companyService.findAll();
+    public List<CompanyDTO> getAllCompanies() {
+        return companyService.findAll()
+                .stream()
+                .map(CompanyMapper::toDTO)
+                .toList();
     }
 
-    // ID’ye göre şirket getir
     @GetMapping("/{id}")
-    public ResponseEntity<Company> getCompanyById(@PathVariable Long id) {
-        Optional<Company> companyOpt = companyService.findById(id);
-        return companyOpt.map(ResponseEntity::ok)
+    public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable Long id) {
+        Optional<Company> opt = companyService.findById(id);
+        return opt.map(company -> ResponseEntity.ok(CompanyMapper.toDTO(company)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // İsimle şirket getir
     @GetMapping("/name/{name}")
-    public ResponseEntity<Company> getCompanyByName(@PathVariable String name) {
-        Optional<Company> companyOpt = companyService.findByName(name);
-        return companyOpt.map(ResponseEntity::ok)
+    public ResponseEntity<CompanyDTO> getCompanyByName(@PathVariable String name) {
+        Optional<Company> opt = companyService.findByName(name);
+        return opt.map(company -> ResponseEntity.ok(CompanyMapper.toDTO(company)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Şirket oluştur
     @PostMapping
-    public Company createCompany(@RequestBody Company company) {
-        return companyService.save(company);
+    public ResponseEntity<CompanyDTO> createCompany(@Valid @RequestBody CreateCompanyDTO dto) {
+        companyValidator.validateCreate(dto);
+        Company company = CompanyMapper.toEntity(dto);
+        Company saved = companyService.save(company);
+        return ResponseEntity.ok(CompanyMapper.toDTO(saved));
     }
 
-    // Şirket güncelle
     @PutMapping("/{id}")
-    public ResponseEntity<Company> updateCompany(@PathVariable Long id, @RequestBody Company company) {
-        Optional<Company> existingCompany = companyService.findById(id);
-        if (!existingCompany.isPresent()) {
+    public ResponseEntity<CompanyDTO> updateCompany(@PathVariable Long id, @Valid @RequestBody UpdateCompanyDTO dto) {
+        Optional<Company> existingOpt = companyService.findById(id);
+        if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        company.setId(id);
-        Company updated = companyService.save(company);
-        return ResponseEntity.ok(updated);
+        companyValidator.validateUpdate(dto, id);
+        Company existing = existingOpt.get();
+        CompanyMapper.updateEntity(existing, dto);
+        Company updated = companyService.save(existing);
+        return ResponseEntity.ok(CompanyMapper.toDTO(updated));
     }
 
-    // Şirket sil
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
-        Optional<Company> existing = companyService.findById(id);
-        if (existing.isPresent()) {
-            companyService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
+        Optional<Company> existingOpt = companyService.findById(id);
+        if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+        companyService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
-    // Şirket ismine göre varlık kontrolü
     @GetMapping("/exists/{name}")
     public boolean existsByName(@PathVariable String name) {
         return companyService.existsByName(name);
