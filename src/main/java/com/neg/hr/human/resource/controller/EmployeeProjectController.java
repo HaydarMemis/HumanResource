@@ -111,20 +111,6 @@ public class EmployeeProjectController {
         }
     }
 
-    // DELETE by Employee ID
-    @DeleteMapping("/employee/{employeeId}")
-    public ResponseEntity<Void> deleteByEmployeeId(@PathVariable Long employeeId) {
-        employeeProjectService.deleteByEmployeeId(employeeId);
-        return ResponseEntity.noContent().build();
-    }
-
-    // DELETE by Project ID
-    @DeleteMapping("/project/{projectId}")
-    public ResponseEntity<Void> deleteByProjectId(@PathVariable Long projectId) {
-        employeeProjectService.deleteByProjectId(projectId);
-        return ResponseEntity.noContent().build();
-    }
-
     // GET list by Employee ID
     @GetMapping("/employee/list/{employeeId}")
     public List<EmployeeProjectDTO> getByEmployeeId(@PathVariable Long employeeId) {
