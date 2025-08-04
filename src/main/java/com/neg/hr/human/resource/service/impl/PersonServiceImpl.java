@@ -105,4 +105,16 @@ public class PersonServiceImpl implements PersonService {
         BusinessLogger.logUpdated(Person.class, updated.getId(), updated.getFirstName() + " " + updated.getLastName());
         return updated;
     }
+
+    public List<Person> searchByOptionalNames(String firstName, String lastName) {
+        if ((firstName == null || firstName.isBlank()) && (lastName == null || lastName.isBlank())) {
+            return personRepository.findAll();
+        } else if (firstName != null && !firstName.isBlank() && (lastName == null || lastName.isBlank())) {
+            return personRepository.findByFirstNameContainingIgnoreCase(firstName);
+        } else if ((firstName == null || firstName.isBlank()) && lastName != null && !lastName.isBlank()) {
+            return personRepository.findByLastNameContainingIgnoreCase(lastName);
+        } else {
+            return personRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstName, lastName);
+        }
+    }
 }

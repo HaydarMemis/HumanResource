@@ -7,6 +7,7 @@ import com.neg.hr.human.resource.dto.UpdatePersonDTO;
 import com.neg.hr.human.resource.entity.Person;
 import com.neg.hr.human.resource.mapper.PersonMapper;
 import com.neg.hr.human.resource.service.PersonService;
+import com.neg.hr.human.resource.service.impl.PersonServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,10 +20,10 @@ import java.util.Optional;
 @RequestMapping("/api/persons")
 public class PersonController {
 
-    private final PersonService personService;
+    private final PersonServiceImpl personService;
     private final PersonValidator personValidator;
 
-    public PersonController(PersonService personService, PersonValidator personValidator) {
+    public PersonController(PersonServiceImpl personService, PersonValidator personValidator) {
         this.personService = personService;
         this.personValidator = personValidator;
     }
@@ -105,11 +106,15 @@ public class PersonController {
     }
 
     @GetMapping("/search")
-    public List<PersonDTO> searchPersonsByName(@RequestParam String firstName, @RequestParam String lastName) {
-        return personService.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstName, lastName)
+    public List<PersonDTO> searchPersonsByName(
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName) {
+
+        return personService.searchByOptionalNames(firstName, lastName)
                 .stream().map(PersonMapper::toDTO)
                 .toList();
     }
+
 
     @GetMapping("/email/{email}")
     public ResponseEntity<PersonDTO> getPersonByEmail(@PathVariable String email) {

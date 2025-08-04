@@ -26,4 +26,8 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
     List<Person> findByBirthDateBefore(LocalDate birthDate);
 
     List<Person> findByMaritalStatusIgnoreCase(String maritalStatus);
+
+    List<Person> findByFirstNameContainingIgnoreCase(String firstName);
+    List<Person> findByLastNameContainingIgnoreCase(String lastName);
+
 }
