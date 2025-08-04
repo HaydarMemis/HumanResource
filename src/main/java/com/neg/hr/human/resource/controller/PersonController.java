@@ -1,12 +1,11 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.business.PersonValidator;
-import com.neg.hr.human.resource.dto.CreatePersonDTO;
+import com.neg.hr.human.resource.dto.create.CreatePersonDTO;
 import com.neg.hr.human.resource.dto.PersonDTO;
-import com.neg.hr.human.resource.dto.UpdatePersonDTO;
+import com.neg.hr.human.resource.dto.update.UpdatePersonDTO;
 import com.neg.hr.human.resource.entity.Person;
 import com.neg.hr.human.resource.mapper.PersonMapper;
-import com.neg.hr.human.resource.service.PersonService;
 import com.neg.hr.human.resource.service.impl.PersonServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

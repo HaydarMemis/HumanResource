@@ -1,4 +1,4 @@
-package com.neg.hr.human.resource.dto;
+package com.neg.hr.human.resource.dto.create;
 
 import com.neg.hr.human.resource.entity.LeaveType.Gender;
 import jakarta.validation.constraints.NotNull;

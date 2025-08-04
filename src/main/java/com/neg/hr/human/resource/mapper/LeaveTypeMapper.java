@@ -1,8 +1,8 @@
 package com.neg.hr.human.resource.mapper;
 
-import com.neg.hr.human.resource.dto.CreateLeaveTypeDTO;
+import com.neg.hr.human.resource.dto.create.CreateLeaveTypeDTO;
 import com.neg.hr.human.resource.dto.LeaveTypeDTO;
-import com.neg.hr.human.resource.dto.UpdateLeaveTypeDTO;
+import com.neg.hr.human.resource.dto.update.UpdateLeaveTypeDTO;
 import com.neg.hr.human.resource.entity.LeaveType;
 
 public class LeaveTypeMapper {

@@ -1,8 +1,7 @@
 package com.neg.hr.human.resource.business;
 
-import com.neg.hr.human.resource.dto.CreatePersonDTO;
-import com.neg.hr.human.resource.dto.UpdatePersonDTO;
-import com.neg.hr.human.resource.entity.Person;
+import com.neg.hr.human.resource.dto.create.CreatePersonDTO;
+import com.neg.hr.human.resource.dto.update.UpdatePersonDTO;
 import com.neg.hr.human.resource.service.PersonService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;

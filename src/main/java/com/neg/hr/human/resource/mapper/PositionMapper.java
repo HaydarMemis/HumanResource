@@ -1,6 +1,8 @@
 package com.neg.hr.human.resource.mapper;
 
 import com.neg.hr.human.resource.dto.*;
+import com.neg.hr.human.resource.dto.create.CreatePositionDTO;
+import com.neg.hr.human.resource.dto.update.UpdatePositionDTO;
 import com.neg.hr.human.resource.entity.Position;
 
 public class PositionMapper {

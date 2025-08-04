@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.business;
 
-import com.neg.hr.human.resource.dto.CreatePositionDTO;
-import com.neg.hr.human.resource.dto.UpdatePositionDTO;
+import com.neg.hr.human.resource.dto.create.CreatePositionDTO;
+import com.neg.hr.human.resource.dto.update.UpdatePositionDTO;
 import com.neg.hr.human.resource.service.PositionService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;

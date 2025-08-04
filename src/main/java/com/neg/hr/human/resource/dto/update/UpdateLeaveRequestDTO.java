@@ -1,4 +1,4 @@
-package com.neg.hr.human.resource.dto;
+package com.neg.hr.human.resource.dto.update;
 
 import jakarta.validation.constraints.Size;
 import lombok.*;

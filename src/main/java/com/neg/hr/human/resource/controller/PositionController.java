@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.business.PositionValidator;
-import com.neg.hr.human.resource.dto.CreatePositionDTO;
+import com.neg.hr.human.resource.dto.create.CreatePositionDTO;
 import com.neg.hr.human.resource.dto.PositionDTO;
-import com.neg.hr.human.resource.dto.UpdatePositionDTO;
+import com.neg.hr.human.resource.dto.update.UpdatePositionDTO;
 import com.neg.hr.human.resource.entity.Position;
 import com.neg.hr.human.resource.mapper.PositionMapper;
 import com.neg.hr.human.resource.service.PositionService;

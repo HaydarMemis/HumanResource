@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.business;
 
-import com.neg.hr.human.resource.dto.CreateLeaveRequestDTO;
-import com.neg.hr.human.resource.dto.UpdateLeaveRequestDTO;
+import com.neg.hr.human.resource.dto.create.CreateLeaveRequestDTO;
+import com.neg.hr.human.resource.dto.update.UpdateLeaveRequestDTO;
 import com.neg.hr.human.resource.entity.*;
 import com.neg.hr.human.resource.repository.*;
 import jakarta.validation.ValidationException;

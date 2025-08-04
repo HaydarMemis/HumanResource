@@ -1,8 +1,8 @@
 package com.neg.hr.human.resource.mapper;
 
-import com.neg.hr.human.resource.dto.CreateEmployeeDTO;
+import com.neg.hr.human.resource.dto.create.CreateEmployeeDTO;
 import com.neg.hr.human.resource.dto.EmployeeDTO;
-import com.neg.hr.human.resource.dto.UpdateEmployeeDTO;
+import com.neg.hr.human.resource.dto.update.UpdateEmployeeDTO;
 import com.neg.hr.human.resource.entity.*;
 
 public class EmployeeMapper {

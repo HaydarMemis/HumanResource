@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.business;
 
-import com.neg.hr.human.resource.dto.CreateEmployeeProjectDTO;
-import com.neg.hr.human.resource.dto.UpdateEmployeeProjectDTO;
+import com.neg.hr.human.resource.dto.create.CreateEmployeeProjectDTO;
+import com.neg.hr.human.resource.dto.update.UpdateEmployeeProjectDTO;
 import com.neg.hr.human.resource.repository.EmployeeProjectRepository;
 import org.springframework.stereotype.Service;
 

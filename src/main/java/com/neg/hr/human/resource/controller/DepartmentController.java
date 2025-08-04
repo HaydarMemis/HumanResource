@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.business.DepartmentValidator;
-import com.neg.hr.human.resource.dto.CreateDepartmentDTO;
+import com.neg.hr.human.resource.dto.create.CreateDepartmentDTO;
 import com.neg.hr.human.resource.dto.DepartmentDTO;
-import com.neg.hr.human.resource.dto.UpdateDepartmentDTO;
+import com.neg.hr.human.resource.dto.update.UpdateDepartmentDTO;
 import com.neg.hr.human.resource.entity.Department;
 import com.neg.hr.human.resource.mapper.DepartmentMapper;
 import com.neg.hr.human.resource.service.DepartmentService;

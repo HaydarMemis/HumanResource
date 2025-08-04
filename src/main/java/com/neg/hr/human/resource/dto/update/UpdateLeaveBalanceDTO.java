@@ -1,7 +1,6 @@
-package com.neg.hr.human.resource.dto;
+package com.neg.hr.human.resource.dto.update;
 
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -11,18 +10,13 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateLeaveBalanceDTO {
-    @NotNull
+public class UpdateLeaveBalanceDTO {
     private Long employeeId;
-
-    @NotNull
     private Long leaveTypeId;
 
-    @NotNull
     @Min(1900)
     private Integer date;
 
-    @NotNull
     @Min(0)
     private BigDecimal amount;
 }

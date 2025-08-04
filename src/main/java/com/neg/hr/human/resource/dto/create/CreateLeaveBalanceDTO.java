@@ -1,4 +1,4 @@
-package com.neg.hr.human.resource.dto;
+package com.neg.hr.human.resource.dto.create;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -11,13 +11,18 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UpdateLeaveBalanceDTO {
+public class CreateLeaveBalanceDTO {
+    @NotNull
     private Long employeeId;
+
+    @NotNull
     private Long leaveTypeId;
 
+    @NotNull
     @Min(1900)
     private Integer date;
 
+    @NotNull
     @Min(0)
     private BigDecimal amount;
 }

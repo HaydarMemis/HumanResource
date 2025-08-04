@@ -1,4 +1,4 @@
-package com.neg.hr.human.resource.dto;
+package com.neg.hr.human.resource.dto.update;
 
 import com.neg.hr.human.resource.entity.LeaveType;
 import jakarta.validation.constraints.NotNull;

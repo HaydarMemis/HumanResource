@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.business;
 
-import com.neg.hr.human.resource.dto.CreateLeaveBalanceDTO;
-import com.neg.hr.human.resource.dto.UpdateLeaveBalanceDTO;
+import com.neg.hr.human.resource.dto.create.CreateLeaveBalanceDTO;
+import com.neg.hr.human.resource.dto.update.UpdateLeaveBalanceDTO;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.LeaveType;
 import com.neg.hr.human.resource.repository.EmployeeRepository;
