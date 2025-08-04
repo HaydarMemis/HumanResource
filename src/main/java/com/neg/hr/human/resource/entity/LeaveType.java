@@ -26,7 +26,6 @@ public class LeaveType extends AuditableEntity {
     private Boolean isAnnual;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
     @Column(name = "gender_required")
     private Gender genderRequired;
 
