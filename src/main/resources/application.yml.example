@@ -27,3 +27,9 @@ spring:
       write-dates-as-timestamps: false
     mapper:
       accept-case-insensitive-enums: true
+
+  springdoc:
+    api-docs:
+      enabled: true
+    swagger-ui:
+      enabled: true
