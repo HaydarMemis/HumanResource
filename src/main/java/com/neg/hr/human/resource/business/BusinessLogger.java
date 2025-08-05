@@ -7,7 +7,6 @@ public class BusinessLogger {
 
     private static final Logger logger = LoggerFactory.getLogger("com.neg.hr.human.resource.business");
 
-    // Genel loglama metotları — entity tipi, id ve isim bilgisi ile
     public static void logCreated(Class<?> clazz, Long id, String name) {
         logger.info("{} created - ID: {}, Name: {}", clazz.getSimpleName(), id, name);
     }
