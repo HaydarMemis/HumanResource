@@ -1,0 +1,16 @@
+filebeat.inputs:
+  - type: filestream
+    enabled: true
+    paths:
+      - /logs/*.log
+
+setup.template:
+  name: "business-logs"
+  pattern: "business-logs*"
+  overwrite: true
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+setup.kibana:
+  host: "http://kibana:5601"
