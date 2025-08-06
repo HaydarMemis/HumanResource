@@ -4,12 +4,26 @@ import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.service.LeavePolicyService;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.Period;
+import java.util.Set;
 
 @Service
 public class LeavePolicyServiceImpl implements LeavePolicyService {
+
+    // Örnek resmi tatiller (gerçek uygulamada veritabanı/tablodan çekilmeli)
+    private static final Set<LocalDate> OFFICIAL_HOLIDAYS = Set.of(
+            LocalDate.of(2025, Month.JANUARY, 1),
+            LocalDate.of(2025, Month.APRIL, 23),
+            LocalDate.of(2025, Month.MAY, 1),
+            LocalDate.of(2025, Month.MAY, 19),
+            LocalDate.of(2025, Month.JULY, 15),
+            LocalDate.of(2025, Month.AUGUST, 30),
+            LocalDate.of(2025, Month.OCTOBER, 29)
+    );
 
     private LocalDate getEmploymentStartDate(Employee employee) {
         LocalDateTime dt = employee.getEmploymentStartDate();
@@ -43,12 +57,10 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     @Override
     public int calculateAgeBasedLeaveBonus(Employee employee) {
         LocalDate birthDate = getBirthDate(employee);
-        LocalDate startDate = getEmploymentStartDate(employee);
+        if (birthDate == null) return 0;
 
         int age = calculateYearsBetween(birthDate, LocalDate.now());
-        int seniority = calculateYearsBetween(startDate, LocalDate.now());
-
-        return (age >= 50 && seniority >= 1) ? 20 : 0;
+        return (age >= 50) ? 2 : 0;
     }
 
     @Override
@@ -63,7 +75,14 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     public int calculateMaternityLeaveDays(Employee employee, boolean multiplePregnancy) {
         String gender = getGender(employee);
         if (gender == null || !gender.equalsIgnoreCase("female")) return 0;
-        return multiplePregnancy ? 224 : 168;
+        return multiplePregnancy ? 126 + 14 : 112;
+    }
+
+    @Override
+    public int calculatePaternityLeaveDays(Employee employee) {
+        String gender = getGender(employee);
+        if (gender == null || !gender.equalsIgnoreCase("male")) return 0;
+        return 5;
     }
 
     @Override
@@ -71,19 +90,19 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
         if (relation == null) return 0;
         return switch (relation.toLowerCase()) {
             case "parent", "sibling", "child", "spouse" -> 3;
-            case "grandparent", "aunt", "uncle" -> 1;
+            case "grandparent", "aunt", "uncle", "in-law" -> 1;
             default -> 0;
         };
     }
 
     @Override
-    public int calculateMarriageLeaveDays(boolean isFirstMarriage, boolean hasMarriageCertificate) {
+    public int calculateMarriageLeaveDays(Employee employee, boolean isFirstMarriage, boolean hasMarriageCertificate) {
         return (isFirstMarriage && hasMarriageCertificate) ? 3 : 0;
     }
 
     @Override
-    public int calculateMilitaryLeaveDays() {
-        return 30;
+    public boolean isEligibleForMilitaryLeave(Employee employee) {
+        return true; // Gerekirse askerlik belgesi ile kontrol yapılabilir
     }
 
     @Override
@@ -91,9 +110,19 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
         LocalDate startDate = getEmploymentStartDate(employee);
         if (startDate == null) return false;
 
-        int yearsWorked = calculateYearsBetween(startDate, LocalDate.now());
-        int maxBorrowable = (yearsWorked < 1) ? 3 : 7;
+        int monthsWorked = Period.between(startDate, LocalDate.now()).getMonths() +
+                Period.between(startDate, LocalDate.now()).getYears() * 12;
 
-        return (currentBorrowed + requestedDays) <= maxBorrowable;
+        boolean after3Months = monthsWorked >= 3;
+        if (!after3Months) return false;
+
+        return (requestedDays <= 5) && (currentBorrowed + requestedDays <= 10);
+    }
+
+    @Override
+    public boolean isOfficialHoliday(LocalDate date) {
+        return OFFICIAL_HOLIDAYS.contains(date) ||
+                date.getDayOfWeek() == DayOfWeek.SATURDAY ||
+                date.getDayOfWeek() == DayOfWeek.SUNDAY; // isteğe bağlı: hafta sonunu da say
     }
 }

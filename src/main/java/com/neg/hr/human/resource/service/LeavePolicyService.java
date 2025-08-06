@@ -14,12 +14,15 @@ public interface LeavePolicyService {
 
     int calculateMaternityLeaveDays(Employee employee, boolean multiplePregnancy);
 
+    int calculatePaternityLeaveDays(Employee employee);
+
     int calculateBereavementLeaveDays(String relation);
 
-    int calculateMarriageLeaveDays(boolean isFirstMarriage, boolean hasMarriageCertificate);
+    int calculateMarriageLeaveDays(Employee employee, boolean isFirstMarriage, boolean hasMarriageCertificate);
 
-    int calculateMilitaryLeaveDays();
+    boolean isEligibleForMilitaryLeave(Employee employee);
 
     boolean canBorrowLeave(Employee employee, int requestedDays, int currentBorrowed);
 
+    boolean isOfficialHoliday(LocalDate date);
 }
