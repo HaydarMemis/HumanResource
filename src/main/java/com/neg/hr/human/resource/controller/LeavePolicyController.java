@@ -88,11 +88,15 @@ public class LeavePolicyController {
 
     // 8. Evlilik izni
     @GetMapping("/marriage-leave/{employeeId}")
-    public ResponseEntity<Integer> getMarriageLeave(@PathVariable Long employeeId) {
+    public ResponseEntity<Integer> getMarriageLeave(
+            @PathVariable Long employeeId,
+            @RequestParam boolean isFirstMarriage,
+            @RequestParam boolean isSpouseWorking) {
         Employee employee = getEmployee(employeeId);
-        int days = leavePolicyService.calculateMarriageLeaveDays(employee);
+        int days = leavePolicyService.calculateMarriageLeaveDays(employee, isFirstMarriage, isSpouseWorking);
         return ResponseEntity.ok(days);
     }
+
 
     // 9. Askerlik izni - sabit ücretsiz izin
     @GetMapping("/military-leave/{employeeId}")
