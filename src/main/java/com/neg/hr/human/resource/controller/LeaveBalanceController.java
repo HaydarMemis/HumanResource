@@ -1,6 +1,6 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.business.LeaveBalanceValidator;
+import com.neg.hr.human.resource.validator.LeaveBalanceValidator;
 import com.neg.hr.human.resource.dto.create.CreateLeaveBalanceDTO;
 import com.neg.hr.human.resource.dto.LeaveBalanceDTO;
 import com.neg.hr.human.resource.dto.update.UpdateLeaveBalanceDTO;

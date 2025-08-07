@@ -1,6 +1,6 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.business.DepartmentValidator;
+import com.neg.hr.human.resource.validator.DepartmentValidator;
 import com.neg.hr.human.resource.dto.create.CreateDepartmentDTO;
 import com.neg.hr.human.resource.dto.DepartmentDTO;
 import com.neg.hr.human.resource.dto.update.UpdateDepartmentDTO;

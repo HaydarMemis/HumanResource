@@ -1,4 +1,4 @@
-package com.neg.hr.human.resource.business;
+package com.neg.hr.human.resource.validator;
 
 import com.neg.hr.human.resource.dto.create.CreateCompanyDTO;
 import com.neg.hr.human.resource.dto.update.UpdateCompanyDTO;

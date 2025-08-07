@@ -1,6 +1,6 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.business.LeaveTypeValidator;
+import com.neg.hr.human.resource.validator.LeaveTypeValidator;
 import com.neg.hr.human.resource.dto.create.CreateLeaveTypeDTO;
 import com.neg.hr.human.resource.dto.LeaveTypeDTO;
 import com.neg.hr.human.resource.dto.update.UpdateLeaveTypeDTO;

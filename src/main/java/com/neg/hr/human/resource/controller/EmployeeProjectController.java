@@ -1,6 +1,6 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.business.EmployeeProjectValidator;
+import com.neg.hr.human.resource.validator.EmployeeProjectValidator;
 import com.neg.hr.human.resource.dto.create.CreateEmployeeProjectDTO;
 import com.neg.hr.human.resource.dto.update.UpdateEmployeeProjectDTO;
 import com.neg.hr.human.resource.dto.EmployeeProjectDTO;
