@@ -1,10 +1,8 @@
 package com.neg.hr.human.resource.service;
 
 import com.neg.hr.human.resource.dto.create.CreateEmployeeRequestDTO;
-import com.neg.hr.human.resource.dto.create.CreateEmployeeRequestDTO;
 import com.neg.hr.human.resource.dto.update.UpdateEmployeeRequestDTO;
-import com.neg.hr.human.resource.dto.update.UpdateEmployeeRequestDTO;
-import com.neg.hr.human.resource.entity.Employee;s
+import com.neg.hr.human.resource.entity.Employee;
 
 import java.time.LocalDateTime;
 import java.util.List;
