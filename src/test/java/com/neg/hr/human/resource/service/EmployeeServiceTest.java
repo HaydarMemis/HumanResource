@@ -1,4 +1,4 @@
-package com.neg.hr.human.resouce.service;
+package com.neg.hr.human.resource.service;
 
 import com.neg.hr.human.resource.entity.*;
 import com.neg.hr.human.resource.repository.EmployeeRepository;
@@ -15,7 +15,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(MockitoExtension.class) // Sadece Mockito uzantısı
 class EmployeeServiceTest {
 
     @Mock
@@ -26,7 +26,7 @@ class EmployeeServiceTest {
 
     @Test
     void testGetEmployeeById() {
-        // Arrange: create related entities to simulate DB data
+        // Arrange
         Person person = Person.builder()
                 .id(1L)
                 .firstName("John")
@@ -70,12 +70,11 @@ class EmployeeServiceTest {
 
         // Act
         Optional<Employee> result = employeeService.findById(1L);
+
         // Assert
         Employee foundEmployee = result.orElseThrow();
-
         assertEquals("John", foundEmployee.getPerson().getFirstName());
         assertEquals("IT", foundEmployee.getDepartment().getName());
         verify(employeeRepository, times(1)).findById(1L);
-
     }
 }
