@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/employees")
-public class EmployeeController {
+public class EmployeeController<DateRequest, CompanyIdRequest, PositionIdRequest, DepartmentIdRequest, ManagerIdRequest> {
 
     private final EmployeeService employeeService;
     private final EmployeeValidator employeeValidator;
@@ -87,14 +87,6 @@ public class EmployeeController {
     @PostMapping("/getInactive")
     public List<EmployeeEntityDTO> getInactiveEmployees() {
         return employeeService.findByIsActiveFalse()
-                .stream().map(EmployeeMapper::toDTO)
-                .toList();
-    }
-
-    // POST - get employees by manager
-    @PostMapping("/getByManager")
-    public List<EmployeeEntityDTO> getEmployeesByManager(@RequestBody @Valid ManagerIdRequest request) {
-        return employeeService.findByManagerId(request.getManagerId())
                 .stream().map(EmployeeMapper::toDTO)
                 .toList();
     }
