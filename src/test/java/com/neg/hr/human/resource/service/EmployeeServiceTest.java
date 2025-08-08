@@ -15,7 +15,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class) // Sadece Mockito uzantısı
+@ExtendWith(MockitoExtension.class)
 class EmployeeServiceTest {
 
     @Mock
@@ -25,7 +25,7 @@ class EmployeeServiceTest {
     private EmployeeServiceImpl employeeService;
 
     @Test
-    void testGetEmployeeById() {
+    void testFindById_ShouldReturnEmployee_WhenEmployeeExists() {
         // Arrange
         Person person = Person.builder()
                 .id(1L)
@@ -50,7 +50,10 @@ class EmployeeServiceTest {
 
         Employee manager = Employee.builder()
                 .id(2L)
-                .person(Person.builder().firstName("Jane").lastName("Smith").build())
+                .person(Person.builder()
+                        .firstName("Jane")
+                        .lastName("Smith")
+                        .build())
                 .build();
 
         Employee employee = Employee.builder()
@@ -75,6 +78,7 @@ class EmployeeServiceTest {
         Employee foundEmployee = result.orElseThrow();
         assertEquals("John", foundEmployee.getPerson().getFirstName());
         assertEquals("IT", foundEmployee.getDepartment().getName());
+
         verify(employeeRepository, times(1)).findById(1L);
     }
 }

@@ -1,9 +1,16 @@
 package com.neg.hr.human.resource.service.impl;
 
 import com.neg.hr.human.resource.business.BusinessLogger;
-import com.neg.hr.human.resource.entity.Employee;
+import com.neg.hr.human.resource.dto.create.CreateEmployeeDTO;
+import com.neg.hr.human.resource.dto.update.UpdateEmployeeDTO;
+import com.neg.hr.human.resource.entity.*;
 import com.neg.hr.human.resource.exception.ResourceNotFoundException;
+import com.neg.hr.human.resource.mapper.EmployeeMapper;
+import com.neg.hr.human.resource.repository.CompanyRepository;
+import com.neg.hr.human.resource.repository.DepartmentRepository;
 import com.neg.hr.human.resource.repository.EmployeeRepository;
+import com.neg.hr.human.resource.repository.PersonRepository;
+import com.neg.hr.human.resource.repository.PositionRepository;
 import com.neg.hr.human.resource.service.EmployeeService;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +22,21 @@ import java.util.Optional;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final PersonRepository personRepository;
+    private final DepartmentRepository departmentRepository;
+    private final PositionRepository positionRepository;
+    private final CompanyRepository companyRepository;
 
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository,
+                               PersonRepository personRepository,
+                               DepartmentRepository departmentRepository,
+                               PositionRepository positionRepository,
+                               CompanyRepository companyRepository) {
         this.employeeRepository = employeeRepository;
+        this.personRepository = personRepository;
+        this.departmentRepository = departmentRepository;
+        this.positionRepository = positionRepository;
+        this.companyRepository = companyRepository;
     }
 
     @Override
@@ -126,5 +145,87 @@ public class EmployeeServiceImpl implements EmployeeService {
         BusinessLogger.logEmployeeUpdated(updated.getId(), fullName);
 
         return updated;
+    }
+
+    // Yeni: createEmployee metodunu DTO’dan entity’ye dönüştürüp kaydeden metod
+    @Override
+    public Employee createEmployee(CreateEmployeeDTO dto) {
+        Person person = personRepository.findById(dto.getPersonId())
+                .orElseThrow(() -> new ResourceNotFoundException("Person", dto.getPersonId()));
+        Department department = departmentRepository.findById(dto.getDepartmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Department", dto.getDepartmentId()));
+        Position position = positionRepository.findById(dto.getPositionId())
+                .orElseThrow(() -> new ResourceNotFoundException("Position", dto.getPositionId()));
+        Company company = companyRepository.findById(dto.getCompanyId())
+                .orElseThrow(() -> new ResourceNotFoundException("Company", dto.getCompanyId()));
+
+        Employee manager = null;
+        if (dto.getManagerId() != null) {
+            manager = employeeRepository.findById(dto.getManagerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Employee(manager)", dto.getManagerId()));
+        }
+
+        Employee employee = EmployeeMapper.toEntity(dto, person, department, position, company, manager);
+        Employee saved = employeeRepository.save(employee);
+
+        String fullName = saved.getPerson().getFirstName() + " " + saved.getPerson().getLastName();
+        BusinessLogger.logEmployeeCreated(saved.getId(), fullName);
+
+        return saved;
+    }
+
+    // Yeni: updateEmployee metodunu DTO’dan entity’ye dönüştürüp güncelleyen metod
+    @Override
+    public Employee updateEmployee(UpdateEmployeeDTO dto) {
+        if (dto.getId() == null) {
+            throw new IllegalArgumentException("Employee ID must be provided for update.");
+        }
+
+        Employee existing = employeeRepository.findById(dto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", dto.getId()));
+
+        Person person = null;
+        if (dto.getPersonId() != null) {
+            person = personRepository.findById(dto.getPersonId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Person", dto.getPersonId()));
+        }
+
+        Department department = null;
+        if (dto.getDepartmentId() != null) {
+            department = departmentRepository.findById(dto.getDepartmentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Department", dto.getDepartmentId()));
+        }
+
+        Position position = null;
+        if (dto.getPositionId() != null) {
+            position = positionRepository.findById(dto.getPositionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Position", dto.getPositionId()));
+        }
+
+        Company company = null;
+        if (dto.getCompanyId() != null) {
+            company = companyRepository.findById(dto.getCompanyId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Company", dto.getCompanyId()));
+        }
+
+        Employee manager = null;
+        if (dto.getManagerId() != null) {
+            manager = employeeRepository.findById(dto.getManagerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Employee(manager)", dto.getManagerId()));
+        }
+
+        EmployeeMapper.updateEntity(existing, dto, person, department, position, company, manager);
+
+        Employee updated = employeeRepository.save(existing);
+
+        String fullName = updated.getPerson().getFirstName() + " " + updated.getPerson().getLastName();
+        BusinessLogger.logEmployeeUpdated(updated.getId(), fullName);
+
+        return updated;
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return employeeRepository.existsById(id);
     }
 }

@@ -1,5 +1,6 @@
 package com.neg.hr.human.resource.controller;
 
+import com.neg.hr.human.resource.dto.EmployeeEntityDTO;
 import com.neg.hr.human.resource.validator.EmployeeValidator;
 import com.neg.hr.human.resource.dto.create.CreateEmployeeRequestDTO;
 import com.neg.hr.human.resource.dto.EmployeeEntityDTO;
@@ -21,154 +22,120 @@ import java.util.Optional;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
-    private final PersonRepository personRepository;
-    private final DepartmentRepository departmentRepository;
-    private final PositionRepository positionRepository;
-    private final CompanyRepository companyRepository;
-    private final EmployeeRepository employeeRepository;
     private final EmployeeValidator employeeValidator;
 
     public EmployeeController(EmployeeService employeeService,
-                              PersonRepository personRepository,
-                              DepartmentRepository departmentRepository,
-                              PositionRepository positionRepository,
-                              CompanyRepository companyRepository,
-                              EmployeeRepository employeeRepository,
                               EmployeeValidator employeeValidator) {
         this.employeeService = employeeService;
-        this.personRepository = personRepository;
-        this.departmentRepository = departmentRepository;
-        this.positionRepository = positionRepository;
-        this.companyRepository = companyRepository;
-        this.employeeRepository = employeeRepository;
         this.employeeValidator = employeeValidator;
     }
 
-    // GET all (DTO)
-    @GetMapping
+    // POST - get all employees (istek parametresi yok)
+    @PostMapping("/getAll")
     public List<EmployeeEntityDTO> getAllEmployees() {
         return employeeService.findAll()
                 .stream().map(EmployeeMapper::toDTO)
                 .toList();
     }
 
-    // GET by ID (DTO)
-    @GetMapping("/{id}")
-    public ResponseEntity<EmployeeEntityDTO> getEmployeeById(@PathVariable Long id) {
-        return employeeService.findById(id)
+    // POST - get employee by id
+    @PostMapping("/getById")
+    public ResponseEntity<EmployeeEntityDTO> getEmployeeById(@RequestBody @Valid IdRequest request) {
+        return employeeService.findById(request.getId())
                 .map(emp -> ResponseEntity.ok(EmployeeMapper.toDTO(emp)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - Create Employee
-    @PostMapping
+    // POST - create employee
+    @PostMapping("/create")
     public ResponseEntity<EmployeeEntityDTO> createEmployee(@Valid @RequestBody CreateEmployeeRequestDTO dto) {
         employeeValidator.validateCreateDTO(dto);
-
-        Person person = personRepository.findById(dto.getPersonId()).get();
-        Department department = departmentRepository.findById(dto.getDepartmentId()).get();
-        Position position = positionRepository.findById(dto.getPositionId()).get();
-        Company company = companyRepository.findById(dto.getCompanyId()).get();
-
-        Employee manager = null;
-        if (dto.getManagerId() != null) {
-            manager = employeeRepository.findById(dto.getManagerId()).get();
-        }
-
-        Employee employee = EmployeeMapper.toEntity(dto, person, department, position, company, manager);
-        Employee saved = employeeService.save(employee);
-
+        Employee saved = employeeService.createEmployee(dto);
         return ResponseEntity.ok(EmployeeMapper.toDTO(saved));
     }
 
-    // PUT - Update Employee
-    @PutMapping("/{id}")
-    public ResponseEntity<EmployeeEntityDTO> updateEmployee(@PathVariable Long id,
-                                                            @Valid @RequestBody UpdateEmployeeRequestDTO dto) {
-        Optional<Employee> existingOpt = employeeService.findById(id);
-        if (existingOpt.isEmpty()) return ResponseEntity.notFound().build();
-
+    // POST - update employee
+    @PostMapping("/update")
+    public ResponseEntity<EmployeeEntityDTO> updateEmployee(@Valid @RequestBody UpdateEmployeeRequestDTO dto) {
+        if (!employeeService.existsById(dto.getId())) {
+            return ResponseEntity.notFound().build();
+        }
         employeeValidator.validateUpdateDTO(dto);
-
-        Employee existing = existingOpt.get();
-
-        Person person = (dto.getPersonId() != null) ? personRepository.findById(dto.getPersonId()).get() : null;
-        Department department = (dto.getDepartmentId() != null) ? departmentRepository.findById(dto.getDepartmentId()).get() : null;
-        Position position = (dto.getPositionId() != null) ? positionRepository.findById(dto.getPositionId()).get() : null;
-        Company company = (dto.getCompanyId() != null) ? companyRepository.findById(dto.getCompanyId()).get() : null;
-        Employee manager = (dto.getManagerId() != null) ? employeeRepository.findById(dto.getManagerId()).get() : null;
-
-        EmployeeMapper.updateEntity(existing, dto, person, department, position, company, manager);
-        Employee updated = employeeService.save(existing);
-
+        Employee updated = employeeService.updateEmployee(dto);
         return ResponseEntity.ok(EmployeeMapper.toDTO(updated));
     }
 
-    // DELETE
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
-        Optional<Employee> existingEmployee = employeeService.findById(id);
-        if (existingEmployee.isEmpty()) {
+    // POST - delete employee by id
+    @PostMapping("/delete")
+    public ResponseEntity<Void> deleteEmployee(@RequestBody @Valid IdRequest request) {
+        if (!employeeService.existsById(request.getId())) {
             return ResponseEntity.notFound().build();
         }
-        employeeService.deleteById(id);
+        employeeService.deleteById(request.getId());
         return ResponseEntity.noContent().build();
     }
 
-    // Additional GETs (DTO views)
-    @GetMapping("/active")
+    // POST - get active employees
+    @PostMapping("/getActive")
     public List<EmployeeEntityDTO> getActiveEmployees() {
         return employeeService.findByIsActiveTrue()
                 .stream().map(EmployeeMapper::toDTO)
                 .toList();
     }
 
-    @GetMapping("/inactive")
+    // POST - get inactive employees
+    @PostMapping("/getInactive")
     public List<EmployeeEntityDTO> getInactiveEmployees() {
         return employeeService.findByIsActiveFalse()
                 .stream().map(EmployeeMapper::toDTO)
                 .toList();
     }
 
-    @GetMapping("/manager/{managerId}")
-    public List<EmployeeEntityDTO> getEmployeesByManager(@PathVariable Long managerId) {
-        return employeeService.findByManagerId(managerId)
+    // POST - get employees by manager
+    @PostMapping("/getByManager")
+    public List<EmployeeEntityDTO> getEmployeesByManager(@RequestBody @Valid ManagerIdRequest request) {
+        return employeeService.findByManagerId(request.getManagerId())
                 .stream().map(EmployeeMapper::toDTO)
                 .toList();
     }
 
-    @GetMapping("/department/{departmentId}")
-    public List<EmployeeEntityDTO> getEmployeesByDepartment(@PathVariable Long departmentId) {
-        return employeeService.findByDepartmentId(departmentId)
+    // POST - get employees by department
+    @PostMapping("/getByDepartment")
+    public List<EmployeeEntityDTO> getEmployeesByDepartment(@RequestBody @Valid DepartmentIdRequest request) {
+        return employeeService.findByDepartmentId(request.getDepartmentId())
                 .stream().map(EmployeeMapper::toDTO)
                 .toList();
     }
 
-    @GetMapping("/position/{positionId}")
-    public List<EmployeeEntityDTO> getEmployeesByPosition(@PathVariable Long positionId) {
-        return employeeService.findByPositionId(positionId)
+    // POST - get employees by position
+    @PostMapping("/getByPosition")
+    public List<EmployeeEntityDTO> getEmployeesByPosition(@RequestBody @Valid PositionIdRequest request) {
+        return employeeService.findByPositionId(request.getPositionId())
                 .stream().map(EmployeeMapper::toDTO)
                 .toList();
     }
 
-    @GetMapping("/company/{companyId}")
-    public List<EmployeeEntityDTO> getEmployeesByCompany(@PathVariable Long companyId) {
-        return employeeService.findByCompanyId(companyId)
+    // POST - get employees by company
+    @PostMapping("/getByCompany")
+    public List<EmployeeEntityDTO> getEmployeesByCompany(@RequestBody @Valid CompanyIdRequest request) {
+        return employeeService.findByCompanyId(request.getCompanyId())
                 .stream().map(EmployeeMapper::toDTO)
                 .toList();
     }
 
-    @GetMapping("/hired-before/{date}")
-    public List<EmployeeEntityDTO> getEmployeesHiredBefore(@PathVariable String date) {
-        LocalDateTime dateTime = LocalDateTime.parse(date);
+    // POST - get employees hired before a date
+    @PostMapping("/getHiredBefore")
+    public List<EmployeeEntityDTO> getEmployeesHiredBefore(@RequestBody @Valid DateRequest request) {
+        LocalDateTime dateTime = LocalDateTime.parse(request.getDate());
         return employeeService.findByHireDateBefore(dateTime)
                 .stream().map(EmployeeMapper::toDTO)
                 .toList();
     }
 
-    @GetMapping("/ended-before/{date}")
-    public List<EmployeeEntityDTO> getEmployeesEmploymentEndedBefore(@PathVariable String date) {
-        LocalDateTime dateTime = LocalDateTime.parse(date);
+    // POST - get employees employment ended before a date
+    @PostMapping("/getEmploymentEndedBefore")
+    public List<EmployeeEntityDTO> getEmployeesEmploymentEndedBefore(@RequestBody @Valid DateRequest request) {
+        LocalDateTime dateTime = LocalDateTime.parse(request.getDate());
         return employeeService.findByEmploymentEndDateBefore(dateTime)
                 .stream().map(EmployeeMapper::toDTO)
                 .toList();
