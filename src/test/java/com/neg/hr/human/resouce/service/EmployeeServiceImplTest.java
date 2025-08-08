@@ -1,4 +1,4 @@
 package com.neg.hr.human.resouce.service;
 
-public class EmployeeServiceTest {
+public class EmployeeServiceImplTest {
 }
