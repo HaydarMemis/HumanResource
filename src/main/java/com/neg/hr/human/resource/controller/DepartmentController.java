@@ -71,7 +71,7 @@ public class DepartmentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDepartment(@RequestBody @Valid IdRequest request) {
+    public ResponseEntity<Void> deleteDepartment(@Valid @RequestBody IdRequest request) {
         Optional<Department> existingOpt = departmentService.findById(request.getId());
         if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();

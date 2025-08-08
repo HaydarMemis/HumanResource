@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class UpdateEmployeeProjectRequestDTO {
+    private Long id;
     private Long employeeId;
     private Long projectId;
 }

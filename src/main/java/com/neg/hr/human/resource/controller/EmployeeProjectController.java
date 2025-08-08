@@ -1,5 +1,6 @@
 package com.neg.hr.human.resource.controller;
 
+import com.neg.hr.human.resource.dto.IdRequest;
 import com.neg.hr.human.resource.validator.EmployeeProjectValidator;
 import com.neg.hr.human.resource.dto.create.CreateEmployeeProjectRequestDTO;
 import com.neg.hr.human.resource.dto.update.UpdateEmployeeProjectRequestDTO;
@@ -10,24 +11,23 @@ import com.neg.hr.human.resource.entity.Project;
 import com.neg.hr.human.resource.mapper.EmployeeProjectMapper;
 import com.neg.hr.human.resource.repository.EmployeeRepository;
 import com.neg.hr.human.resource.repository.ProjectRepository;
-import com.neg.hr.human.resource.service.impl.EmployeeProjectServiceImpl;
+import com.neg.hr.human.resource.service.EmployeeProjectService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/employee-projects")
 public class EmployeeProjectController {
 
-    private final EmployeeProjectServiceImpl employeeProjectService;
+    private final EmployeeProjectService employeeProjectService;
     private final EmployeeRepository employeeRepository;
     private final ProjectRepository projectRepository;
     private final EmployeeProjectValidator employeeProjectValidator;
 
-    public EmployeeProjectController(EmployeeProjectServiceImpl employeeProjectService,
+    public EmployeeProjectController(EmployeeProjectService employeeProjectService,
                                      EmployeeRepository employeeRepository,
                                      ProjectRepository projectRepository,
                                      EmployeeProjectValidator employeeProjectValidator) {
@@ -37,8 +37,8 @@ public class EmployeeProjectController {
         this.employeeProjectValidator = employeeProjectValidator;
     }
 
-    // GET all
-    @GetMapping
+    // POST - get all
+    @PostMapping("/getAll")
     public List<EmployeeProjectEntityDTO> getAll() {
         return employeeProjectService.findAll()
                 .stream()
@@ -46,42 +46,36 @@ public class EmployeeProjectController {
                 .toList();
     }
 
-    // GET by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<EmployeeProjectEntityDTO> getById(@PathVariable Long id) {
-        return employeeProjectService.findById(id)
+    // POST - get by ID
+    @PostMapping("/getById")
+    public ResponseEntity<EmployeeProjectEntityDTO> getById(@Valid @RequestBody IdRequest request) {
+        return employeeProjectService.findById(request.getId())
                 .map(EmployeeProjectMapper::toDTO)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - Create new record with CreateEmployeeProjectDTO
-    @PostMapping
+    // POST - create
+    @PostMapping("/create")
     public ResponseEntity<EmployeeProjectEntityDTO> create(@Valid @RequestBody CreateEmployeeProjectRequestDTO dto) {
         employeeProjectValidator.validateCreateDTO(dto);
+
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"));
         Project project = projectRepository.findById(dto.getProjectId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
 
-        EmployeeProject employeeProject = EmployeeProjectMapper.toEntity(dto, employee, project);
-        EmployeeProject saved = employeeProjectService.save(employeeProject);
+        EmployeeProject entity = EmployeeProjectMapper.toEntity(dto, employee, project);
+        EmployeeProject saved = employeeProjectService.save(entity);
 
         return ResponseEntity.ok(EmployeeProjectMapper.toDTO(saved));
     }
 
-    // PUT - Update with UpdateEmployeeProjectDTO
-    @PutMapping("/{id}")
-    public ResponseEntity<EmployeeProjectEntityDTO> update(@PathVariable Long id,
-                                                           @Valid @RequestBody UpdateEmployeeProjectRequestDTO dto) {
-        Optional<EmployeeProject> existingOpt = employeeProjectService.findById(id);
-        if (existingOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+    @PostMapping("/update")
+    public ResponseEntity<EmployeeProjectEntityDTO> update(
+            @Valid @RequestBody UpdateEmployeeProjectRequestDTO dto) {
 
-        employeeProjectValidator.validateUpdateDTO(id, dto);
-
-        EmployeeProject existing = existingOpt.get();
+        employeeProjectValidator.validateUpdateDTO(dto.getId(), dto);
 
         Employee employee = (dto.getEmployeeId() != null)
                 ? employeeRepository.findById(dto.getEmployeeId())
@@ -93,44 +87,60 @@ public class EmployeeProjectController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"))
                 : null;
 
+        // 1️⃣ Get existing entity
+        EmployeeProject existing = employeeProjectService.findById(dto.getId())
+                .orElseThrow(() -> new IllegalArgumentException("EmployeeProject not found with ID: " + dto.getId()));
+        // 2️⃣ Update fields
         EmployeeProjectMapper.updateEntity(existing, dto, employee, project);
-        EmployeeProject updated = employeeProjectService.save(existing);
+
+        // 3️⃣ Save
+        EmployeeProject updated = employeeProjectService.update(dto.getId(), existing);
 
         return ResponseEntity.ok(EmployeeProjectMapper.toDTO(updated));
     }
 
-    // DELETE by ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
-        Optional<EmployeeProject> existing = employeeProjectService.findById(id);
-        if (existing.isPresent()) {
-            employeeProjectService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+
+    // POST - delete by ID
+    @PostMapping("/delete")
+    public ResponseEntity<Void> delete(@Valid @RequestBody IdRequest request) {
+        employeeProjectService.deleteById(request.getId());
+        return ResponseEntity.noContent().build();
     }
 
-    // GET list by Employee ID
-    @GetMapping("/employee/list/{employeeId}")
-    public List<EmployeeProjectEntityDTO> getByEmployeeId(@PathVariable Long employeeId) {
-        return employeeProjectService.findByEmployeeId(employeeId)
+    // POST - delete by employee ID
+    @PostMapping("/deleteByEmployee")
+    public ResponseEntity<Void> deleteByEmployee(@Valid @RequestBody IdRequest request) {
+        employeeProjectService.deleteByEmployeeId(request.getId());
+        return ResponseEntity.noContent().build();
+    }
+
+    // POST - delete by project ID
+    @PostMapping("/deleteByProject")
+    public ResponseEntity<Void> deleteByProject(@Valid @RequestBody IdRequest request) {
+        employeeProjectService.deleteByProjectId(request.getId());
+        return ResponseEntity.noContent().build();
+    }
+
+    // POST - get list by employee ID
+    @PostMapping("/getByEmployee")
+    public List<EmployeeProjectEntityDTO> getByEmployee(@Valid @RequestBody IdRequest request) {
+        return employeeProjectService.findByEmployeeId(request.getId())
                 .stream()
                 .map(EmployeeProjectMapper::toDTO)
                 .toList();
     }
 
-    // GET list by Project ID
-    @GetMapping("/project/list/{projectId}")
-    public List<EmployeeProjectEntityDTO> getByProjectId(@PathVariable Long projectId) {
-        return employeeProjectService.findByProjectId(projectId)
+    // POST - get list by project ID
+    @PostMapping("/getByProject")
+    public List<EmployeeProjectEntityDTO> getByProject(@Valid @RequestBody IdRequest request) {
+        return employeeProjectService.findByProjectId(request.getId())
                 .stream()
                 .map(EmployeeProjectMapper::toDTO)
                 .toList();
     }
 
-    // Check if relationship exists
-    @GetMapping("/exists")
+    // POST - check if exists by employee and project
+    @PostMapping("/existsByEmployeeAndProject")
     public boolean existsByEmployeeAndProject(@RequestParam Long employeeId,
                                               @RequestParam Long projectId) {
         return employeeProjectService.existsByEmployeeIdAndProjectId(employeeId, projectId);

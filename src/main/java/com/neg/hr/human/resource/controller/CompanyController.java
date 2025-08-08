@@ -11,10 +11,7 @@ import com.neg.hr.human.resource.service.CompanyService;
 import com.neg.hr.human.resource.validator.CompanyValidator;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,7 +64,7 @@ public class CompanyController {
 
     @PostMapping("/update")
     public ResponseEntity<CompanyEntityDTO> updateCompany(
-            Long Id, @Valid @RequestBody UpdateCompanyRequestDTO dto) {
+            @PathVariable Long Id, @Valid @RequestBody UpdateCompanyRequestDTO dto) {
         companyValidator.validateUpdate(dto, Id);
 
         // 1. Var plan company bul
