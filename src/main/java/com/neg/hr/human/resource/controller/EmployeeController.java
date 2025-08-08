@@ -1,25 +1,26 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.dto.EmployeeEntityDTO;
-import com.neg.hr.human.resource.validator.EmployeeValidator;
+import com.neg.hr.human.resource.dto.IdRequest;
 import com.neg.hr.human.resource.dto.create.CreateEmployeeRequestDTO;
-import com.neg.hr.human.resource.dto.EmployeeEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdateEmployeeRequestDTO;
-import com.neg.hr.human.resource.entity.*;
+import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.mapper.EmployeeMapper;
-import com.neg.hr.human.resource.repository.*;
 import com.neg.hr.human.resource.service.EmployeeService;
+import com.neg.hr.human.resource.validator.EmployeeValidator;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/employees")
-public class EmployeeController<DateRequest, CompanyIdRequest, PositionIdRequest, DepartmentIdRequest, ManagerIdRequest, IdRequest> {
+public class EmployeeController{
 
     private final EmployeeService employeeService;
     private final EmployeeValidator employeeValidator;
@@ -93,24 +94,24 @@ public class EmployeeController<DateRequest, CompanyIdRequest, PositionIdRequest
 
     // POST - get employees by department
     @PostMapping("/getByDepartment")
-    public List<EmployeeEntityDTO> getEmployeesByDepartment(@RequestBody @Valid DepartmentIdRequest request) {
-        return employeeService.findByDepartmentId(request.getDepartmentId())
+    public List<EmployeeEntityDTO> getEmployeesByDepartment(@RequestBody @Valid IdRequest request) {
+        return employeeService.findByDepartmentId(request.getId())
                 .stream().map(EmployeeMapper::toDTO)
                 .toList();
     }
 
     // POST - get employees by position
     @PostMapping("/getByPosition")
-    public List<EmployeeEntityDTO> getEmployeesByPosition(@RequestBody @Valid PositionIdRequest request) {
-        return employeeService.findByPositionId(request.getPositionId())
+    public List<EmployeeEntityDTO> getEmployeesByPosition(@RequestBody @Valid IdRequest request) {
+        return employeeService.findByPositionId(request.getId())
                 .stream().map(EmployeeMapper::toDTO)
                 .toList();
     }
 
     // POST - get employees by company
     @PostMapping("/getByCompany")
-    public List<EmployeeEntityDTO> getEmployeesByCompany(@RequestBody @Valid CompanyIdRequest request) {
-        return employeeService.findByCompanyId(request.getCompanyId())
+    public List<EmployeeEntityDTO> getEmployeesByCompany(@RequestBody @Valid IdRequest request) {
+        return employeeService.findByCompanyId(request.getId())
                 .stream().map(EmployeeMapper::toDTO)
                 .toList();
     }

@@ -1,8 +1,8 @@
 package com.neg.hr.human.resource.service.impl;
 
 import com.neg.hr.human.resource.business.BusinessLogger;
-import com.neg.hr.human.resource.dto.create.CreateEmployeeDTO;
-import com.neg.hr.human.resource.dto.update.UpdateEmployeeDTO;
+import com.neg.hr.human.resource.dto.create.CreateEmployeeRequestDTO;
+import com.neg.hr.human.resource.dto.update.UpdateEmployeeRequestDTO;
 import com.neg.hr.human.resource.entity.*;
 import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.mapper.EmployeeMapper;
@@ -147,9 +147,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         return updated;
     }
 
-    // Yeni: createEmployee metodunu DTO’dan entity’ye dönüştürüp kaydeden metod
     @Override
-    public Employee createEmployee(CreateEmployeeDTO dto) {
+    public Employee createEmployee(CreateEmployeeRequestDTO dto) {
         Person person = personRepository.findById(dto.getPersonId())
                 .orElseThrow(() -> new ResourceNotFoundException("Person", dto.getPersonId()));
         Department department = departmentRepository.findById(dto.getDepartmentId())
@@ -174,9 +173,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         return saved;
     }
 
-    // Yeni: updateEmployee metodunu DTO’dan entity’ye dönüştürüp güncelleyen metod
     @Override
-    public Employee updateEmployee(UpdateEmployeeDTO dto) {
+    public Employee updateEmployee(UpdateEmployeeRequestDTO dto) {
         if (dto.getId() == null) {
             throw new IllegalArgumentException("Employee ID must be provided for update.");
         }
