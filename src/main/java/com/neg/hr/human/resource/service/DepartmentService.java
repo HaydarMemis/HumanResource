@@ -23,4 +23,5 @@ public interface DepartmentService {
     void deleteById(Long id);
 
     public Department update(Long id, Department department);
+    boolean existsById(Long id);
 }

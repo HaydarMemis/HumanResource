@@ -77,4 +77,9 @@ public class DepartmentServiceImpl implements DepartmentService {
         BusinessLogger.logUpdated(Department.class, updated.getId(), updated.getName());
         return updated;
     }
+
+    @Override
+    public boolean existsById(Long id) {
+        return departmentRepository.existsById(id);
+    }
 }

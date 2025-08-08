@@ -24,12 +24,12 @@ public class DepartmentValidator {
         }
     }
 
-    public void validateUpdate(UpdateDepartmentRequestDTO dto, Long id) {
+    public void validateUpdate(UpdateDepartmentRequestDTO dto) {  // Remove the id parameter
         if (!StringUtils.hasText(dto.getName())) {
             throw new IllegalArgumentException("Department name must not be empty");
         }
         departmentService.findByName(dto.getName()).ifPresent(existing -> {
-            if (!existing.getId().equals(id)) {
+            if (!existing.getId().equals(dto.getId())) {  // Use dto.getId() instead
                 throw new IllegalArgumentException("Department name already exists");
             }
         });
