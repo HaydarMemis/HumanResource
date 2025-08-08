@@ -9,11 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LeaveTypeDTO {
-
+public class DepartmentEntityDTO {
     private Long id;
     private String name;
-    private Boolean isAnnual;
-    private String genderRequired;
-    private Boolean isUnpaid;
+    private String location;
 }

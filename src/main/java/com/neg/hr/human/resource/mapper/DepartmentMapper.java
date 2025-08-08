@@ -1,22 +1,22 @@
 package com.neg.hr.human.resource.mapper;
 
 import com.neg.hr.human.resource.dto.*;
-import com.neg.hr.human.resource.dto.create.CreateDepartmentDTO;
-import com.neg.hr.human.resource.dto.update.UpdateDepartmentDTO;
+import com.neg.hr.human.resource.dto.create.CreateDepartmentRequestDTO;
+import com.neg.hr.human.resource.dto.update.UpdateDepartmentRequestDTO;
 import com.neg.hr.human.resource.entity.Department;
 
 public class DepartmentMapper {
 
-    public static DepartmentDTO toDTO(Department department) {
+    public static DepartmentEntityDTO toDTO(Department department) {
         if (department == null) return null;
-        return new DepartmentDTO(
+        return new DepartmentEntityDTO(
                 department.getId(),
                 department.getName(),
                 department.getLocation()
         );
     }
 
-    public static Department toEntity(CreateDepartmentDTO dto) {
+    public static Department toEntity(CreateDepartmentRequestDTO dto) {
         if (dto == null) return null;
         return Department.builder()
                 .name(dto.getName())
@@ -24,7 +24,7 @@ public class DepartmentMapper {
                 .build();
     }
 
-    public static void updateEntity(Department department, UpdateDepartmentDTO dto) {
+    public static void updateEntity(Department department, UpdateDepartmentRequestDTO dto) {
         if (department == null || dto == null) return;
         if (dto.getName() != null) department.setName(dto.getName());
         if (dto.getLocation() != null) department.setLocation(dto.getLocation());

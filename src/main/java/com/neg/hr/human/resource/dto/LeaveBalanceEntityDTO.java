@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LeaveBalanceDTO {
+public class LeaveBalanceEntityDTO {
     private Long id;
     private String employeeFirstName;
     private String employeeLastName;

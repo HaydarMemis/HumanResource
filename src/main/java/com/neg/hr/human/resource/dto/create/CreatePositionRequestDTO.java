@@ -1,4 +1,4 @@
-package com.neg.hr.human.resource.dto.update;
+package com.neg.hr.human.resource.dto.create;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -13,8 +13,9 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UpdatePositionDTO {
-    @NotBlank(message = "Title must not be empty")
+public class CreatePositionRequestDTO {
+
+    @NotBlank(message = "Title is required")
     private String title;
 
     @DecimalMin(value = "0.0", inclusive = true, message = "Base salary must be zero or positive")

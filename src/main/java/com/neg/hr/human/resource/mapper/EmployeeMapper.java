@@ -1,15 +1,15 @@
 package com.neg.hr.human.resource.mapper;
 
-import com.neg.hr.human.resource.dto.create.CreateEmployeeDTO;
-import com.neg.hr.human.resource.dto.EmployeeDTO;
-import com.neg.hr.human.resource.dto.update.UpdateEmployeeDTO;
+import com.neg.hr.human.resource.dto.create.CreateEmployeeRequestDTO;
+import com.neg.hr.human.resource.dto.EmployeeEntityDTO;
+import com.neg.hr.human.resource.dto.update.UpdateEmployeeRequestDTO;
 import com.neg.hr.human.resource.entity.*;
 
 public class EmployeeMapper {
-    public static EmployeeDTO toDTO(Employee employee) {
+    public static EmployeeEntityDTO toDTO(Employee employee) {
         if (employee == null) return null;
 
-        return EmployeeDTO.builder()
+        return EmployeeEntityDTO.builder()
                 .id(employee.getId())
                 .firstName(employee.getPerson().getFirstName())
                 .lastName(employee.getPerson().getLastName())
@@ -22,7 +22,7 @@ public class EmployeeMapper {
                 .build();
     }
 
-    public static Employee toEntity(CreateEmployeeDTO dto,
+    public static Employee toEntity(CreateEmployeeRequestDTO dto,
                                     Person person,
                                     Department department,
                                     Position position,
@@ -44,7 +44,7 @@ public class EmployeeMapper {
     }
 
     public static void updateEntity(Employee employee,
-                                    UpdateEmployeeDTO dto,
+                                    UpdateEmployeeRequestDTO dto,
                                     Person person,
                                     Department department,
                                     Position position,

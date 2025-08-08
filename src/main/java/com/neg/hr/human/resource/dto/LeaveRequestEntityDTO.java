@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LeaveRequestDTO {
+public class LeaveRequestEntityDTO {
 
     private Long id;
 

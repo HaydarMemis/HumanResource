@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.validator;
 
-import com.neg.hr.human.resource.dto.create.CreateLeaveBalanceDTO;
-import com.neg.hr.human.resource.dto.update.UpdateLeaveBalanceDTO;
+import com.neg.hr.human.resource.dto.create.CreateLeaveBalanceRequestDTO;
+import com.neg.hr.human.resource.dto.update.UpdateLeaveBalanceRequestDTO;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.LeaveType;
 import com.neg.hr.human.resource.repository.EmployeeRepository;
@@ -28,12 +28,12 @@ public class LeaveBalanceValidator {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid leave type ID: " + leaveTypeId));
     }
 
-    public void validateCreateDTO(CreateLeaveBalanceDTO dto) {
+    public void validateCreateDTO(CreateLeaveBalanceRequestDTO dto) {
         validateAndGetEmployee(dto.getEmployeeId());
         validateAndGetLeaveType(dto.getLeaveTypeId());
     }
 
-    public void validateUpdateDTO(UpdateLeaveBalanceDTO dto) {
+    public void validateUpdateDTO(UpdateLeaveBalanceRequestDTO dto) {
         if (dto.getEmployeeId() != null) {
             validateAndGetEmployee(dto.getEmployeeId());
         }

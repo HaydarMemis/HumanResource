@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.validator.DepartmentValidator;
-import com.neg.hr.human.resource.dto.create.CreateDepartmentDTO;
-import com.neg.hr.human.resource.dto.DepartmentDTO;
-import com.neg.hr.human.resource.dto.update.UpdateDepartmentDTO;
+import com.neg.hr.human.resource.dto.create.CreateDepartmentRequestDTO;
+import com.neg.hr.human.resource.dto.DepartmentEntityDTO;
+import com.neg.hr.human.resource.dto.update.UpdateDepartmentRequestDTO;
 import com.neg.hr.human.resource.entity.Department;
 import com.neg.hr.human.resource.mapper.DepartmentMapper;
 import com.neg.hr.human.resource.service.DepartmentService;
@@ -27,7 +27,7 @@ public class DepartmentController {
     }
 
     @GetMapping
-    public List<DepartmentDTO> getAllDepartments() {
+    public List<DepartmentEntityDTO> getAllDepartments() {
         return departmentService.findAll()
                 .stream()
                 .map(DepartmentMapper::toDTO)
@@ -35,21 +35,21 @@ public class DepartmentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DepartmentDTO> getDepartmentById(@PathVariable Long id) {
+    public ResponseEntity<DepartmentEntityDTO> getDepartmentById(@PathVariable Long id) {
         Optional<Department> opt = departmentService.findById(id);
         return opt.map(department -> ResponseEntity.ok(DepartmentMapper.toDTO(department)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<DepartmentDTO> getDepartmentByName(@PathVariable String name) {
+    public ResponseEntity<DepartmentEntityDTO> getDepartmentByName(@PathVariable String name) {
         Optional<Department> opt = departmentService.findByName(name);
         return opt.map(department -> ResponseEntity.ok(DepartmentMapper.toDTO(department)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<DepartmentDTO> createDepartment(@Valid @RequestBody CreateDepartmentDTO dto) {
+    public ResponseEntity<DepartmentEntityDTO> createDepartment(@Valid @RequestBody CreateDepartmentRequestDTO dto) {
         departmentValidator.validateCreate(dto);
         Department department = DepartmentMapper.toEntity(dto);
         Department saved = departmentService.save(department);
@@ -57,7 +57,7 @@ public class DepartmentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DepartmentDTO> updateDepartment(@PathVariable Long id, @Valid @RequestBody UpdateDepartmentDTO dto) {
+    public ResponseEntity<DepartmentEntityDTO> updateDepartment(@PathVariable Long id, @Valid @RequestBody UpdateDepartmentRequestDTO dto) {
         Optional<Department> existingOpt = departmentService.findById(id);
         if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -85,7 +85,7 @@ public class DepartmentController {
     }
 
     @GetMapping("/location/{location}")
-    public List<DepartmentDTO> getDepartmentsByLocation(@PathVariable String location) {
+    public List<DepartmentEntityDTO> getDepartmentsByLocation(@PathVariable String location) {
         return departmentService.findByLocation(location)
                 .stream()
                 .map(DepartmentMapper::toDTO)
@@ -93,7 +93,7 @@ public class DepartmentController {
     }
 
     @GetMapping("/location-contains/{keyword}")
-    public List<DepartmentDTO> getDepartmentsByLocationContaining(@PathVariable String keyword) {
+    public List<DepartmentEntityDTO> getDepartmentsByLocationContaining(@PathVariable String keyword) {
         return departmentService.findByLocationContainingIgnoreCase(keyword)
                 .stream()
                 .map(DepartmentMapper::toDTO)

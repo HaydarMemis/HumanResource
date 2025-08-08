@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateLeaveRequestDTO {
+public class CreateLeaveRequestRequestDTO {
 
     @NotNull(message = "Employee ID is required")
     private Long employeeId;

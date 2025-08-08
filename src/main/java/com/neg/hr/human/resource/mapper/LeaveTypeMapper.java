@@ -1,16 +1,16 @@
 package com.neg.hr.human.resource.mapper;
 
-import com.neg.hr.human.resource.dto.create.CreateLeaveTypeDTO;
-import com.neg.hr.human.resource.dto.LeaveTypeDTO;
-import com.neg.hr.human.resource.dto.update.UpdateLeaveTypeDTO;
+import com.neg.hr.human.resource.dto.create.CreateLeaveTypeRequestDTO;
+import com.neg.hr.human.resource.dto.LeaveTypeEntityDTO;
+import com.neg.hr.human.resource.dto.update.UpdateLeaveTypeRequestDTO;
 import com.neg.hr.human.resource.entity.LeaveType;
 
 public class LeaveTypeMapper {
 
-    public static LeaveTypeDTO toDTO(LeaveType leaveType) {
+    public static LeaveTypeEntityDTO toDTO(LeaveType leaveType) {
         if (leaveType == null) return null;
 
-        return LeaveTypeDTO.builder()
+        return LeaveTypeEntityDTO.builder()
                 .id(leaveType.getId())
                 .name(leaveType.getName())
                 .isAnnual(leaveType.getIsAnnual())
@@ -19,7 +19,7 @@ public class LeaveTypeMapper {
                 .build();
     }
 
-    public static LeaveType toEntity(CreateLeaveTypeDTO dto) {
+    public static LeaveType toEntity(CreateLeaveTypeRequestDTO dto) {
         if (dto == null) return null;
 
         return LeaveType.builder()
@@ -35,7 +35,7 @@ public class LeaveTypeMapper {
                 .build();
     }
 
-    public static void updateEntity(LeaveType leaveType, UpdateLeaveTypeDTO dto) {
+    public static void updateEntity(LeaveType leaveType, UpdateLeaveTypeRequestDTO dto) {
         if (leaveType == null || dto == null) return;
 
         if (dto.getName() != null) leaveType.setName(dto.getName());

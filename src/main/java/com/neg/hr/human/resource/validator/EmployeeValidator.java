@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.validator;
 
-import com.neg.hr.human.resource.dto.create.CreateEmployeeDTO;
-import com.neg.hr.human.resource.dto.update.UpdateEmployeeDTO;
+import com.neg.hr.human.resource.dto.create.CreateEmployeeRequestDTO;
+import com.neg.hr.human.resource.dto.update.UpdateEmployeeRequestDTO;
 import com.neg.hr.human.resource.repository.*;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +25,7 @@ public class EmployeeValidator {
         this.companyRepository = companyRepository;
     }
 
-    public void validateCreateDTO(CreateEmployeeDTO dto) {
+    public void validateCreateDTO(CreateEmployeeRequestDTO dto) {
         validateCommon(dto.getPersonId(), dto.getDepartmentId(), dto.getPositionId(), dto.getCompanyId(), dto.getManagerId());
 
         if(dto.getHireDate() == null)
@@ -42,7 +42,7 @@ public class EmployeeValidator {
             throw new IllegalArgumentException("Employment end date cannot be before start date");
     }
 
-    public void validateUpdateDTO(UpdateEmployeeDTO dto) {
+    public void validateUpdateDTO(UpdateEmployeeRequestDTO dto) {
         validateCommon(dto.getPersonId(), dto.getDepartmentId(), dto.getPositionId(), dto.getCompanyId(), dto.getManagerId());
 
         if(dto.getEmploymentStartDate() != null && dto.getEmploymentEndDate() != null &&

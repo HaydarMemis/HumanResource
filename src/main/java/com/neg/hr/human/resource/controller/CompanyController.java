@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.validator.CompanyValidator;
-import com.neg.hr.human.resource.dto.CompanyDTO;
-import com.neg.hr.human.resource.dto.create.CreateCompanyDTO;
-import com.neg.hr.human.resource.dto.update.UpdateCompanyDTO;
+import com.neg.hr.human.resource.dto.CompanyEntityDTO;
+import com.neg.hr.human.resource.dto.create.CreateCompanyRequestDTO;
+import com.neg.hr.human.resource.dto.update.UpdateCompanyRequestDTO;
 import com.neg.hr.human.resource.entity.Company;
 import com.neg.hr.human.resource.mapper.CompanyMapper;
 import com.neg.hr.human.resource.service.CompanyService;
@@ -27,7 +27,7 @@ public class CompanyController {
     }
 
     @GetMapping
-    public List<CompanyDTO> getAllCompanies() {
+    public List<CompanyEntityDTO> getAllCompanies() {
         return companyService.findAll()
                 .stream()
                 .map(CompanyMapper::toDTO)
@@ -35,21 +35,21 @@ public class CompanyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable Long id) {
+    public ResponseEntity<CompanyEntityDTO> getCompanyById(@PathVariable Long id) {
         Optional<Company> opt = companyService.findById(id);
         return opt.map(company -> ResponseEntity.ok(CompanyMapper.toDTO(company)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<CompanyDTO> getCompanyByName(@PathVariable String name) {
+    public ResponseEntity<CompanyEntityDTO> getCompanyByName(@PathVariable String name) {
         Optional<Company> opt = companyService.findByName(name);
         return opt.map(company -> ResponseEntity.ok(CompanyMapper.toDTO(company)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<CompanyDTO> createCompany(@Valid @RequestBody CreateCompanyDTO dto) {
+    public ResponseEntity<CompanyEntityDTO> createCompany(@Valid @RequestBody CreateCompanyRequestDTO dto) {
         companyValidator.validateCreate(dto);
         Company company = CompanyMapper.toEntity(dto);
         Company saved = companyService.save(company);
@@ -57,7 +57,7 @@ public class CompanyController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CompanyDTO> updateCompany(@PathVariable Long id, @Valid @RequestBody UpdateCompanyDTO dto) {
+    public ResponseEntity<CompanyEntityDTO> updateCompany(@PathVariable Long id, @Valid @RequestBody UpdateCompanyRequestDTO dto) {
         Optional<Company> existingOpt = companyService.findById(id);
         if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();

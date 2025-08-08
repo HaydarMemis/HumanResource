@@ -1,16 +1,16 @@
 package com.neg.hr.human.resource.mapper;
 
-import com.neg.hr.human.resource.dto.create.CreateLeaveRequestDTO;
-import com.neg.hr.human.resource.dto.LeaveRequestDTO;
-import com.neg.hr.human.resource.dto.update.UpdateLeaveRequestDTO;
+import com.neg.hr.human.resource.dto.create.CreateLeaveRequestRequestDTO;
+import com.neg.hr.human.resource.dto.LeaveRequestEntityDTO;
+import com.neg.hr.human.resource.dto.update.UpdateLeaveRequestRequestDTO;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.LeaveRequest;
 import com.neg.hr.human.resource.entity.LeaveType;
 
 public class LeaveRequestMapper {
 
-    public static LeaveRequestDTO toDTO(LeaveRequest request) {
-        return LeaveRequestDTO.builder()
+    public static LeaveRequestEntityDTO toDTO(LeaveRequest request) {
+        return LeaveRequestEntityDTO.builder()
                 .id(request.getId())
                 .employeeFirstName(request.getEmployee().getPerson().getFirstName())
                 .employeeLastName(request.getEmployee().getPerson().getLastName())
@@ -30,7 +30,7 @@ public class LeaveRequestMapper {
                 .build();
     }
 
-    public static LeaveRequest toEntity(CreateLeaveRequestDTO dto, Employee employee, LeaveType leaveType, Employee approver) {
+    public static LeaveRequest toEntity(CreateLeaveRequestRequestDTO dto, Employee employee, LeaveType leaveType, Employee approver) {
         return LeaveRequest.builder()
                 .employee(employee)
                 .leaveType(leaveType)
@@ -43,7 +43,7 @@ public class LeaveRequestMapper {
                 .build();
     }
 
-    public static void updateEntity(LeaveRequest entity, UpdateLeaveRequestDTO dto, Employee employee, LeaveType leaveType, Employee approver) {
+    public static void updateEntity(LeaveRequest entity, UpdateLeaveRequestRequestDTO dto, Employee employee, LeaveType leaveType, Employee approver) {
         if (employee != null) entity.setEmployee(employee);
         if (leaveType != null) entity.setLeaveType(leaveType);
         if (dto.getStartDate() != null) entity.setStartDate(dto.getStartDate());

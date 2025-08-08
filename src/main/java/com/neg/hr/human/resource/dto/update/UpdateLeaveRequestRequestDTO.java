@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UpdateLeaveRequestDTO {
+public class UpdateLeaveRequestRequestDTO {
 
     private Long employeeId;
 

@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.validator.LeaveRequestValidator;
-import com.neg.hr.human.resource.dto.create.CreateLeaveRequestDTO;
-import com.neg.hr.human.resource.dto.LeaveRequestDTO;
-import com.neg.hr.human.resource.dto.update.UpdateLeaveRequestDTO;
+import com.neg.hr.human.resource.dto.create.CreateLeaveRequestRequestDTO;
+import com.neg.hr.human.resource.dto.LeaveRequestEntityDTO;
+import com.neg.hr.human.resource.dto.update.UpdateLeaveRequestRequestDTO;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.LeaveRequest;
 import com.neg.hr.human.resource.entity.LeaveType;
@@ -32,7 +32,7 @@ public class LeaveRequestController {
 
     // GET all leave requests
     @GetMapping
-    public List<LeaveRequestDTO> getAllLeaveRequests() {
+    public List<LeaveRequestEntityDTO> getAllLeaveRequests() {
         return leaveRequestService.findAll()
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
@@ -41,7 +41,7 @@ public class LeaveRequestController {
 
     // GET leave request by ID
     @GetMapping("/{id}")
-    public ResponseEntity<LeaveRequestDTO> getLeaveRequestById(@PathVariable Long id) {
+    public ResponseEntity<LeaveRequestEntityDTO> getLeaveRequestById(@PathVariable Long id) {
         return leaveRequestService.findById(id)
                 .map(LeaveRequestMapper::toDTO)
                 .map(ResponseEntity::ok)
@@ -50,7 +50,7 @@ public class LeaveRequestController {
 
     // POST create new leave request
     @PostMapping
-    public ResponseEntity<LeaveRequestDTO> createLeaveRequest(@Valid @RequestBody CreateLeaveRequestDTO dto) {
+    public ResponseEntity<LeaveRequestEntityDTO> createLeaveRequest(@Valid @RequestBody CreateLeaveRequestRequestDTO dto) {
         validator.validateCreateDTO(dto);
 
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
@@ -69,7 +69,7 @@ public class LeaveRequestController {
 
     // PUT update leave request
     @PutMapping("/{id}")
-    public ResponseEntity<LeaveRequestDTO> updateLeaveRequest(@PathVariable Long id, @Valid @RequestBody UpdateLeaveRequestDTO dto) {
+    public ResponseEntity<LeaveRequestEntityDTO> updateLeaveRequest(@PathVariable Long id, @Valid @RequestBody UpdateLeaveRequestRequestDTO dto) {
         validator.validateUpdateDTO(dto);
 
         LeaveRequest existing = leaveRequestService.findById(id)
@@ -105,37 +105,37 @@ public class LeaveRequestController {
     // === Filtered Queries ===
 
     @GetMapping("/employee/{employeeId}")
-    public List<LeaveRequestDTO> getLeaveRequestsByEmployee(@PathVariable Long employeeId) {
+    public List<LeaveRequestEntityDTO> getLeaveRequestsByEmployee(@PathVariable Long employeeId) {
         return leaveRequestService.findByEmployeeId(employeeId)
                 .stream().map(LeaveRequestMapper::toDTO).toList();
     }
 
     @GetMapping("/status/{status}")
-    public List<LeaveRequestDTO> getLeaveRequestsByStatus(@PathVariable String status) {
+    public List<LeaveRequestEntityDTO> getLeaveRequestsByStatus(@PathVariable String status) {
         return leaveRequestService.findByStatus(status)
                 .stream().map(LeaveRequestMapper::toDTO).toList();
     }
 
     @GetMapping("/cancelled")
-    public List<LeaveRequestDTO> getCancelledLeaveRequests() {
+    public List<LeaveRequestEntityDTO> getCancelledLeaveRequests() {
         return leaveRequestService.findByIsCancelledTrue()
                 .stream().map(LeaveRequestMapper::toDTO).toList();
     }
 
     @GetMapping("/approver/{approverId}")
-    public List<LeaveRequestDTO> getLeaveRequestsByApprover(@PathVariable Long approverId) {
+    public List<LeaveRequestEntityDTO> getLeaveRequestsByApprover(@PathVariable Long approverId) {
         return leaveRequestService.findByApprovedById(approverId)
                 .stream().map(LeaveRequestMapper::toDTO).toList();
     }
 
     @GetMapping("/employee/{employeeId}/status/{status}")
-    public List<LeaveRequestDTO> getLeaveRequestsByEmployeeAndStatus(@PathVariable Long employeeId, @PathVariable String status) {
+    public List<LeaveRequestEntityDTO> getLeaveRequestsByEmployeeAndStatus(@PathVariable Long employeeId, @PathVariable String status) {
         return leaveRequestService.findByEmployeeIdAndStatus(employeeId, status)
                 .stream().map(LeaveRequestMapper::toDTO).toList();
     }
 
     @GetMapping("/date-range")
-    public List<LeaveRequestDTO> getLeaveRequestsByDateRange(
+    public List<LeaveRequestEntityDTO> getLeaveRequestsByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
         return leaveRequestService.findByStartDateBetween(start, end)
@@ -143,7 +143,7 @@ public class LeaveRequestController {
     }
 
     @GetMapping("/employee/{employeeId}/leave-type/{leaveTypeId}/date-range")
-    public List<LeaveRequestDTO> getLeaveRequestsByEmployeeLeaveTypeAndDateRange(
+    public List<LeaveRequestEntityDTO> getLeaveRequestsByEmployeeLeaveTypeAndDateRange(
             @PathVariable Long employeeId,
             @PathVariable Long leaveTypeId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
@@ -153,7 +153,7 @@ public class LeaveRequestController {
     }
 
     @GetMapping("/overlapping")
-    public List<LeaveRequestDTO> getOverlappingLeaveRequests(
+    public List<LeaveRequestEntityDTO> getOverlappingLeaveRequests(
             @RequestParam Long employeeId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {

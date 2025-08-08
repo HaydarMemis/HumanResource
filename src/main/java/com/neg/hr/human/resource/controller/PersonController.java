@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.validator.PersonValidator;
-import com.neg.hr.human.resource.dto.create.CreatePersonDTO;
-import com.neg.hr.human.resource.dto.PersonDTO;
-import com.neg.hr.human.resource.dto.update.UpdatePersonDTO;
+import com.neg.hr.human.resource.dto.create.CreatePersonRequestDTO;
+import com.neg.hr.human.resource.dto.PersonEntityDTO;
+import com.neg.hr.human.resource.dto.update.UpdatePersonRequestDTO;
 import com.neg.hr.human.resource.entity.Person;
 import com.neg.hr.human.resource.mapper.PersonMapper;
 import com.neg.hr.human.resource.service.impl.PersonServiceImpl;
@@ -28,7 +28,7 @@ public class PersonController {
     }
 
     @GetMapping
-    public List<PersonDTO> getAllPersons() {
+    public List<PersonEntityDTO> getAllPersons() {
         return personService.findAll()
                 .stream()
                 .map(PersonMapper::toDTO)
@@ -36,14 +36,14 @@ public class PersonController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PersonDTO> getPersonById(@PathVariable Long id) {
+    public ResponseEntity<PersonEntityDTO> getPersonById(@PathVariable Long id) {
         Optional<Person> personOpt = personService.findById(id);
         return personOpt.map(person -> ResponseEntity.ok(PersonMapper.toDTO(person)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<PersonDTO> createPerson(@Valid @RequestBody CreatePersonDTO dto) {
+    public ResponseEntity<PersonEntityDTO> createPerson(@Valid @RequestBody CreatePersonRequestDTO dto) {
         personValidator.validateCreate(dto);
         Person person = PersonMapper.toEntity(dto);
         Person saved = personService.save(person);
@@ -51,7 +51,7 @@ public class PersonController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PersonDTO> updatePerson(@PathVariable Long id, @Valid @RequestBody UpdatePersonDTO dto) {
+    public ResponseEntity<PersonEntityDTO> updatePerson(@PathVariable Long id, @Valid @RequestBody UpdatePersonRequestDTO dto) {
         Optional<Person> existingPersonOpt = personService.findById(id);
         if (existingPersonOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -76,14 +76,14 @@ public class PersonController {
     // Additional filtered GETs similar to your current controller:
 
     @GetMapping("/gender/{gender}")
-    public List<PersonDTO> getPersonsByGender(@PathVariable String gender) {
+    public List<PersonEntityDTO> getPersonsByGender(@PathVariable String gender) {
         return personService.findByGenderIgnoreCase(gender)
                 .stream().map(PersonMapper::toDTO)
                 .toList();
     }
 
     @GetMapping("/born-before/{date}")
-    public List<PersonDTO> getPersonsBornBefore(@PathVariable String date) {
+    public List<PersonEntityDTO> getPersonsBornBefore(@PathVariable String date) {
         LocalDate birthDate = LocalDate.parse(date);
         return personService.findByBirthDateBefore(birthDate)
                 .stream().map(PersonMapper::toDTO)
@@ -91,21 +91,21 @@ public class PersonController {
     }
 
     @GetMapping("/marital-status/{status}")
-    public List<PersonDTO> getPersonsByMaritalStatus(@PathVariable String status) {
+    public List<PersonEntityDTO> getPersonsByMaritalStatus(@PathVariable String status) {
         return personService.findByMaritalStatusIgnoreCase(status)
                 .stream().map(PersonMapper::toDTO)
                 .toList();
     }
 
     @GetMapping("/national-id/{nationalId}")
-    public ResponseEntity<PersonDTO> getPersonByNationalId(@PathVariable String nationalId) {
+    public ResponseEntity<PersonEntityDTO> getPersonByNationalId(@PathVariable String nationalId) {
         Optional<Person> personOpt = personService.findByNationalId(nationalId);
         return personOpt.map(person -> ResponseEntity.ok(PersonMapper.toDTO(person)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/search")
-    public List<PersonDTO> searchPersonsByName(
+    public List<PersonEntityDTO> searchPersonsByName(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName) {
 
@@ -116,7 +116,7 @@ public class PersonController {
 
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<PersonDTO> getPersonByEmail(@PathVariable String email) {
+    public ResponseEntity<PersonEntityDTO> getPersonByEmail(@PathVariable String email) {
         Optional<Person> personOpt = personService.findByEmailIgnoreCase(email);
         return personOpt.map(person -> ResponseEntity.ok(PersonMapper.toDTO(person)))
                 .orElseGet(() -> ResponseEntity.notFound().build());

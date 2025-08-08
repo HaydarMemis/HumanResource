@@ -1,18 +1,15 @@
-package com.neg.hr.human.resource.dto.update;
+package com.neg.hr.human.resource.dto.create;
 
-import com.neg.hr.human.resource.entity.LeaveType;
+import com.neg.hr.human.resource.entity.LeaveType.Gender;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UpdateLeaveTypeDTO {
+public class CreateLeaveTypeRequestDTO {
 
     @NotNull(message = "Leave type name must not be null")
     @Size(min = 2, max = 100)
@@ -22,7 +19,7 @@ public class UpdateLeaveTypeDTO {
     private Boolean isAnnual;
 
     @NotNull(message = "genderRequired must not be null")
-    private LeaveType.Gender genderRequired;
+    private Gender genderRequired;
 
     private Integer defaultDays;
 

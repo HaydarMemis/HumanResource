@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.validator.LeaveBalanceValidator;
-import com.neg.hr.human.resource.dto.create.CreateLeaveBalanceDTO;
-import com.neg.hr.human.resource.dto.LeaveBalanceDTO;
-import com.neg.hr.human.resource.dto.update.UpdateLeaveBalanceDTO;
+import com.neg.hr.human.resource.dto.create.CreateLeaveBalanceRequestDTO;
+import com.neg.hr.human.resource.dto.LeaveBalanceEntityDTO;
+import com.neg.hr.human.resource.dto.update.UpdateLeaveBalanceRequestDTO;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.LeaveBalance;
 import com.neg.hr.human.resource.entity.LeaveType;
@@ -39,7 +39,7 @@ public class LeaveBalanceController {
 
     // GET all leave balances
     @GetMapping
-    public List<LeaveBalanceDTO> getAllLeaveBalances() {
+    public List<LeaveBalanceEntityDTO> getAllLeaveBalances() {
         return leaveBalanceService.findAll()
                 .stream()
                 .map(LeaveBalanceMapper::toDTO)
@@ -48,7 +48,7 @@ public class LeaveBalanceController {
 
     // GET leave balance by ID
     @GetMapping("/{id}")
-    public ResponseEntity<LeaveBalanceDTO> getLeaveBalanceById(@PathVariable Long id) {
+    public ResponseEntity<LeaveBalanceEntityDTO> getLeaveBalanceById(@PathVariable Long id) {
         return leaveBalanceService.findById(id)
                 .map(LeaveBalanceMapper::toDTO)
                 .map(ResponseEntity::ok)
@@ -57,7 +57,7 @@ public class LeaveBalanceController {
 
     // POST - create new leave balance
     @PostMapping
-    public ResponseEntity<LeaveBalanceDTO> createLeaveBalance(@Valid @RequestBody CreateLeaveBalanceDTO dto) {
+    public ResponseEntity<LeaveBalanceEntityDTO> createLeaveBalance(@Valid @RequestBody CreateLeaveBalanceRequestDTO dto) {
         leaveBalanceValidator.validateCreateDTO(dto);
 
         LeaveType leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
@@ -74,8 +74,8 @@ public class LeaveBalanceController {
 
     // PUT - update leave balance
     @PutMapping("/{id}")
-    public ResponseEntity<LeaveBalanceDTO> updateLeaveBalance(@PathVariable Long id,
-                                                              @Valid @RequestBody UpdateLeaveBalanceDTO dto) {
+    public ResponseEntity<LeaveBalanceEntityDTO> updateLeaveBalance(@PathVariable Long id,
+                                                                    @Valid @RequestBody UpdateLeaveBalanceRequestDTO dto) {
         Optional<LeaveBalance> existingOpt = leaveBalanceService.findById(id);
         if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -114,7 +114,7 @@ public class LeaveBalanceController {
 
     // GET leave balances by employee ID
     @GetMapping("/employee/{employeeId}")
-    public List<LeaveBalanceDTO> getLeaveBalancesByEmployee(@PathVariable Long employeeId) {
+    public List<LeaveBalanceEntityDTO> getLeaveBalancesByEmployee(@PathVariable Long employeeId) {
         return leaveBalanceService.findByEmployeeId(employeeId)
                 .stream()
                 .map(LeaveBalanceMapper::toDTO)
@@ -123,8 +123,8 @@ public class LeaveBalanceController {
 
     // GET leave balances by employee ID and year
     @GetMapping("/employee/{employeeId}/year/{year}")
-    public List<LeaveBalanceDTO> getLeaveBalancesByEmployeeAndYear(@PathVariable Long employeeId,
-                                                                   @PathVariable Integer year) {
+    public List<LeaveBalanceEntityDTO> getLeaveBalancesByEmployeeAndYear(@PathVariable Long employeeId,
+                                                                         @PathVariable Integer year) {
         return leaveBalanceService.findByEmployeeIdAndDate(year, employeeId)
                 .stream()
                 .map(LeaveBalanceMapper::toDTO)
@@ -133,8 +133,8 @@ public class LeaveBalanceController {
 
     // GET by employee ID and leave type ID
     @GetMapping("/employee/{employeeId}/leave_type/{leaveTypeId}")
-    public ResponseEntity<LeaveBalanceDTO> getLeaveBalanceByEmployeeAndLeaveType(@PathVariable Long employeeId,
-                                                                                 @PathVariable Long leaveTypeId) {
+    public ResponseEntity<LeaveBalanceEntityDTO> getLeaveBalanceByEmployeeAndLeaveType(@PathVariable Long employeeId,
+                                                                                       @PathVariable Long leaveTypeId) {
         return leaveBalanceService.findByEmployeeIdAndLeaveTypeId(employeeId, leaveTypeId)
                 .map(LeaveBalanceMapper::toDTO)
                 .map(ResponseEntity::ok)
@@ -143,9 +143,9 @@ public class LeaveBalanceController {
 
     // GET by employee ID, leave type ID and year
     @GetMapping("/employee/{employeeId}/leave_type/{leaveTypeId}/year/{year}")
-    public ResponseEntity<LeaveBalanceDTO> getLeaveBalanceByEmployeeLeaveTypeAndYear(@PathVariable Long employeeId,
-                                                                                     @PathVariable Long leaveTypeId,
-                                                                                     @PathVariable Integer year) {
+    public ResponseEntity<LeaveBalanceEntityDTO> getLeaveBalanceByEmployeeLeaveTypeAndYear(@PathVariable Long employeeId,
+                                                                                           @PathVariable Long leaveTypeId,
+                                                                                           @PathVariable Integer year) {
         return leaveBalanceService.findByEmployeeIdAndLeaveTypeIdAndDate(employeeId, leaveTypeId, year)
                 .map(LeaveBalanceMapper::toDTO)
                 .map(ResponseEntity::ok)
@@ -154,8 +154,8 @@ public class LeaveBalanceController {
 
     // GET leave balances by leave type ID and year
     @GetMapping("/leave_type/{leaveTypeId}/year/{year}")
-    public List<LeaveBalanceDTO> getLeaveBalancesByLeaveTypeAndYear(@PathVariable Long leaveTypeId,
-                                                                    @PathVariable Integer year) {
+    public List<LeaveBalanceEntityDTO> getLeaveBalancesByLeaveTypeAndYear(@PathVariable Long leaveTypeId,
+                                                                          @PathVariable Integer year) {
         return leaveBalanceService.findByLeaveTypeIdAndDate(leaveTypeId, year)
                 .stream()
                 .map(LeaveBalanceMapper::toDTO)

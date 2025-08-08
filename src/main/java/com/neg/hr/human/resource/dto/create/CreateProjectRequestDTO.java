@@ -11,11 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateDepartmentDTO {
+public class CreateProjectRequestDTO {
 
-    @NotBlank(message = "Department name is required")
-    @Size(max = 100, message = "Department name must be at most 100 characters")
+    @NotBlank(message = "Project name is required")
+    @Size(max = 255, message = "Project name must be at most 255 characters")
     private String name;
-
-    private String location;
 }

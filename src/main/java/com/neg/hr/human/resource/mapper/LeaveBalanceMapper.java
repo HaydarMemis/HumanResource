@@ -1,15 +1,15 @@
 package com.neg.hr.human.resource.mapper;
 
-import com.neg.hr.human.resource.dto.create.CreateLeaveBalanceDTO;
-import com.neg.hr.human.resource.dto.LeaveBalanceDTO;
-import com.neg.hr.human.resource.dto.update.UpdateLeaveBalanceDTO;
+import com.neg.hr.human.resource.dto.create.CreateLeaveBalanceRequestDTO;
+import com.neg.hr.human.resource.dto.LeaveBalanceEntityDTO;
+import com.neg.hr.human.resource.dto.update.UpdateLeaveBalanceRequestDTO;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.LeaveBalance;
 import com.neg.hr.human.resource.entity.LeaveType;
 
 public class LeaveBalanceMapper {
-    public static LeaveBalanceDTO toDTO(LeaveBalance leaveBalance) {
-        return LeaveBalanceDTO.builder()
+    public static LeaveBalanceEntityDTO toDTO(LeaveBalance leaveBalance) {
+        return LeaveBalanceEntityDTO.builder()
                 .id(leaveBalance.getId())
                 .employeeFirstName(leaveBalance.getEmployee().getPerson().getFirstName())
                 .employeeLastName(leaveBalance.getEmployee().getPerson().getLastName())
@@ -21,7 +21,7 @@ public class LeaveBalanceMapper {
                 .build();
     }
 
-    public static LeaveBalance toEntity(CreateLeaveBalanceDTO dto, Employee employee, LeaveType leaveType) {
+    public static LeaveBalance toEntity(CreateLeaveBalanceRequestDTO dto, Employee employee, LeaveType leaveType) {
         return LeaveBalance.builder()
                 .employee(employee)
                 .leaveType(leaveType)
@@ -30,7 +30,7 @@ public class LeaveBalanceMapper {
                 .build();
     }
 
-    public static void updateEntity(LeaveBalance existing, UpdateLeaveBalanceDTO dto, Employee employee, LeaveType leaveType) {
+    public static void updateEntity(LeaveBalance existing, UpdateLeaveBalanceRequestDTO dto, Employee employee, LeaveType leaveType) {
         if (employee != null) {
             existing.setEmployee(employee);
         }

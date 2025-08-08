@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.validator;
 
-import com.neg.hr.human.resource.dto.create.CreateEmployeeProjectDTO;
-import com.neg.hr.human.resource.dto.update.UpdateEmployeeProjectDTO;
+import com.neg.hr.human.resource.dto.create.CreateEmployeeProjectRequestDTO;
+import com.neg.hr.human.resource.dto.update.UpdateEmployeeProjectRequestDTO;
 import com.neg.hr.human.resource.repository.EmployeeProjectRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ public class EmployeeProjectValidator {
         this.employeeProjectRepository = employeeProjectRepository;
     }
 
-    public void validateCreateDTO(CreateEmployeeProjectDTO dto) {
+    public void validateCreateDTO(CreateEmployeeProjectRequestDTO dto) {
         boolean exists = employeeProjectRepository
                 .existsByEmployee_IdAndProject_Id(dto.getEmployeeId(), dto.getProjectId());
 
@@ -22,7 +22,7 @@ public class EmployeeProjectValidator {
         }
     }
 
-    public void validateUpdateDTO(Long id,UpdateEmployeeProjectDTO dto) {
+    public void validateUpdateDTO(Long id, UpdateEmployeeProjectRequestDTO dto) {
         if(dto.getEmployeeId()!=null && dto.getProjectId()!=null) {
             boolean duplicateExists = employeeProjectRepository
                     .findByEmployeeId(dto.getEmployeeId())

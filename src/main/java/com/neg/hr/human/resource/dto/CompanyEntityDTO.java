@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EmployeeProjectDTO {
+public class CompanyEntityDTO {
+
     private Long id;
-    private String projectName;
-    private String employeeFirstName;
-    private String employeeLastName;
+    private String name;
 }

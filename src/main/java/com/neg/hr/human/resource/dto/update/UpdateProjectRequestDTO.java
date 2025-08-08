@@ -1,4 +1,4 @@
-package com.neg.hr.human.resource.dto.create;
+package com.neg.hr.human.resource.dto.update;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -11,9 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateProjectDTO {
-
-    @NotBlank(message = "Project name is required")
+public class UpdateProjectRequestDTO {
+    @NotBlank(message = "Project name must not be empty")
     @Size(max = 255, message = "Project name must be at most 255 characters")
     private String name;
 }

@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.validator;
 
-import com.neg.hr.human.resource.dto.create.CreateLeaveTypeDTO;
-import com.neg.hr.human.resource.dto.update.UpdateLeaveTypeDTO;
+import com.neg.hr.human.resource.dto.create.CreateLeaveTypeRequestDTO;
+import com.neg.hr.human.resource.dto.update.UpdateLeaveTypeRequestDTO;
 import com.neg.hr.human.resource.entity.LeaveType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -31,11 +31,11 @@ public class LeaveTypeValidator {
         }
     }
 
-    public void validateCreate(CreateLeaveTypeDTO dto) {
+    public void validateCreate(CreateLeaveTypeRequestDTO dto) {
         validatorCommon(dto.getName(), dto.getIsAnnual(), dto.getGenderRequired(), dto.getIsUnpaid(), dto.getBorrowableLimit());
     }
 
-    public void validateUpdate(UpdateLeaveTypeDTO dto) {
+    public void validateUpdate(UpdateLeaveTypeRequestDTO dto) {
         validatorCommon(dto.getName(), dto.getIsAnnual(), dto.getGenderRequired(), dto.getIsUnpaid(), dto.getBorrowableLimit());
     }
 

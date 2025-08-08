@@ -5,17 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PositionDTO {
-
+public class EmployeeProjectEntityDTO {
     private Long id;
-
-    private String title;
-
-    private BigDecimal baseSalary;
+    private String projectName;
+    private String employeeFirstName;
+    private String employeeLastName;
 }

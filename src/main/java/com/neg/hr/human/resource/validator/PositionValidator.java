@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.validator;
 
-import com.neg.hr.human.resource.dto.create.CreatePositionDTO;
-import com.neg.hr.human.resource.dto.update.UpdatePositionDTO;
+import com.neg.hr.human.resource.dto.create.CreatePositionRequestDTO;
+import com.neg.hr.human.resource.dto.update.UpdatePositionRequestDTO;
 import com.neg.hr.human.resource.service.PositionService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -15,7 +15,7 @@ public class PositionValidator {
         this.positionService = positionService;
     }
 
-    public void validateCreate(CreatePositionDTO dto) {
+    public void validateCreate(CreatePositionRequestDTO dto) {
         if (!StringUtils.hasText(dto.getTitle())) {
             throw new IllegalArgumentException("Title must not be empty");
         }
@@ -27,7 +27,7 @@ public class PositionValidator {
         }
     }
 
-    public void validateUpdate(UpdatePositionDTO dto, Long id) {
+    public void validateUpdate(UpdatePositionRequestDTO dto, Long id) {
         if (!StringUtils.hasText(dto.getTitle())) {
             throw new IllegalArgumentException("Title must not be empty");
         }

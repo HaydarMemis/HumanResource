@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateEmployeeProjectDTO {
+public class CreateEmployeeProjectRequestDTO {
     @NotNull(message = "Employee ID cannot be null")
     private Long employeeId;
 

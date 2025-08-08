@@ -1,6 +1,5 @@
-package com.neg.hr.human.resource.dto.create;
+package com.neg.hr.human.resource.dto.update;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,31 +11,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateEmployeeDTO {
-    @NotNull(message = "Person ID is required")
+public class UpdateEmployeeRequestDTO {
     private Long personId;
-
-    @NotNull(message = "Department ID is required")
+    private Long id;
     private Long departmentId;
-
-    @NotNull(message = "Position ID is required")
     private Long positionId;
-
-    @NotNull(message = "Company ID is required")
     private Long companyId;
-
     private Long managerId;
 
     private String registrationNumber;
 
-    @NotNull(message = "Hire date is required")
     private LocalDateTime hireDate;
-
-    @NotNull(message = "Employment start date is required")
     private LocalDateTime employmentStartDate;
-
     private LocalDateTime employmentEndDate;
 
-    @NotNull(message = "isActive flag is required")
     private Boolean isActive;
 }

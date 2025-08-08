@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UpdateEmployeeProjectDTO {
+public class UpdateEmployeeProjectRequestDTO {
     private Long employeeId;
     private Long projectId;
 }

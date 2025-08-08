@@ -1,16 +1,16 @@
 package com.neg.hr.human.resource.mapper;
 
 import com.neg.hr.human.resource.dto.*;
-import com.neg.hr.human.resource.dto.create.CreatePersonDTO;
-import com.neg.hr.human.resource.dto.update.UpdatePersonDTO;
+import com.neg.hr.human.resource.dto.create.CreatePersonRequestDTO;
+import com.neg.hr.human.resource.dto.update.UpdatePersonRequestDTO;
 import com.neg.hr.human.resource.entity.Person;
 
 public class PersonMapper {
 
-    public static PersonDTO toDTO(Person person) {
+    public static PersonEntityDTO toDTO(Person person) {
         if (person == null) return null;
 
-        return new PersonDTO(
+        return new PersonEntityDTO(
                 person.getId(),
                 person.getFirstName(),
                 person.getLastName(),
@@ -24,7 +24,7 @@ public class PersonMapper {
         );
     }
 
-    public static Person toEntity(CreatePersonDTO dto) {
+    public static Person toEntity(CreatePersonRequestDTO dto) {
         if (dto == null) return null;
 
         return Person.builder()
@@ -40,7 +40,7 @@ public class PersonMapper {
                 .build();
     }
 
-    public static void updateEntity(Person person, UpdatePersonDTO dto) {
+    public static void updateEntity(Person person, UpdatePersonRequestDTO dto) {
         if (person == null || dto == null) return;
 
         if (dto.getFirstName() != null) person.setFirstName(dto.getFirstName());

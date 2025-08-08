@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.validator.PositionValidator;
-import com.neg.hr.human.resource.dto.create.CreatePositionDTO;
-import com.neg.hr.human.resource.dto.PositionDTO;
-import com.neg.hr.human.resource.dto.update.UpdatePositionDTO;
+import com.neg.hr.human.resource.dto.create.CreatePositionRequestDTO;
+import com.neg.hr.human.resource.dto.PositionEntityDTO;
+import com.neg.hr.human.resource.dto.update.UpdatePositionRequestDTO;
 import com.neg.hr.human.resource.entity.Position;
 import com.neg.hr.human.resource.mapper.PositionMapper;
 import com.neg.hr.human.resource.service.PositionService;
@@ -28,7 +28,7 @@ public class PositionController {
     }
 
     @GetMapping
-    public List<PositionDTO> getAllPositions() {
+    public List<PositionEntityDTO> getAllPositions() {
         return positionService.findAll()
                 .stream()
                 .map(PositionMapper::toDTO)
@@ -36,14 +36,14 @@ public class PositionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PositionDTO> getPositionById(@PathVariable Long id) {
+    public ResponseEntity<PositionEntityDTO> getPositionById(@PathVariable Long id) {
         Optional<Position> opt = positionService.findById(id);
         return opt.map(position -> ResponseEntity.ok(PositionMapper.toDTO(position)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<PositionDTO> createPosition(@Valid @RequestBody CreatePositionDTO dto) {
+    public ResponseEntity<PositionEntityDTO> createPosition(@Valid @RequestBody CreatePositionRequestDTO dto) {
         positionValidator.validateCreate(dto);
         Position position = PositionMapper.toEntity(dto);
         Position saved = positionService.save(position);
@@ -51,7 +51,7 @@ public class PositionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PositionDTO> updatePosition(@PathVariable Long id, @Valid @RequestBody UpdatePositionDTO dto) {
+    public ResponseEntity<PositionEntityDTO> updatePosition(@PathVariable Long id, @Valid @RequestBody UpdatePositionRequestDTO dto) {
         Optional<Position> existingOpt = positionService.findById(id);
         if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -76,7 +76,7 @@ public class PositionController {
     // Additional GETs
 
     @GetMapping("/title/{title}")
-    public ResponseEntity<PositionDTO> getPositionByTitle(@PathVariable String title) {
+    public ResponseEntity<PositionEntityDTO> getPositionByTitle(@PathVariable String title) {
         Optional<Position> opt = positionService.findByTitle(title);
         return opt.map(position -> ResponseEntity.ok(PositionMapper.toDTO(position)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -88,7 +88,7 @@ public class PositionController {
     }
 
     @GetMapping("/salary/{salary}")
-    public List<PositionDTO> getPositionsByBaseSalaryGreaterThanEqual(@PathVariable BigDecimal salary) {
+    public List<PositionEntityDTO> getPositionsByBaseSalaryGreaterThanEqual(@PathVariable BigDecimal salary) {
         return positionService.findByBaseSalaryGreaterThanEqual(salary)
                 .stream()
                 .map(PositionMapper::toDTO)

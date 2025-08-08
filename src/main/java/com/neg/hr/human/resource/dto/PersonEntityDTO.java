@@ -1,6 +1,5 @@
-package com.neg.hr.human.resource.dto.create;
+package com.neg.hr.human.resource.dto;
 
-import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,22 +11,20 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreatePersonDTO {
+public class PersonEntityDTO {
 
-    @NotNull(message = "First name is required")
+    private Long id;
+
     private String firstName;
 
     private String lastName;
 
-    @Size(max = 20, message = "National ID must be at most 20 characters")
     private String nationalId;
 
-    @PastOrPresent(message = "Birth date cannot be in the future")
     private LocalDate birthDate;
 
     private String gender;
 
-    @Email(message = "Email should be valid")
     private String email;
 
     private String phone;

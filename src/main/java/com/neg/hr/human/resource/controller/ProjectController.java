@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.validator.ProjectValidator;
-import com.neg.hr.human.resource.dto.create.CreateProjectDTO;
-import com.neg.hr.human.resource.dto.ProjectDTO;
-import com.neg.hr.human.resource.dto.update.UpdateProjectDTO;
+import com.neg.hr.human.resource.dto.create.CreateProjectRequestDTO;
+import com.neg.hr.human.resource.dto.ProjectEntityDTO;
+import com.neg.hr.human.resource.dto.update.UpdateProjectRequestDTO;
 import com.neg.hr.human.resource.entity.Project;
 import com.neg.hr.human.resource.mapper.ProjectMapper;
 import com.neg.hr.human.resource.service.ProjectService;
@@ -27,7 +27,7 @@ public class ProjectController {
     }
 
     @GetMapping
-    public List<ProjectDTO> getAllProjects() {
+    public List<ProjectEntityDTO> getAllProjects() {
         return projectService.findAll()
                 .stream()
                 .map(ProjectMapper::toDTO)
@@ -35,21 +35,21 @@ public class ProjectController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProjectDTO> getProjectById(@PathVariable Long id) {
+    public ResponseEntity<ProjectEntityDTO> getProjectById(@PathVariable Long id) {
         Optional<Project> opt = projectService.findById(id);
         return opt.map(project -> ResponseEntity.ok(ProjectMapper.toDTO(project)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<ProjectDTO> getProjectByName(@PathVariable String name) {
+    public ResponseEntity<ProjectEntityDTO> getProjectByName(@PathVariable String name) {
         Optional<Project> opt = projectService.findByName(name);
         return opt.map(project -> ResponseEntity.ok(ProjectMapper.toDTO(project)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody CreateProjectDTO dto) {
+    public ResponseEntity<ProjectEntityDTO> createProject(@Valid @RequestBody CreateProjectRequestDTO dto) {
         projectValidator.validateCreate(dto);
         Project project = ProjectMapper.toEntity(dto);
         Project saved = projectService.save(project);
@@ -57,7 +57,7 @@ public class ProjectController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProjectDTO> updateProject(@PathVariable Long id, @Valid @RequestBody UpdateProjectDTO dto) {
+    public ResponseEntity<ProjectEntityDTO> updateProject(@PathVariable Long id, @Valid @RequestBody UpdateProjectRequestDTO dto) {
         Optional<Project> existingOpt = projectService.findById(id);
         if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();

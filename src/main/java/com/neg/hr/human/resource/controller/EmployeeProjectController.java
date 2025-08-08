@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.validator.EmployeeProjectValidator;
-import com.neg.hr.human.resource.dto.create.CreateEmployeeProjectDTO;
-import com.neg.hr.human.resource.dto.update.UpdateEmployeeProjectDTO;
-import com.neg.hr.human.resource.dto.EmployeeProjectDTO;
+import com.neg.hr.human.resource.dto.create.CreateEmployeeProjectRequestDTO;
+import com.neg.hr.human.resource.dto.update.UpdateEmployeeProjectRequestDTO;
+import com.neg.hr.human.resource.dto.EmployeeProjectEntityDTO;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.EmployeeProject;
 import com.neg.hr.human.resource.entity.Project;
@@ -39,7 +39,7 @@ public class EmployeeProjectController {
 
     // GET all
     @GetMapping
-    public List<EmployeeProjectDTO> getAll() {
+    public List<EmployeeProjectEntityDTO> getAll() {
         return employeeProjectService.findAll()
                 .stream()
                 .map(EmployeeProjectMapper::toDTO)
@@ -48,7 +48,7 @@ public class EmployeeProjectController {
 
     // GET by ID
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeeProjectDTO> getById(@PathVariable Long id) {
+    public ResponseEntity<EmployeeProjectEntityDTO> getById(@PathVariable Long id) {
         return employeeProjectService.findById(id)
                 .map(EmployeeProjectMapper::toDTO)
                 .map(ResponseEntity::ok)
@@ -57,7 +57,7 @@ public class EmployeeProjectController {
 
     // POST - Create new record with CreateEmployeeProjectDTO
     @PostMapping
-    public ResponseEntity<EmployeeProjectDTO> create(@Valid @RequestBody CreateEmployeeProjectDTO dto) {
+    public ResponseEntity<EmployeeProjectEntityDTO> create(@Valid @RequestBody CreateEmployeeProjectRequestDTO dto) {
         employeeProjectValidator.validateCreateDTO(dto);
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"));
@@ -72,8 +72,8 @@ public class EmployeeProjectController {
 
     // PUT - Update with UpdateEmployeeProjectDTO
     @PutMapping("/{id}")
-    public ResponseEntity<EmployeeProjectDTO> update(@PathVariable Long id,
-                                                     @Valid @RequestBody UpdateEmployeeProjectDTO dto) {
+    public ResponseEntity<EmployeeProjectEntityDTO> update(@PathVariable Long id,
+                                                           @Valid @RequestBody UpdateEmployeeProjectRequestDTO dto) {
         Optional<EmployeeProject> existingOpt = employeeProjectService.findById(id);
         if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -113,7 +113,7 @@ public class EmployeeProjectController {
 
     // GET list by Employee ID
     @GetMapping("/employee/list/{employeeId}")
-    public List<EmployeeProjectDTO> getByEmployeeId(@PathVariable Long employeeId) {
+    public List<EmployeeProjectEntityDTO> getByEmployeeId(@PathVariable Long employeeId) {
         return employeeProjectService.findByEmployeeId(employeeId)
                 .stream()
                 .map(EmployeeProjectMapper::toDTO)
@@ -122,7 +122,7 @@ public class EmployeeProjectController {
 
     // GET list by Project ID
     @GetMapping("/project/list/{projectId}")
-    public List<EmployeeProjectDTO> getByProjectId(@PathVariable Long projectId) {
+    public List<EmployeeProjectEntityDTO> getByProjectId(@PathVariable Long projectId) {
         return employeeProjectService.findByProjectId(projectId)
                 .stream()
                 .map(EmployeeProjectMapper::toDTO)

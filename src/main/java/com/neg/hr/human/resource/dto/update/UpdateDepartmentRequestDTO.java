@@ -11,8 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UpdateProjectDTO {
-    @NotBlank(message = "Project name must not be empty")
-    @Size(max = 255, message = "Project name must be at most 255 characters")
+public class UpdateDepartmentRequestDTO {
+    @NotBlank(message = "Department name must not be empty")
+    @Size(max = 100, message = "Department name must be at most 100 characters")
     private String name;
+
+    private String location;
 }

@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.validator;
 
-import com.neg.hr.human.resource.dto.create.CreateLeaveRequestDTO;
-import com.neg.hr.human.resource.dto.update.UpdateLeaveRequestDTO;
+import com.neg.hr.human.resource.dto.create.CreateLeaveRequestRequestDTO;
+import com.neg.hr.human.resource.dto.update.UpdateLeaveRequestRequestDTO;
 import com.neg.hr.human.resource.entity.*;
 import com.neg.hr.human.resource.repository.*;
 import jakarta.validation.ValidationException;
@@ -19,7 +19,7 @@ public class LeaveRequestValidator {
     private final LeaveTypeRepository leaveTypeRepository;
     private final LeaveBalanceRepository leaveBalanceRepository;
 
-    public void validateCreateDTO(CreateLeaveRequestDTO dto) {
+    public void validateCreateDTO(CreateLeaveRequestRequestDTO dto) {
         validateCommon(dto.getEmployeeId(), dto.getLeaveTypeId(), dto.getStartDate(), dto.getEndDate());
 
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
@@ -40,7 +40,7 @@ public class LeaveRequestValidator {
         validateExtraRules(employee, leaveType, dto.getStartDate(), dto.getEndDate());
     }
 
-    public void validateUpdateDTO(UpdateLeaveRequestDTO dto) {
+    public void validateUpdateDTO(UpdateLeaveRequestRequestDTO dto) {
         if (dto.getEmployeeId() != null && dto.getLeaveTypeId() != null &&
                 dto.getStartDate() != null && dto.getEndDate() != null) {
 

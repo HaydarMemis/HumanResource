@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.validator;
 
-import com.neg.hr.human.resource.dto.create.CreatePersonDTO;
-import com.neg.hr.human.resource.dto.update.UpdatePersonDTO;
+import com.neg.hr.human.resource.dto.create.CreatePersonRequestDTO;
+import com.neg.hr.human.resource.dto.update.UpdatePersonRequestDTO;
 import com.neg.hr.human.resource.service.PersonService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -15,7 +15,7 @@ public class PersonValidator {
         this.personService = personService;
     }
 
-    public void validateCreate(CreatePersonDTO dto) {
+    public void validateCreate(CreatePersonRequestDTO dto) {
         if (!StringUtils.hasText(dto.getFirstName())) {
             throw new IllegalArgumentException("First name must not be empty");
         }
@@ -28,7 +28,7 @@ public class PersonValidator {
         // Add any additional validation rules here
     }
 
-    public void validateUpdate(UpdatePersonDTO dto, Long personId) {
+    public void validateUpdate(UpdatePersonRequestDTO dto, Long personId) {
         if (!StringUtils.hasText(dto.getFirstName())) {
             throw new IllegalArgumentException("First name must not be empty");
         }
