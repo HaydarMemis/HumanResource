@@ -1,5 +1,6 @@
 package com.neg.hr.human.resource.controller;
 
+import com.neg.hr.human.resource.dto.IdRequest;
 import com.neg.hr.human.resource.validator.DepartmentValidator;
 import com.neg.hr.human.resource.dto.create.CreateDepartmentRequestDTO;
 import com.neg.hr.human.resource.dto.DepartmentEntityDTO;
@@ -35,8 +36,8 @@ public class DepartmentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DepartmentEntityDTO> getDepartmentById(@PathVariable Long id) {
-        Optional<Department> opt = departmentService.findById(id);
+    public ResponseEntity<DepartmentEntityDTO> getDepartmentById(@Valid @RequestBody IdRequest request) {
+        Optional<Department> opt = departmentService.findById(request.getId());
         return opt.map(department -> ResponseEntity.ok(DepartmentMapper.toDTO(department)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -70,12 +71,12 @@ public class DepartmentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
-        Optional<Department> existingOpt = departmentService.findById(id);
+    public ResponseEntity<Void> deleteDepartment(@RequestBody @Valid IdRequest request) {
+        Optional<Department> existingOpt = departmentService.findById(request.getId());
         if (existingOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        departmentService.deleteById(id);
+        departmentService.deleteById(request.getId());
         return ResponseEntity.noContent().build();
     }
 

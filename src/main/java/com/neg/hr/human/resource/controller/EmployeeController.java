@@ -42,7 +42,7 @@ public class EmployeeController{
 
     // POST - get employee by id
     @PostMapping("/getById")
-    public ResponseEntity<EmployeeEntityDTO> getEmployeeById(@RequestBody @Valid IdRequest request) {
+    public ResponseEntity<EmployeeEntityDTO> getEmployeeById(@Valid @RequestBody IdRequest request) {
         return employeeService.findById(request.getId())
                 .map(emp -> ResponseEntity.ok(EmployeeMapper.toDTO(emp)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
