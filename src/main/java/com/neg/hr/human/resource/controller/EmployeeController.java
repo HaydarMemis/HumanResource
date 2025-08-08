@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/employees")
-public class EmployeeController<DateRequest, CompanyIdRequest, PositionIdRequest, DepartmentIdRequest, ManagerIdRequest> {
+public class EmployeeController<DateRequest, CompanyIdRequest, PositionIdRequest, DepartmentIdRequest, ManagerIdRequest, IdRequest> {
 
     private final EmployeeService employeeService;
     private final EmployeeValidator employeeValidator;
