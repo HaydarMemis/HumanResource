@@ -72,4 +72,9 @@ public class PositionServiceImpl implements PositionService {
         BusinessLogger.logUpdated(Position.class, updated.getId(), updated.getTitle());
         return updated;
     }
+
+    @Override
+    public boolean existsById(Long id) {
+        return positionRepository.existsById(id);
+    }
 }

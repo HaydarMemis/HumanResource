@@ -21,4 +21,6 @@ public interface PositionService {
     void deleteById(Long id);
 
     public Position update(Long id, Position position);
+
+    boolean existsById(Long id);
 }

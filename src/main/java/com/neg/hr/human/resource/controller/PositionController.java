@@ -1,19 +1,22 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.validator.PositionValidator;
+import com.neg.hr.human.resource.dto.*;
 import com.neg.hr.human.resource.dto.create.CreatePositionRequestDTO;
 import com.neg.hr.human.resource.dto.entity.PositionEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdatePositionRequestDTO;
 import com.neg.hr.human.resource.entity.Position;
 import com.neg.hr.human.resource.mapper.PositionMapper;
 import com.neg.hr.human.resource.service.PositionService;
+import com.neg.hr.human.resource.validator.PositionValidator;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/positions")
@@ -22,12 +25,14 @@ public class PositionController {
     private final PositionService positionService;
     private final PositionValidator positionValidator;
 
-    public PositionController(PositionService positionService, PositionValidator positionValidator) {
+    public PositionController(PositionService positionService,
+                              PositionValidator positionValidator) {
         this.positionService = positionService;
         this.positionValidator = positionValidator;
     }
 
-    @GetMapping
+    // POST - get all positions
+    @PostMapping("/getAll")
     public List<PositionEntityDTO> getAllPositions() {
         return positionService.findAll()
                 .stream()
@@ -35,14 +40,16 @@ public class PositionController {
                 .toList();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PositionEntityDTO> getPositionById(@PathVariable Long id) {
-        Optional<Position> opt = positionService.findById(id);
-        return opt.map(position -> ResponseEntity.ok(PositionMapper.toDTO(position)))
+    // POST - get position by ID
+    @PostMapping("/getById")
+    public ResponseEntity<PositionEntityDTO> getPositionById(@Valid @RequestBody IdRequest request) {
+        return positionService.findById(request.getId())
+                .map(position -> ResponseEntity.ok(PositionMapper.toDTO(position)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping
+    // POST - create position
+    @PostMapping("/create")
     public ResponseEntity<PositionEntityDTO> createPosition(@Valid @RequestBody CreatePositionRequestDTO dto) {
         positionValidator.validateCreate(dto);
         Position position = PositionMapper.toEntity(dto);
@@ -50,46 +57,47 @@ public class PositionController {
         return ResponseEntity.ok(PositionMapper.toDTO(saved));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<PositionEntityDTO> updatePosition(@PathVariable Long id, @Valid @RequestBody UpdatePositionRequestDTO dto) {
-        Optional<Position> existingOpt = positionService.findById(id);
-        if (existingOpt.isEmpty()) {
+    // POST - update position
+    @PostMapping("/update")
+    public ResponseEntity<PositionEntityDTO> updatePosition(@Valid @RequestBody UpdatePositionRequestDTO dto) {
+        if (!positionService.existsById(dto.getId())) {
             return ResponseEntity.notFound().build();
         }
-        positionValidator.validateUpdate(dto, id);
-        Position existing = existingOpt.get();
+        positionValidator.validateUpdate(dto, dto.getId());
+        Position existing = positionService.findById(dto.getId()).get();
         PositionMapper.updateEntity(existing, dto);
         Position updated = positionService.save(existing);
         return ResponseEntity.ok(PositionMapper.toDTO(updated));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePosition(@PathVariable Long id) {
-        Optional<Position> existingOpt = positionService.findById(id);
-        if (existingOpt.isEmpty()) {
+    // POST - delete position
+    @PostMapping("/delete")
+    public ResponseEntity<Void> deletePosition(@Valid @RequestBody IdRequest request) {
+        if (!positionService.existsById(request.getId())) {
             return ResponseEntity.notFound().build();
         }
-        positionService.deleteById(id);
+        positionService.deleteById(request.getId());
         return ResponseEntity.noContent().build();
     }
 
-    // Additional GETs
-
-    @GetMapping("/title/{title}")
-    public ResponseEntity<PositionEntityDTO> getPositionByTitle(@PathVariable String title) {
-        Optional<Position> opt = positionService.findByTitle(title);
-        return opt.map(position -> ResponseEntity.ok(PositionMapper.toDTO(position)))
+    // POST - get position by title
+    @PostMapping("/getByTitle")
+    public ResponseEntity<PositionEntityDTO> getPositionByTitle(@Valid @RequestBody TitleRequest request) {
+        return positionService.findByTitle(request.getTitle())
+                .map(position -> ResponseEntity.ok(PositionMapper.toDTO(position)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/exists/{title}")
-    public boolean existsByTitle(@PathVariable String title) {
-        return positionService.existsByTitle(title);
+    // POST - check if position exists by title
+    @PostMapping("/existsByTitle")
+    public boolean existsByTitle(@Valid @RequestBody TitleRequest request) {
+        return positionService.existsByTitle(request.getTitle());
     }
 
-    @GetMapping("/salary/{salary}")
-    public List<PositionEntityDTO> getPositionsByBaseSalaryGreaterThanEqual(@PathVariable BigDecimal salary) {
-        return positionService.findByBaseSalaryGreaterThanEqual(salary)
+    // POST - get positions with base salary greater than or equal to
+    @PostMapping("/getByBaseSalary")
+    public List<PositionEntityDTO> getPositionsByBaseSalary(@Valid @RequestBody SalaryRequest request) {
+        return positionService.findByBaseSalaryGreaterThanEqual(request.getSalary())
                 .stream()
                 .map(PositionMapper::toDTO)
                 .toList();
