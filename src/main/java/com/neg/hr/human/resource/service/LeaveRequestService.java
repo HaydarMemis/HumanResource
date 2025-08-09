@@ -36,4 +36,6 @@ public interface LeaveRequestService {
     void deleteById(Long id);
 
     LeaveRequest update(Long id, LeaveRequest leaveRequest);
+
+    boolean existsById(Long id);
 }

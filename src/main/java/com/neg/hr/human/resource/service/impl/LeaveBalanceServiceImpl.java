@@ -86,6 +86,11 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     }
 
     @Override
+    public boolean existsById(Long id) {
+        return leaveBalanceRepository.existsById(id);
+    }
+
+    @Override
     public Optional<LeaveBalance> findById(Long id) {
         return leaveBalanceRepository.findById(id);
     }

@@ -114,4 +114,9 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         BusinessLogger.logUpdated(LeaveRequest.class, updated.getId(), "LeaveRequest");
         return updated;
     }
+
+    @Override
+    public boolean existsById(Long id) {
+        return leaveRequestRepository.existsById(id);
+    }
 }

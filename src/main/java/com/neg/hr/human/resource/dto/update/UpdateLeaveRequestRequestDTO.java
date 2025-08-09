@@ -1,5 +1,6 @@
 package com.neg.hr.human.resource.dto.update;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -12,6 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class UpdateLeaveRequestRequestDTO {
+    @NotNull
+    private Long id;
 
     private Long employeeId;
 
