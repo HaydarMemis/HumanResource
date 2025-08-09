@@ -2,7 +2,7 @@ package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.validator.PersonValidator;
 import com.neg.hr.human.resource.dto.create.CreatePersonRequestDTO;
-import com.neg.hr.human.resource.dto.PersonEntityDTO;
+import com.neg.hr.human.resource.dto.entity.PersonEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdatePersonRequestDTO;
 import com.neg.hr.human.resource.entity.Person;
 import com.neg.hr.human.resource.mapper.PersonMapper;

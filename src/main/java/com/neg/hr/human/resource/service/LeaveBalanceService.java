@@ -27,4 +27,6 @@ public interface LeaveBalanceService {
     void deleteById(Long id);
 
     public LeaveBalance update(Long id, LeaveBalance leaveBalance);
+
+    boolean existsById(Long id);
 }

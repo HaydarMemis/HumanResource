@@ -1,21 +1,16 @@
-package com.neg.hr.human.resource.dto;
+package com.neg.hr.human.resource.dto.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PositionEntityDTO {
-
+public class DepartmentEntityDTO {
     private Long id;
-
-    private String title;
-
-    private BigDecimal baseSalary;
+    private String name;
+    private String location;
 }

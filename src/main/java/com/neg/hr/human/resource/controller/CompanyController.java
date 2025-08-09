@@ -1,6 +1,6 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.dto.CompanyEntityDTO;
+import com.neg.hr.human.resource.dto.entity.CompanyEntityDTO;
 import com.neg.hr.human.resource.dto.IdRequest;
 import com.neg.hr.human.resource.dto.NameRequestDTO;
 import com.neg.hr.human.resource.dto.create.CreateCompanyRequestDTO;

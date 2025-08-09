@@ -1,4 +1,4 @@
-package com.neg.hr.human.resource.dto;
+package com.neg.hr.human.resource.dto.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CompanyEntityDTO {
+public class LeaveTypeEntityDTO {
 
     private Long id;
     private String name;
+    private Boolean isAnnual;
+    private String genderRequired;
+    private Boolean isUnpaid;
 }

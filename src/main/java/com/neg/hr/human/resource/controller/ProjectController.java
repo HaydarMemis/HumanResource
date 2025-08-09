@@ -2,7 +2,7 @@ package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.validator.ProjectValidator;
 import com.neg.hr.human.resource.dto.create.CreateProjectRequestDTO;
-import com.neg.hr.human.resource.dto.ProjectEntityDTO;
+import com.neg.hr.human.resource.dto.entity.ProjectEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdateProjectRequestDTO;
 import com.neg.hr.human.resource.entity.Project;
 import com.neg.hr.human.resource.mapper.ProjectMapper;

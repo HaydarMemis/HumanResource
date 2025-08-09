@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.mapper;
 
 import com.neg.hr.human.resource.dto.create.CreateLeaveBalanceRequestDTO;
-import com.neg.hr.human.resource.dto.LeaveBalanceEntityDTO;
+import com.neg.hr.human.resource.dto.entity.LeaveBalanceEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdateLeaveBalanceRequestDTO;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.LeaveBalance;

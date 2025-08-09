@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.mapper;
 
-import com.neg.hr.human.resource.dto.*;
 import com.neg.hr.human.resource.dto.create.CreateDepartmentRequestDTO;
+import com.neg.hr.human.resource.dto.entity.DepartmentEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdateDepartmentRequestDTO;
 import com.neg.hr.human.resource.entity.Department;
 

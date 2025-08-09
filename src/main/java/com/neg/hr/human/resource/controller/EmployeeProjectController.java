@@ -4,7 +4,7 @@ import com.neg.hr.human.resource.dto.IdRequest;
 import com.neg.hr.human.resource.validator.EmployeeProjectValidator;
 import com.neg.hr.human.resource.dto.create.CreateEmployeeProjectRequestDTO;
 import com.neg.hr.human.resource.dto.update.UpdateEmployeeProjectRequestDTO;
-import com.neg.hr.human.resource.dto.EmployeeProjectEntityDTO;
+import com.neg.hr.human.resource.dto.entity.EmployeeProjectEntityDTO;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.EmployeeProject;
 import com.neg.hr.human.resource.entity.Project;

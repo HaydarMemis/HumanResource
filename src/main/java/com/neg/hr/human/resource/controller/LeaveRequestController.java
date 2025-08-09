@@ -2,7 +2,7 @@ package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.validator.LeaveRequestValidator;
 import com.neg.hr.human.resource.dto.create.CreateLeaveRequestRequestDTO;
-import com.neg.hr.human.resource.dto.LeaveRequestEntityDTO;
+import com.neg.hr.human.resource.dto.entity.LeaveRequestEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdateLeaveRequestRequestDTO;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.LeaveRequest;
