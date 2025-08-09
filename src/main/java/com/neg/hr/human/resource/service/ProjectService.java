@@ -19,4 +19,6 @@ public interface ProjectService {
     void deleteById(Long id);
 
     Project update(Long id, Project project);
+
+    boolean existsById(Long id);
 }

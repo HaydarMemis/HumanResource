@@ -66,4 +66,9 @@ public class ProjectServiceImpl implements ProjectService {
         BusinessLogger.logUpdated(Project.class, updated.getId(), updated.getName());
         return updated;
     }
+
+    @Override
+    public boolean existsById(Long id) {
+        return projectRepository.existsById(id);
+    }
 }
