@@ -32,4 +32,6 @@ public interface PersonService {
     void deleteById(Long id);
 
     public Person update(Long id, Person leaveBalance);
+
+    boolean existsById(Long id);
 }

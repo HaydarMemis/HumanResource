@@ -117,4 +117,9 @@ public class PersonServiceImpl implements PersonService {
             return personRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstName, lastName);
         }
     }
+
+    @Override
+    public boolean existsById(Long id) {
+        return personRepository.existsById(id);
+    }
 }
