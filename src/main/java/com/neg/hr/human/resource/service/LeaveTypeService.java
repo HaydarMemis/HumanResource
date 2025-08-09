@@ -23,7 +23,7 @@ public interface LeaveTypeService {
 
     public LeaveType save(LeaveType leaveType);
 
-    public LeaveType findById(Long id);
+    Optional<LeaveType> findById(Long id);
 
     public List<LeaveType> findAll();
 

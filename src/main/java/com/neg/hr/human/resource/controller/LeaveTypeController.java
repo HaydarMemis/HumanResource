@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/leave_types")
@@ -42,10 +43,12 @@ public class LeaveTypeController {
     // POST - get leave type by ID
     @PostMapping("/getById")
     public ResponseEntity<LeaveTypeEntityDTO> getLeaveTypeById(@Valid @RequestBody IdRequest request) {
-        return leaveTypeService.findById(request.getId())
-                .map(LeaveTypeMapper::toDTO)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Optional<LeaveType> leaveTypeOpt = leaveTypeService.findById(request.getId());
+        if (leaveTypeOpt.isPresent()) {
+            LeaveTypeEntityDTO dto = LeaveTypeMapper.toDTO(leaveTypeOpt.get());
+            return ResponseEntity.ok(dto);  // Explicitly using ok(T)
+        }
+        return ResponseEntity.notFound().build();
     }
 
     // POST - create leave type
@@ -60,15 +63,25 @@ public class LeaveTypeController {
     // POST - update leave type
     @PostMapping("/update")
     public ResponseEntity<LeaveTypeEntityDTO> updateLeaveType(@Valid @RequestBody UpdateLeaveTypeRequestDTO dto) {
+        // First check if exists
         if (!leaveTypeService.existsById(dto.getId())) {
             return ResponseEntity.notFound().build();
         }
 
+        // Validate the DTO
         leaveTypeValidator.validateUpdate(dto);
 
-        LeaveType existing = leaveTypeService.findById(dto.getId());
+        // Get the existing leave type - now properly handling Optional
+        Optional<LeaveType> existingOpt = leaveTypeService.findById(dto.getId());
+        if (existingOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Update and save
+        LeaveType existing = existingOpt.get();
         LeaveTypeMapper.updateEntity(existing, dto);
         LeaveType updated = leaveTypeService.save(existing);
+
         return ResponseEntity.ok(LeaveTypeMapper.toDTO(updated));
     }
 

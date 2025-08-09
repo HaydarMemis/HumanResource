@@ -60,9 +60,8 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
     }
 
     @Override
-    public LeaveType findById(Long id) {
-        return leaveTypeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Type", id));
+    public Optional<LeaveType> findById(Long id) {
+        return leaveTypeRepository.findById(id);
     }
 
     @Override
