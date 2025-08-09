@@ -24,4 +24,6 @@ public interface LeaveTypeRepository extends JpaRepository<LeaveType, Long> {
     List<LeaveType> findByBorrowableLimitGreaterThan(Integer limit);
 
     List<LeaveType> findByValidAfterDaysGreaterThan(Integer days);
+
+    List<LeaveType> findByIsUnpaidFalse();
 }

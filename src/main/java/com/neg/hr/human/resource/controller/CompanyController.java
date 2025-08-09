@@ -2,7 +2,7 @@ package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.dto.entity.CompanyEntityDTO;
 import com.neg.hr.human.resource.dto.IdRequest;
-import com.neg.hr.human.resource.dto.NameRequestDTO;
+import com.neg.hr.human.resource.dto.NameRequest;
 import com.neg.hr.human.resource.dto.create.CreateCompanyRequestDTO;
 import com.neg.hr.human.resource.dto.update.UpdateCompanyRequestDTO;
 import com.neg.hr.human.resource.entity.Company;
@@ -47,7 +47,7 @@ public class CompanyController {
 
     @PostMapping("/getByName")
     public ResponseEntity<CompanyEntityDTO> getCompanyByName(
-            @Valid @RequestBody NameRequestDTO request) {
+            @Valid @RequestBody NameRequest request) {
         return companyService.findByName(request.getName())
                 .map(company -> ResponseEntity.ok(CompanyMapper.toDTO(company)))
                 .orElse(ResponseEntity.notFound().build());
@@ -88,7 +88,7 @@ public class CompanyController {
 
     @PostMapping("/exists")
     public ResponseEntity<Boolean> companyExists(
-            @Valid @RequestBody NameRequestDTO request) {
+            @Valid @RequestBody NameRequest request) {
         boolean exists = companyService.existsByName(request.getName());
         return ResponseEntity.ok(exists);
     }

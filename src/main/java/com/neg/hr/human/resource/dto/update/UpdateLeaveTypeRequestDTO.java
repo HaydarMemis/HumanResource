@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class UpdateLeaveTypeRequestDTO {
+    @NotNull
+    private Long id;
 
     @NotNull(message = "Leave type name must not be null")
     @Size(min = 2, max = 100)

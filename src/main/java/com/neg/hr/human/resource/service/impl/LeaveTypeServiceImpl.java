@@ -100,4 +100,14 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
         BusinessLogger.logUpdated(LeaveType.class, updated.getId(), updated.getName());
         return updated;
     }
+
+    @Override
+    public boolean existsById(Long id) {
+        return leaveTypeRepository.existsById(id);
+    }
+
+    @Override
+    public List<LeaveType> findByIsUnpaidFalse() {
+        return leaveTypeRepository.findByIsUnpaidFalse();
+    }
 }

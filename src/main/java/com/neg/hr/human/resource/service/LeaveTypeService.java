@@ -30,4 +30,8 @@ public interface LeaveTypeService {
     public void delete(Long id);
 
     public LeaveType update(Long id, LeaveType leaveType);
+
+    boolean existsById(Long id);
+
+    List<LeaveType> findByIsUnpaidFalse();
 }
