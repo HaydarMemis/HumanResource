@@ -6,6 +6,7 @@ import com.neg.hr.human.resource.dto.entity.LeaveTypeEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdateLeaveTypeRequestDTO;
 import com.neg.hr.human.resource.entity.LeaveType;
 import com.neg.hr.human.resource.mapper.LeaveTypeMapper;
+import com.neg.hr.human.resource.service.LeaveTypeService;
 import com.neg.hr.human.resource.service.impl.LeaveTypeServiceImpl;
 import com.neg.hr.human.resource.validator.LeaveTypeValidator;
 import jakarta.validation.Valid;
@@ -22,10 +23,10 @@ import java.util.Optional;
 @RequestMapping("/api/leave_types")
 public class LeaveTypeController {
 
-    private final LeaveTypeServiceImpl leaveTypeService;
+    private final LeaveTypeService leaveTypeService;
     private final LeaveTypeValidator leaveTypeValidator;
 
-    public LeaveTypeController(LeaveTypeServiceImpl leaveTypeService,
+    public LeaveTypeController(LeaveTypeService leaveTypeService,
                                LeaveTypeValidator leaveTypeValidator) {
         this.leaveTypeService = leaveTypeService;
         this.leaveTypeValidator = leaveTypeValidator;

@@ -10,6 +10,7 @@ import com.neg.hr.human.resource.entity.LeaveType;
 import com.neg.hr.human.resource.mapper.LeaveBalanceMapper;
 import com.neg.hr.human.resource.repository.EmployeeRepository;
 import com.neg.hr.human.resource.repository.LeaveTypeRepository;
+import com.neg.hr.human.resource.service.LeaveBalanceService;
 import com.neg.hr.human.resource.service.impl.LeaveBalanceServiceImpl;
 import com.neg.hr.human.resource.validator.LeaveBalanceValidator;
 import jakarta.validation.Valid;
@@ -25,12 +26,12 @@ import java.util.List;
 @RequestMapping("/api/leave_balances")
 public class LeaveBalanceController {
 
-    private final LeaveBalanceServiceImpl leaveBalanceService;
+    private final LeaveBalanceService leaveBalanceService;
     private final LeaveBalanceValidator leaveBalanceValidator;
     private final LeaveTypeRepository leaveTypeRepository;
     private final EmployeeRepository employeeRepository;
 
-    public LeaveBalanceController(LeaveBalanceServiceImpl leaveBalanceService,
+    public LeaveBalanceController(LeaveBalanceService leaveBalanceService,
                                   LeaveBalanceValidator leaveBalanceValidator,
                                   LeaveTypeRepository leaveTypeRepository,
                                   EmployeeRepository employeeRepository) {

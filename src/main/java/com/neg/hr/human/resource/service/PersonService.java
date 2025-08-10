@@ -34,4 +34,6 @@ public interface PersonService {
     public Person update(Long id, Person leaveBalance);
 
     boolean existsById(Long id);
+
+    public List<Person> searchByOptionalNames(String firstName, String lastName);
 }

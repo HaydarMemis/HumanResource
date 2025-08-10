@@ -10,6 +10,7 @@ import com.neg.hr.human.resource.entity.LeaveType;
 import com.neg.hr.human.resource.mapper.LeaveRequestMapper;
 import com.neg.hr.human.resource.repository.EmployeeRepository;
 import com.neg.hr.human.resource.repository.LeaveTypeRepository;
+import com.neg.hr.human.resource.service.LeaveRequestService;
 import com.neg.hr.human.resource.service.impl.LeaveRequestServiceImpl;
 import com.neg.hr.human.resource.validator.LeaveRequestValidator;
 import jakarta.validation.Valid;
@@ -25,12 +26,12 @@ import java.util.List;
 @RequestMapping("/api/leave-requests")
 public class LeaveRequestController {
 
-    private final LeaveRequestServiceImpl leaveRequestService;
+    private final LeaveRequestService leaveRequestService;
     private final EmployeeRepository employeeRepository;
     private final LeaveTypeRepository leaveTypeRepository;
     private final LeaveRequestValidator validator;
 
-    public LeaveRequestController(LeaveRequestServiceImpl leaveRequestService,
+    public LeaveRequestController(LeaveRequestService leaveRequestService,
                                   EmployeeRepository employeeRepository,
                                   LeaveTypeRepository leaveTypeRepository,
                                   LeaveRequestValidator validator) {

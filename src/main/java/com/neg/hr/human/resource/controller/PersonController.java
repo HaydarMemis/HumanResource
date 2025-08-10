@@ -6,6 +6,7 @@ import com.neg.hr.human.resource.dto.entity.PersonEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdatePersonRequestDTO;
 import com.neg.hr.human.resource.entity.Person;
 import com.neg.hr.human.resource.mapper.PersonMapper;
+import com.neg.hr.human.resource.service.PersonService;
 import com.neg.hr.human.resource.service.impl.PersonServiceImpl;
 import com.neg.hr.human.resource.validator.PersonValidator;
 import jakarta.validation.Valid;
@@ -22,10 +23,10 @@ import java.util.List;
 @RequestMapping("/api/persons")
 public class PersonController {
 
-    private final PersonServiceImpl personService;
+    private final PersonService personService;
     private final PersonValidator personValidator;
 
-    public PersonController(PersonServiceImpl personService,
+    public PersonController(PersonService personService,
                             PersonValidator personValidator) {
         this.personService = personService;
         this.personValidator = personValidator;
