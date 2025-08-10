@@ -1,7 +1,10 @@
 package com.neg.hr.human.resource.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 

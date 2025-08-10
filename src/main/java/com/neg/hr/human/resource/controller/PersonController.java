@@ -7,7 +7,6 @@ import com.neg.hr.human.resource.dto.update.UpdatePersonRequestDTO;
 import com.neg.hr.human.resource.entity.Person;
 import com.neg.hr.human.resource.mapper.PersonMapper;
 import com.neg.hr.human.resource.service.PersonService;
-import com.neg.hr.human.resource.service.impl.PersonServiceImpl;
 import com.neg.hr.human.resource.validator.PersonValidator;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,8 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.dto.*;
+import com.neg.hr.human.resource.dto.IdRequest;
+import com.neg.hr.human.resource.dto.SalaryRequest;
+import com.neg.hr.human.resource.dto.TitleRequest;
 import com.neg.hr.human.resource.dto.create.CreatePositionRequestDTO;
 import com.neg.hr.human.resource.dto.entity.PositionEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdatePositionRequestDTO;
@@ -15,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController

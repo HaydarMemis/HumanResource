@@ -1,13 +1,15 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.dto.*;
+import com.neg.hr.human.resource.dto.BooleanRequest;
+import com.neg.hr.human.resource.dto.IdRequest;
+import com.neg.hr.human.resource.dto.IntegerRequest;
+import com.neg.hr.human.resource.dto.NameRequest;
 import com.neg.hr.human.resource.dto.create.CreateLeaveTypeRequestDTO;
 import com.neg.hr.human.resource.dto.entity.LeaveTypeEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdateLeaveTypeRequestDTO;
 import com.neg.hr.human.resource.entity.LeaveType;
 import com.neg.hr.human.resource.mapper.LeaveTypeMapper;
 import com.neg.hr.human.resource.service.LeaveTypeService;
-import com.neg.hr.human.resource.service.impl.LeaveTypeServiceImpl;
 import com.neg.hr.human.resource.validator.LeaveTypeValidator;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

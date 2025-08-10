@@ -6,11 +6,7 @@ import com.neg.hr.human.resource.dto.update.UpdateEmployeeRequestDTO;
 import com.neg.hr.human.resource.entity.*;
 import com.neg.hr.human.resource.exception.ResourceNotFoundException;
 import com.neg.hr.human.resource.mapper.EmployeeMapper;
-import com.neg.hr.human.resource.repository.CompanyRepository;
-import com.neg.hr.human.resource.repository.DepartmentRepository;
-import com.neg.hr.human.resource.repository.EmployeeRepository;
-import com.neg.hr.human.resource.repository.PersonRepository;
-import com.neg.hr.human.resource.repository.PositionRepository;
+import com.neg.hr.human.resource.repository.*;
 import com.neg.hr.human.resource.service.EmployeeService;
 import org.springframework.stereotype.Service;
 

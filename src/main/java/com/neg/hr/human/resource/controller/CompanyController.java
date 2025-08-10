@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.dto.entity.CompanyEntityDTO;
 import com.neg.hr.human.resource.dto.IdRequest;
 import com.neg.hr.human.resource.dto.NameRequest;
 import com.neg.hr.human.resource.dto.create.CreateCompanyRequestDTO;
+import com.neg.hr.human.resource.dto.entity.CompanyEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdateCompanyRequestDTO;
 import com.neg.hr.human.resource.entity.Company;
 import com.neg.hr.human.resource.mapper.CompanyMapper;
@@ -11,9 +11,9 @@ import com.neg.hr.human.resource.service.CompanyService;
 import com.neg.hr.human.resource.validator.CompanyValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -2,8 +2,12 @@ package com.neg.hr.human.resource.validator;
 
 import com.neg.hr.human.resource.dto.create.CreateLeaveRequestRequestDTO;
 import com.neg.hr.human.resource.dto.update.UpdateLeaveRequestRequestDTO;
-import com.neg.hr.human.resource.entity.*;
-import com.neg.hr.human.resource.repository.*;
+import com.neg.hr.human.resource.entity.Employee;
+import com.neg.hr.human.resource.entity.LeaveBalance;
+import com.neg.hr.human.resource.entity.LeaveType;
+import com.neg.hr.human.resource.repository.EmployeeRepository;
+import com.neg.hr.human.resource.repository.LeaveBalanceRepository;
+import com.neg.hr.human.resource.repository.LeaveTypeRepository;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

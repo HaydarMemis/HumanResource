@@ -11,7 +11,6 @@ import com.neg.hr.human.resource.mapper.LeaveBalanceMapper;
 import com.neg.hr.human.resource.repository.EmployeeRepository;
 import com.neg.hr.human.resource.repository.LeaveTypeRepository;
 import com.neg.hr.human.resource.service.LeaveBalanceService;
-import com.neg.hr.human.resource.service.impl.LeaveBalanceServiceImpl;
 import com.neg.hr.human.resource.validator.LeaveBalanceValidator;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

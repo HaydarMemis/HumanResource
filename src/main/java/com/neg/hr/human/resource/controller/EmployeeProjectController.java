@@ -1,10 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
 import com.neg.hr.human.resource.dto.IdRequest;
-import com.neg.hr.human.resource.validator.EmployeeProjectValidator;
 import com.neg.hr.human.resource.dto.create.CreateEmployeeProjectRequestDTO;
-import com.neg.hr.human.resource.dto.update.UpdateEmployeeProjectRequestDTO;
 import com.neg.hr.human.resource.dto.entity.EmployeeProjectEntityDTO;
+import com.neg.hr.human.resource.dto.update.UpdateEmployeeProjectRequestDTO;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.EmployeeProject;
 import com.neg.hr.human.resource.entity.Project;
@@ -12,6 +11,7 @@ import com.neg.hr.human.resource.mapper.EmployeeProjectMapper;
 import com.neg.hr.human.resource.repository.EmployeeRepository;
 import com.neg.hr.human.resource.repository.ProjectRepository;
 import com.neg.hr.human.resource.service.EmployeeProjectService;
+import com.neg.hr.human.resource.validator.EmployeeProjectValidator;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

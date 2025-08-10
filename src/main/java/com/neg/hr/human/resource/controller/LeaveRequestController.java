@@ -11,7 +11,6 @@ import com.neg.hr.human.resource.mapper.LeaveRequestMapper;
 import com.neg.hr.human.resource.repository.EmployeeRepository;
 import com.neg.hr.human.resource.repository.LeaveTypeRepository;
 import com.neg.hr.human.resource.service.LeaveRequestService;
-import com.neg.hr.human.resource.service.impl.LeaveRequestServiceImpl;
 import com.neg.hr.human.resource.validator.LeaveRequestValidator;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,7 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.dto.*;
+import com.neg.hr.human.resource.dto.IdRequest;
+import com.neg.hr.human.resource.dto.NameRequest;
 import com.neg.hr.human.resource.dto.create.CreateProjectRequestDTO;
 import com.neg.hr.human.resource.dto.entity.ProjectEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdateProjectRequestDTO;
