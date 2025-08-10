@@ -9,7 +9,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder // Simplify object creation
+@Builder
 public class Company extends AuditableEntity {
 
     @Id

@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 
 @MappedSuperclass
 @NoArgsConstructor
-@AllArgsConstructor
 public abstract class AuditableEntity {
 
     @Column(name = "deleted", length = 1)
