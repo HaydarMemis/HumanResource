@@ -33,7 +33,7 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
             LocalDate endDate
     );
 
-    //  Belirli personelin aynı tarihlerde talep ettiği izin kontrolü (çakışma)
+    //  Collision check for requests made by the same employee
     @Query("""
         SELECT lr FROM LeaveRequest lr 
         WHERE lr.employee.id = :employeeId 

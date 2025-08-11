@@ -10,7 +10,7 @@ import java.util.Set;
 @Service
 public class LeavePolicyServiceImpl implements LeavePolicyService {
 
-    // Örnek resmi tatiller (gerçek uygulamada veritabanı/tablodan çekilmeli)
+    // Example official holidays for local database implementation
     private static final Set<LocalDate> OFFICIAL_HOLIDAYS = Set.of(
             LocalDate.of(2025, Month.JANUARY, 1),
             LocalDate.of(2025, Month.APRIL, 23),
@@ -98,7 +98,7 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
 
     @Override
     public boolean isEligibleForMilitaryLeave(Employee employee) {
-        return true; // Gerekirse askerlik belgesi ile kontrol yapılabilir
+        return true;
     }
 
     @Override
@@ -119,6 +119,6 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     public boolean isOfficialHoliday(LocalDate date) {
         return OFFICIAL_HOLIDAYS.contains(date) ||
                 date.getDayOfWeek() == DayOfWeek.SATURDAY ||
-                date.getDayOfWeek() == DayOfWeek.SUNDAY; // isteğe bağlı: hafta sonunu da say
+                date.getDayOfWeek() == DayOfWeek.SUNDAY; // Optionally count the weekends as official holidays
     }
 }

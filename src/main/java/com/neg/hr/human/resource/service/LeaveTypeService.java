@@ -20,7 +20,6 @@ public interface LeaveTypeService {
 
     List<LeaveType> findByValidAfterDaysGreaterThan(Integer days);
 
-
     public LeaveType save(LeaveType leaveType);
 
     Optional<LeaveType> findById(Long id);

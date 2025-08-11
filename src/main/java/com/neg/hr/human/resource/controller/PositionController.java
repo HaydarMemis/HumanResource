@@ -32,7 +32,6 @@ public class PositionController {
         this.positionValidator = positionValidator;
     }
 
-    // POST - get all positions
     @PostMapping("/getAll")
     public List<PositionEntityDTO> getAllPositions() {
         return positionService.findAll()
@@ -41,7 +40,6 @@ public class PositionController {
                 .toList();
     }
 
-    // POST - get position by ID
     @PostMapping("/getById")
     public ResponseEntity<PositionEntityDTO> getPositionById(@Valid @RequestBody IdRequest request) {
         return positionService.findById(request.getId())
@@ -49,7 +47,6 @@ public class PositionController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - create position
     @PostMapping("/create")
     public ResponseEntity<PositionEntityDTO> createPosition(@Valid @RequestBody CreatePositionRequestDTO dto) {
         positionValidator.validateCreate(dto);
@@ -58,7 +55,6 @@ public class PositionController {
         return ResponseEntity.ok(PositionMapper.toDTO(saved));
     }
 
-    // POST - update position
     @PostMapping("/update")
     public ResponseEntity<PositionEntityDTO> updatePosition(@Valid @RequestBody UpdatePositionRequestDTO dto) {
         if (!positionService.existsById(dto.getId())) {
@@ -71,7 +67,6 @@ public class PositionController {
         return ResponseEntity.ok(PositionMapper.toDTO(updated));
     }
 
-    // POST - delete position
     @PostMapping("/delete")
     public ResponseEntity<Void> deletePosition(@Valid @RequestBody IdRequest request) {
         if (!positionService.existsById(request.getId())) {
@@ -81,7 +76,6 @@ public class PositionController {
         return ResponseEntity.noContent().build();
     }
 
-    // POST - get position by title
     @PostMapping("/getByTitle")
     public ResponseEntity<PositionEntityDTO> getPositionByTitle(@Valid @RequestBody TitleRequest request) {
         return positionService.findByTitle(request.getTitle())
@@ -89,13 +83,11 @@ public class PositionController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - check if position exists by title
     @PostMapping("/existsByTitle")
     public boolean existsByTitle(@Valid @RequestBody TitleRequest request) {
         return positionService.existsByTitle(request.getTitle());
     }
 
-    // POST - get positions with base salary greater than or equal to
     @PostMapping("/getByBaseSalary")
     public List<PositionEntityDTO> getPositionsByBaseSalary(@Valid @RequestBody SalaryRequest request) {
         return positionService.findByBaseSalaryGreaterThanEqual(request.getSalary())

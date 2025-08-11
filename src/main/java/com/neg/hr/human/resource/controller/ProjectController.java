@@ -31,7 +31,6 @@ public class ProjectController {
         this.projectValidator = projectValidator;
     }
 
-    // POST - get all projects
     @PostMapping("/getAll")
     public List<ProjectEntityDTO> getAllProjects() {
         return projectService.findAll()
@@ -40,7 +39,6 @@ public class ProjectController {
                 .toList();
     }
 
-    // POST - get project by ID
     @PostMapping("/getById")
     public ResponseEntity<ProjectEntityDTO> getProjectById(@Valid @RequestBody IdRequest request) {
         return projectService.findById(request.getId())
@@ -48,7 +46,6 @@ public class ProjectController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - get project by name
     @PostMapping("/getByName")
     public ResponseEntity<ProjectEntityDTO> getProjectByName(@Valid @RequestBody NameRequest request) {
         return projectService.findByName(request.getName())
@@ -56,7 +53,6 @@ public class ProjectController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - create project
     @PostMapping("/create")
     public ResponseEntity<ProjectEntityDTO> createProject(@Valid @RequestBody CreateProjectRequestDTO dto) {
         projectValidator.validateCreate(dto);
@@ -65,7 +61,6 @@ public class ProjectController {
         return ResponseEntity.ok(ProjectMapper.toDTO(saved));
     }
 
-    // POST - update project
     @PostMapping("/update")
     public ResponseEntity<ProjectEntityDTO> updateProject(@Valid @RequestBody UpdateProjectRequestDTO dto) {
         if (!projectService.existsById(dto.getId())) {
@@ -78,7 +73,6 @@ public class ProjectController {
         return ResponseEntity.ok(ProjectMapper.toDTO(updated));
     }
 
-    // POST - delete project
     @PostMapping("/delete")
     public ResponseEntity<Void> deleteProject(@Valid @RequestBody IdRequest request) {
         if (!projectService.existsById(request.getId())) {
@@ -88,7 +82,6 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
     }
 
-    // POST - check if project exists by name
     @PostMapping("/existsByName")
     public boolean existsByName(@Valid @RequestBody NameRequest request) {
         return projectService.existsByName(request.getName());

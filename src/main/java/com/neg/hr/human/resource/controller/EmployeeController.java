@@ -32,7 +32,6 @@ public class EmployeeController{
         this.employeeValidator = employeeValidator;
     }
 
-    // POST - get all employees (istek parametresi yok)
     @PostMapping("/getAll")
     public List<EmployeeEntityDTO> getAllEmployees() {
         return employeeService.findAll()
@@ -40,7 +39,6 @@ public class EmployeeController{
                 .toList();
     }
 
-    // POST - get employee by id
     @PostMapping("/getById")
     public ResponseEntity<EmployeeEntityDTO> getEmployeeById(@Valid @RequestBody IdRequest request) {
         return employeeService.findById(request.getId())
@@ -48,7 +46,6 @@ public class EmployeeController{
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - create employee
     @PostMapping("/create")
     public ResponseEntity<EmployeeEntityDTO> createEmployee(@Valid @RequestBody CreateEmployeeRequestDTO dto) {
         employeeValidator.validateCreateDTO(dto);
@@ -56,7 +53,6 @@ public class EmployeeController{
         return ResponseEntity.ok(EmployeeMapper.toDTO(saved));
     }
 
-    // POST - update employee
     @PostMapping("/update")
     public ResponseEntity<EmployeeEntityDTO> updateEmployee(@Valid @RequestBody UpdateEmployeeRequestDTO dto) {
         if (!employeeService.existsById(dto.getId())) {
@@ -67,7 +63,6 @@ public class EmployeeController{
         return ResponseEntity.ok(EmployeeMapper.toDTO(updated));
     }
 
-    // POST - delete employee by id
     @PostMapping("/delete")
     public ResponseEntity<Void> deleteEmployee(@RequestBody @Valid IdRequest request) {
         if (!employeeService.existsById(request.getId())) {
@@ -77,7 +72,6 @@ public class EmployeeController{
         return ResponseEntity.noContent().build();
     }
 
-    // POST - get active employees
     @PostMapping("/getActive")
     public List<EmployeeEntityDTO> getActiveEmployees() {
         return employeeService.findByIsActiveTrue()
@@ -85,7 +79,6 @@ public class EmployeeController{
                 .toList();
     }
 
-    // POST - get inactive employees
     @PostMapping("/getInactive")
     public List<EmployeeEntityDTO> getInactiveEmployees() {
         return employeeService.findByIsActiveFalse()
@@ -93,7 +86,6 @@ public class EmployeeController{
                 .toList();
     }
 
-    // POST - get employees by department
     @PostMapping("/getByDepartment")
     public List<EmployeeEntityDTO> getEmployeesByDepartment(@RequestBody @Valid IdRequest request) {
         return employeeService.findByDepartmentId(request.getId())
@@ -101,7 +93,6 @@ public class EmployeeController{
                 .toList();
     }
 
-    // POST - get employees by position
     @PostMapping("/getByPosition")
     public List<EmployeeEntityDTO> getEmployeesByPosition(@RequestBody @Valid IdRequest request) {
         return employeeService.findByPositionId(request.getId())
@@ -109,7 +100,6 @@ public class EmployeeController{
                 .toList();
     }
 
-    // POST - get employees by company
     @PostMapping("/getByCompany")
     public List<EmployeeEntityDTO> getEmployeesByCompany(@RequestBody @Valid IdRequest request) {
         return employeeService.findByCompanyId(request.getId())
@@ -117,7 +107,6 @@ public class EmployeeController{
                 .toList();
     }
 
-    // POST - get employees hired before a date
     @PostMapping("/getHiredBefore")
     public List<EmployeeEntityDTO> getEmployeesHiredBefore(@RequestBody @Valid DateRequest request) {
         LocalDateTime dateTime = LocalDateTime.parse(request.getDate());
@@ -126,7 +115,6 @@ public class EmployeeController{
                 .toList();
     }
 
-    // POST - get employees employment ended before a date
     @PostMapping("/getEmploymentEndedBefore")
     public List<EmployeeEntityDTO> getEmployeesEmploymentEndedBefore(@RequestBody @Valid DateRequest request) {
         LocalDateTime dateTime = LocalDateTime.parse(request.getDate());

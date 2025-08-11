@@ -1,35 +1,33 @@
 package com.neg.hr.human.resource.dto.create;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class CreateLeavePolicyRequestDTO {
 
     @NotNull(message = "Policy type cannot be null")
-    private String policyType; // Örn: annual, birthday, maternity, paternity, bereavement, marriage, military, borrow, officialHoliday
+    private String policyType;
 
-    private Long employeeId; // Çalışan ID
+    private Long employeeId;
 
-    private LocalDate date; // Doğum günü veya resmi tatil kontrolü için
+    private LocalDate date;
 
-    private Boolean multiplePregnancy; // Gebelik durumu (opsiyonel)
+    private Boolean multiplePregnancy;
 
-    private String relation; // Yakınlık derecesi (bereavement için)
+    private String relation;
 
-    private Boolean firstMarriage; // İlk evlilik mi? (opsiyonel)
+    private Boolean firstMarriage;
 
-    private Boolean hasMarriageCertificate; // Evlilik belgesi var mı? (opsiyonel)
+    private Boolean hasMarriageCertificate;
 
-    private Integer requestedDays; // Borç izin talebi için
+    private Integer requestedDays;
 
-    private Integer currentBorrowed; // Zaten alınan borç izin miktarı
+    private Integer currentBorrowed;
 }

@@ -40,7 +40,6 @@ public class LeaveBalanceController {
         this.employeeRepository = employeeRepository;
     }
 
-    // POST - get all leave balances
     @PostMapping("/getAll")
     public List<LeaveBalanceEntityDTO> getAllLeaveBalances() {
         return leaveBalanceService.findAll()
@@ -49,7 +48,6 @@ public class LeaveBalanceController {
                 .toList();
     }
 
-    // POST - get leave balance by ID
     @PostMapping("/getById")
     public ResponseEntity<LeaveBalanceEntityDTO> getLeaveBalanceById(@Valid @RequestBody IdRequest request) {
         return leaveBalanceService.findById(request.getId())
@@ -58,7 +56,6 @@ public class LeaveBalanceController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - create new leave balance
     @PostMapping("/create")
     public ResponseEntity<LeaveBalanceEntityDTO> createLeaveBalance(@Valid @RequestBody CreateLeaveBalanceRequestDTO dto) {
         leaveBalanceValidator.validateCreateDTO(dto);
@@ -75,7 +72,6 @@ public class LeaveBalanceController {
         return ResponseEntity.ok(LeaveBalanceMapper.toDTO(saved));
     }
 
-    // POST - update leave balance
     @PostMapping("/update")
     public ResponseEntity<LeaveBalanceEntityDTO> updateLeaveBalance(@Valid @RequestBody UpdateLeaveBalanceRequestDTO dto) {
         if (!leaveBalanceService.existsById(dto.getId())) {
@@ -102,7 +98,6 @@ public class LeaveBalanceController {
         return ResponseEntity.ok(LeaveBalanceMapper.toDTO(updated));
     }
 
-    // POST - delete leave balance by ID
     @PostMapping("/delete")
     public ResponseEntity<Void> deleteLeaveBalance(@Valid @RequestBody IdRequest request) {
         if (!leaveBalanceService.existsById(request.getId())) {
@@ -112,7 +107,6 @@ public class LeaveBalanceController {
         return ResponseEntity.noContent().build();
     }
 
-    // POST - get leave balances by employee ID
     @PostMapping("/getByEmployee")
     public List<LeaveBalanceEntityDTO> getLeaveBalancesByEmployee(@Valid @RequestBody IdRequest request) {
         return leaveBalanceService.findByEmployeeId(request.getId())
@@ -121,7 +115,6 @@ public class LeaveBalanceController {
                 .toList();
     }
 
-    // POST - get leave balances by employee ID and year
     @PostMapping("/getByEmployeeAndYear")
     public List<LeaveBalanceEntityDTO> getLeaveBalancesByEmployeeAndYear(@Valid @RequestBody EmployeeYearRequest request) {
         return leaveBalanceService.findByEmployeeIdAndDate(request.getYear(), request.getEmployeeId())
@@ -130,7 +123,6 @@ public class LeaveBalanceController {
                 .toList();
     }
 
-    // POST - get by employee ID and leave type ID
     @PostMapping("/getByEmployeeAndLeaveType")
     public ResponseEntity<LeaveBalanceEntityDTO> getLeaveBalanceByEmployeeAndLeaveType(
             @Valid @RequestBody EmployeeLeaveTypeRequest request) {
@@ -140,7 +132,6 @@ public class LeaveBalanceController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - get by employee ID, leave type ID and year
     @PostMapping("/getByEmployeeLeaveTypeAndYear")
     public ResponseEntity<LeaveBalanceEntityDTO> getLeaveBalanceByEmployeeLeaveTypeAndYear(
             @Valid @RequestBody EmployeeLeaveTypeYearRequest request) {
@@ -153,7 +144,6 @@ public class LeaveBalanceController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - get leave balances by leave type ID and year
     @PostMapping("/getByLeaveTypeAndYear")
     public List<LeaveBalanceEntityDTO> getLeaveBalancesByLeaveTypeAndYear(
             @Valid @RequestBody LeaveTypeYearRequest request) {

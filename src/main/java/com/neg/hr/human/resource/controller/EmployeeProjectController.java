@@ -37,7 +37,6 @@ public class EmployeeProjectController {
         this.employeeProjectValidator = employeeProjectValidator;
     }
 
-    // POST - get all
     @PostMapping("/getAll")
     public List<EmployeeProjectEntityDTO> getAll() {
         return employeeProjectService.findAll()
@@ -46,7 +45,6 @@ public class EmployeeProjectController {
                 .toList();
     }
 
-    // POST - get by ID
     @PostMapping("/getById")
     public ResponseEntity<EmployeeProjectEntityDTO> getById(@Valid @RequestBody IdRequest request) {
         return employeeProjectService.findById(request.getId())
@@ -55,7 +53,6 @@ public class EmployeeProjectController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - create
     @PostMapping("/create")
     public ResponseEntity<EmployeeProjectEntityDTO> create(@Valid @RequestBody CreateEmployeeProjectRequestDTO dto) {
         employeeProjectValidator.validateCreateDTO(dto);
@@ -87,41 +84,34 @@ public class EmployeeProjectController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"))
                 : null;
 
-        // 1️⃣ Get existing entity
         EmployeeProject existing = employeeProjectService.findById(dto.getId())
                 .orElseThrow(() -> new IllegalArgumentException("EmployeeProject not found with ID: " + dto.getId()));
-        // 2️⃣ Update fields
+
         EmployeeProjectMapper.updateEntity(existing, dto, employee, project);
 
-        // 3️⃣ Save
         EmployeeProject updated = employeeProjectService.update(dto.getId(), existing);
 
         return ResponseEntity.ok(EmployeeProjectMapper.toDTO(updated));
     }
 
-
-    // POST - delete by ID
     @PostMapping("/delete")
     public ResponseEntity<Void> delete(@Valid @RequestBody IdRequest request) {
         employeeProjectService.deleteById(request.getId());
         return ResponseEntity.noContent().build();
     }
 
-    // POST - delete by employee ID
     @PostMapping("/deleteByEmployee")
     public ResponseEntity<Void> deleteByEmployee(@Valid @RequestBody IdRequest request) {
         employeeProjectService.deleteByEmployeeId(request.getId());
         return ResponseEntity.noContent().build();
     }
 
-    // POST - delete by project ID
     @PostMapping("/deleteByProject")
     public ResponseEntity<Void> deleteByProject(@Valid @RequestBody IdRequest request) {
         employeeProjectService.deleteByProjectId(request.getId());
         return ResponseEntity.noContent().build();
     }
 
-    // POST - get list by employee ID
     @PostMapping("/getByEmployee")
     public List<EmployeeProjectEntityDTO> getByEmployee(@Valid @RequestBody IdRequest request) {
         return employeeProjectService.findByEmployeeId(request.getId())
@@ -130,7 +120,6 @@ public class EmployeeProjectController {
                 .toList();
     }
 
-    // POST - get list by project ID
     @PostMapping("/getByProject")
     public List<EmployeeProjectEntityDTO> getByProject(@Valid @RequestBody IdRequest request) {
         return employeeProjectService.findByProjectId(request.getId())
@@ -139,7 +128,6 @@ public class EmployeeProjectController {
                 .toList();
     }
 
-    // POST - check if exists by employee and project
     @PostMapping("/existsByEmployeeAndProject")
     public boolean existsByEmployeeAndProject(@RequestParam Long employeeId,
                                               @RequestParam Long projectId) {

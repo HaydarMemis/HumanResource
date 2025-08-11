@@ -18,7 +18,6 @@ public interface LeaveTypeRepository extends JpaRepository<LeaveType, Long> {
 
     List<LeaveType> findByIsUnpaidTrue();
 
-    // Updated to reflect genderRequired is now a String
     List<LeaveType> findByGenderRequiredIsNotNull();
 
     List<LeaveType> findByBorrowableLimitGreaterThan(Integer limit);

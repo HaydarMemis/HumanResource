@@ -31,7 +31,6 @@ public class PersonController {
         this.personValidator = personValidator;
     }
 
-    // POST - get all persons
     @PostMapping("/getAll")
     public List<PersonEntityDTO> getAllPersons() {
         return personService.findAll()
@@ -40,7 +39,6 @@ public class PersonController {
                 .toList();
     }
 
-    // POST - get person by ID
     @PostMapping("/getById")
     public ResponseEntity<PersonEntityDTO> getPersonById(@Valid @RequestBody IdRequest request) {
         return personService.findById(request.getId())
@@ -48,7 +46,6 @@ public class PersonController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - create person
     @PostMapping("/create")
     public ResponseEntity<PersonEntityDTO> createPerson(@Valid @RequestBody CreatePersonRequestDTO dto) {
         personValidator.validateCreate(dto);
@@ -57,7 +54,6 @@ public class PersonController {
         return ResponseEntity.ok(PersonMapper.toDTO(saved));
     }
 
-    // POST - update person
     @PostMapping("/update")
     public ResponseEntity<PersonEntityDTO> updatePerson(@Valid @RequestBody UpdatePersonRequestDTO dto) {
         if (!personService.existsById(dto.getId())) {
@@ -70,7 +66,6 @@ public class PersonController {
         return ResponseEntity.ok(PersonMapper.toDTO(updated));
     }
 
-    // POST - delete person
     @PostMapping("/delete")
     public ResponseEntity<Void> deletePerson(@Valid @RequestBody IdRequest request) {
         if (!personService.existsById(request.getId())) {
@@ -80,7 +75,6 @@ public class PersonController {
         return ResponseEntity.noContent().build();
     }
 
-    // POST - get persons by gender
     @PostMapping("/getByGender")
     public List<PersonEntityDTO> getPersonsByGender(@Valid @RequestBody GenderRequest request) {
         return personService.findByGenderIgnoreCase(request.getGender())
@@ -89,7 +83,6 @@ public class PersonController {
                 .toList();
     }
 
-    // POST - get persons born before date
     @PostMapping("/getBornBefore")
     public List<PersonEntityDTO> getPersonsBornBefore(@Valid @RequestBody DateRequest request) {
         LocalDate birthDate = LocalDate.parse(request.getDate());
@@ -99,7 +92,6 @@ public class PersonController {
                 .toList();
     }
 
-    // POST - get persons by marital status
     @PostMapping("/getByMaritalStatus")
     public List<PersonEntityDTO> getPersonsByMaritalStatus(@Valid @RequestBody MaritalStatusRequest request) {
         return personService.findByMaritalStatusIgnoreCase(request.getStatus())
@@ -108,7 +100,6 @@ public class PersonController {
                 .toList();
     }
 
-    // POST - get person by national ID
     @PostMapping("/getByNationalId")
     public ResponseEntity<PersonEntityDTO> getPersonByNationalId(@Valid @RequestBody NationalIdRequest request) {
         return personService.findByNationalId(request.getNationalId())
@@ -116,7 +107,6 @@ public class PersonController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - search persons by name
     @PostMapping("/searchByName")
     public List<PersonEntityDTO> searchPersonsByName(@Valid @RequestBody NameSearchRequest request) {
         return personService.searchByOptionalNames(request.getFirstName(), request.getLastName())
@@ -125,7 +115,6 @@ public class PersonController {
                 .toList();
     }
 
-    // POST - get person by email
     @PostMapping("/getByEmail")
     public ResponseEntity<PersonEntityDTO> getPersonByEmail(@Valid @RequestBody EmailRequest request) {
         return personService.findByEmailIgnoreCase(request.getEmail())

@@ -1,11 +1,14 @@
 package com.neg.hr.human.resource.dto;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
-
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class EmployeeDateRangeRequest {
     @NotNull
     private Long employeeId;

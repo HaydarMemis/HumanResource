@@ -2,11 +2,15 @@ package com.neg.hr.human.resource.dto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.*;
 
 import java.math.BigDecimal;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class SalaryRequest {
     @NotNull
     @DecimalMin("0.0")

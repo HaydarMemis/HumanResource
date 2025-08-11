@@ -40,7 +40,6 @@ public class LeaveRequestController {
         this.validator = validator;
     }
 
-    // POST - get all leave requests
     @PostMapping("/getAll")
     public List<LeaveRequestEntityDTO> getAllLeaveRequests() {
         return leaveRequestService.findAll()
@@ -49,7 +48,6 @@ public class LeaveRequestController {
                 .toList();
     }
 
-    // POST - get leave request by ID
     @PostMapping("/getById")
     public ResponseEntity<LeaveRequestEntityDTO> getLeaveRequestById(@Valid @RequestBody IdRequest request) {
         return leaveRequestService.findById(request.getId())
@@ -58,7 +56,6 @@ public class LeaveRequestController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - create new leave request
     @PostMapping("/create")
     public ResponseEntity<LeaveRequestEntityDTO> createLeaveRequest(@Valid @RequestBody CreateLeaveRequestRequestDTO dto) {
         validator.validateCreateDTO(dto);
@@ -77,7 +74,6 @@ public class LeaveRequestController {
         return ResponseEntity.ok(LeaveRequestMapper.toDTO(saved));
     }
 
-    // POST - update leave request
     @PostMapping("/update")
     public ResponseEntity<LeaveRequestEntityDTO> updateLeaveRequest(@Valid @RequestBody UpdateLeaveRequestRequestDTO dto) {
         if (!leaveRequestService.existsById(dto.getId())) {
@@ -108,7 +104,6 @@ public class LeaveRequestController {
         return ResponseEntity.ok(LeaveRequestMapper.toDTO(updated));
     }
 
-    // POST - delete leave request
     @PostMapping("/delete")
     public ResponseEntity<Void> deleteLeaveRequest(@Valid @RequestBody IdRequest request) {
         if (!leaveRequestService.existsById(request.getId())) {
@@ -118,9 +113,6 @@ public class LeaveRequestController {
         return ResponseEntity.noContent().build();
     }
 
-    // === Filtered Queries ===
-
-    // POST - get leave requests by employee
     @PostMapping("/getByEmployee")
     public List<LeaveRequestEntityDTO> getLeaveRequestsByEmployee(@Valid @RequestBody IdRequest request) {
         return leaveRequestService.findByEmployeeId(request.getId())
@@ -129,7 +121,6 @@ public class LeaveRequestController {
                 .toList();
     }
 
-    // POST - get leave requests by status
     @PostMapping("/getByStatus")
     public List<LeaveRequestEntityDTO> getLeaveRequestsByStatus(@Valid @RequestBody StatusRequest request) {
         return leaveRequestService.findByStatus(request.getStatus())
@@ -138,7 +129,6 @@ public class LeaveRequestController {
                 .toList();
     }
 
-    // POST - get cancelled leave requests
     @PostMapping("/getCancelled")
     public List<LeaveRequestEntityDTO> getCancelledLeaveRequests() {
         return leaveRequestService.findByIsCancelledTrue()
@@ -147,7 +137,6 @@ public class LeaveRequestController {
                 .toList();
     }
 
-    // POST - get leave requests by approver
     @PostMapping("/getByApprover")
     public List<LeaveRequestEntityDTO> getLeaveRequestsByApprover(@Valid @RequestBody IdRequest request) {
         return leaveRequestService.findByApprovedById(request.getId())
@@ -156,7 +145,6 @@ public class LeaveRequestController {
                 .toList();
     }
 
-    // POST - get leave requests by employee and status
     @PostMapping("/getByEmployeeAndStatus")
     public List<LeaveRequestEntityDTO> getLeaveRequestsByEmployeeAndStatus(
             @Valid @RequestBody EmployeeStatusRequest request) {
@@ -166,7 +154,6 @@ public class LeaveRequestController {
                 .toList();
     }
 
-    // POST - get leave requests by date range
     @PostMapping("/getByDateRange")
     public List<LeaveRequestEntityDTO> getLeaveRequestsByDateRange(
             @Valid @RequestBody DateRangeRequest request) {
@@ -176,7 +163,6 @@ public class LeaveRequestController {
                 .toList();
     }
 
-    // POST - get leave requests by employee, leave type and date range
     @PostMapping("/getByEmployeeLeaveTypeAndDateRange")
     public List<LeaveRequestEntityDTO> getLeaveRequestsByEmployeeLeaveTypeAndDateRange(
             @Valid @RequestBody EmployeeLeaveTypeDateRangeRequest request) {
@@ -190,7 +176,6 @@ public class LeaveRequestController {
                 .toList();
     }
 
-    // POST - get overlapping leave requests
     @PostMapping("/getOverlapping")
     public List<LeaveRequestEntityDTO> getOverlappingLeaveRequests(
             @Valid @RequestBody EmployeeDateRangeRequest request) {

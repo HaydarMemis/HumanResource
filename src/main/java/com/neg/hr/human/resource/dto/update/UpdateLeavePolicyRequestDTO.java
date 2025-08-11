@@ -1,23 +1,20 @@
 package com.neg.hr.human.resource.dto.update;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class UpdateLeavePolicyRequestDTO {
 
     @NotNull(message = "ID cannot be null")
-    private Long id; // Güncellenecek policy'nin ID'si
-
-    private String policyType; // Örn: annual, birthday, maternity, paternity, bereavement, marriage, military, borrow, officialHoliday
+    private Long id;
+    private String policyType;
 
     private Long employeeId;
 

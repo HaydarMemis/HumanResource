@@ -30,7 +30,6 @@ public class DepartmentController {
         this.departmentValidator = departmentValidator;
     }
 
-    // POST - get all departments
     @PostMapping("/getAll")
     public List<DepartmentEntityDTO> getAllDepartments() {
         return departmentService.findAll()
@@ -39,7 +38,6 @@ public class DepartmentController {
                 .toList();
     }
 
-    // POST - get department by id
     @PostMapping("/getById")
     public ResponseEntity<DepartmentEntityDTO> getDepartmentById(@Valid @RequestBody IdRequest request) {
         return departmentService.findById(request.getId())
@@ -47,7 +45,6 @@ public class DepartmentController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - get department by name
     @PostMapping("/getByName")
     public ResponseEntity<DepartmentEntityDTO> getDepartmentByName(@Valid @RequestBody String name) {
         return departmentService.findByName(name)
@@ -55,7 +52,6 @@ public class DepartmentController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST - create department
     @PostMapping("/create")
     public ResponseEntity<DepartmentEntityDTO> createDepartment(@Valid @RequestBody CreateDepartmentRequestDTO dto) {
         departmentValidator.validateCreate(dto);
@@ -64,7 +60,6 @@ public class DepartmentController {
         return ResponseEntity.ok(DepartmentMapper.toDTO(saved));
     }
 
-    // POST - update department
     @PostMapping("/update")
     public ResponseEntity<DepartmentEntityDTO> updateDepartment(@Valid @RequestBody UpdateDepartmentRequestDTO dto) {
         if (!departmentService.existsById(dto.getId())) {
@@ -77,7 +72,6 @@ public class DepartmentController {
         return ResponseEntity.ok(DepartmentMapper.toDTO(updated));
     }
 
-    // POST - delete department by id
     @PostMapping("/delete")
     public ResponseEntity<Void> deleteDepartment(@Valid @RequestBody IdRequest request) {
         if (!departmentService.existsById(request.getId())) {
@@ -87,13 +81,11 @@ public class DepartmentController {
         return ResponseEntity.noContent().build();
     }
 
-    // POST - check if department exists by name
     @PostMapping("/existsByName")
     public boolean existsByName(@Valid @RequestBody String name) {
         return departmentService.existsByName(name);
     }
 
-    // POST - get departments by location
     @PostMapping("/getByLocation")
     public List<DepartmentEntityDTO> getDepartmentsByLocation(@Valid @RequestBody String location) {
         return departmentService.findByLocation(location)
@@ -102,7 +94,6 @@ public class DepartmentController {
                 .toList();
     }
 
-    // POST - get departments by location containing keyword
     @PostMapping("/getByLocationContaining")
     public List<DepartmentEntityDTO> getDepartmentsByLocationContaining(@Valid @RequestBody String keyword) {
         return departmentService.findByLocationContainingIgnoreCase(keyword)

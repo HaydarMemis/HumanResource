@@ -7,9 +7,10 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class CreateLeaveRequestRequestDTO {
 
