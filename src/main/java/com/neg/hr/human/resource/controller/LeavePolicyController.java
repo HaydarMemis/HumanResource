@@ -40,7 +40,7 @@ public class LeavePolicyController {
     @PostMapping("/age-bonus")
     public ResponseEntity<LeavePolicyResponseDTO> getAgeBasedLeaveBonus(@Valid @RequestBody LeavePolicyRequestDTO request) {
         Employee employee = getEmployee(request.getEmployeeId());
-        int bonus = leavePolicyService.calculateAgeBasedLeaveBonus(employee);
+        int bonus = leavePolicyService.calculateAnnualLeaveDays(employee);
 
         LeavePolicyResponseDTO response = LeavePolicyResponseDTO.builder()
                 .days(bonus)
