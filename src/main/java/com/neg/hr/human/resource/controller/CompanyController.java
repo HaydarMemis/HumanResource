@@ -90,22 +90,23 @@ public class CompanyController {
             @ApiResponse(responseCode = "200", description = "Company updated successfully"),
             @ApiResponse(responseCode = "404", description = "Company not found")
     })
-    @PostMapping("/update/{id}")
+    @PostMapping("/update")
     public ResponseEntity<CompanyEntityDTO> updateCompany(
-            @Parameter(description = "ID of the company to update", required = true)
-            @PathVariable Long id,
-            @Parameter(description = "Updated company data", required = true)
             @Valid @RequestBody UpdateCompanyRequestDTO dto) {
-        companyValidator.validateUpdate(dto, id);
 
-        Company existingCompany = companyService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Company not found"));
+        if (!companyService.existsById(dto.getId())) {
+            return ResponseEntity.notFound().build();
+        }
 
-        CompanyMapper.updateEntity(existingCompany, dto);
-        Company updated = companyService.update(id, existingCompany);
+        companyValidator.validateUpdate(dto);
+
+        Company existing = companyService.findById(dto.getId()).get();
+        CompanyMapper.updateEntity(existing, dto);
+        Company updated = companyService.save(existing);
 
         return ResponseEntity.ok(CompanyMapper.toDTO(updated));
     }
+
 
     @Operation(summary = "Delete company", description = "Delete a company by ID")
     @ApiResponses({
@@ -113,12 +114,14 @@ public class CompanyController {
             @ApiResponse(responseCode = "404", description = "Company not found")
     })
     @PostMapping("/delete")
-    public ResponseEntity<Void> deleteCompany(
-            @Parameter(description = "ID of the company to delete", required = true)
-            @Valid @RequestBody IdRequest request) {
+    public ResponseEntity<Void> deleteCompany(@Valid @RequestBody IdRequest request) {
+        if (!companyService.existsById(request.getId())) {
+            return ResponseEntity.notFound().build();
+        }
         companyService.deleteById(request.getId());
         return ResponseEntity.noContent().build();
     }
+
 
     @Operation(summary = "Check if company exists by name", description = "Returns true if a company with the given name exists")
     @ApiResponse(responseCode = "200", description = "Existence check completed")

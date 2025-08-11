@@ -66,4 +66,9 @@ public class CompanyServiceImpl implements CompanyService {
        BusinessLogger.logUpdated(Company.class, updated.getId(), updated.getName());
        return updated;
     }
+
+    @Override
+    public boolean existsById(Long id) {
+        return companyRepository.existsById(id);
+    }
 }

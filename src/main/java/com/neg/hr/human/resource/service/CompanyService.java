@@ -19,4 +19,6 @@ public interface CompanyService {
     void deleteById(Long id);
 
     Company update(Long id, Company company);
+
+    boolean existsById(Long id);
 }

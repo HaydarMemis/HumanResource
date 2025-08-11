@@ -24,12 +24,12 @@ public class CompanyValidator {
         }
     }
 
-    public void validateUpdate(UpdateCompanyRequestDTO dto, Long id) {
+    public void validateUpdate(UpdateCompanyRequestDTO dto) {
         if (!StringUtils.hasText(dto.getName())) {
             throw new IllegalArgumentException("Company name must not be empty");
         }
         companyService.findByName(dto.getName()).ifPresent(existing -> {
-            if (!existing.getId().equals(id)) {
+            if (!existing.getId().equals(dto.getId())) {
                 throw new IllegalArgumentException("Company name already exists");
             }
         });

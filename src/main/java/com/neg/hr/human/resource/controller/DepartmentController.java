@@ -65,7 +65,7 @@ public class DepartmentController {
         if (!departmentService.existsById(dto.getId())) {
             return ResponseEntity.notFound().build();
         }
-        departmentValidator.validateUpdate(dto);  // Removed the second parameter
+        departmentValidator.validateUpdate(dto);
         Department existing = departmentService.findById(dto.getId()).get();
         DepartmentMapper.updateEntity(existing, dto);
         Department updated = departmentService.save(existing);
