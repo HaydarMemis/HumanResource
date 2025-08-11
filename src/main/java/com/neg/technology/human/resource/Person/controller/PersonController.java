@@ -5,7 +5,7 @@ import com.neg.technology.human.resource.dto.entity.PersonEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdatePersonRequestDTO;
 import com.neg.technology.human.resource.dto.utilities.*;
 import com.neg.technology.human.resource.Person.model.entity.Person;
-import com.neg.technology.human.resource.mapper.PersonMapper;
+import com.neg.technology.human.resource.Person.model.mapper.PersonMapper;
 import com.neg.technology.human.resource.Person.service.PersonService;
 import com.neg.technology.human.resource.Person.validator.PersonValidator;
 import io.swagger.v3.oas.annotations.Operation;

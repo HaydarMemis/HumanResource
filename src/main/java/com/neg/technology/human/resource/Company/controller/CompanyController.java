@@ -6,7 +6,7 @@ import com.neg.technology.human.resource.dto.create.CreateCompanyRequestDTO;
 import com.neg.technology.human.resource.dto.entity.CompanyEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateCompanyRequestDTO;
 import com.neg.technology.human.resource.Company.model.entity.Company;
-import com.neg.technology.human.resource.mapper.CompanyMapper;
+import com.neg.technology.human.resource.Company.model.mapper.CompanyMapper;
 import com.neg.technology.human.resource.Company.service.CompanyService;
 import com.neg.technology.human.resource.Company.validator.CompanyValidator;
 import io.swagger.v3.oas.annotations.Operation;

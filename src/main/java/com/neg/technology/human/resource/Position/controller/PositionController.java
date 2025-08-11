@@ -7,7 +7,7 @@ import com.neg.technology.human.resource.dto.create.CreatePositionRequestDTO;
 import com.neg.technology.human.resource.dto.entity.PositionEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdatePositionRequestDTO;
 import com.neg.technology.human.resource.Position.model.entity.Position;
-import com.neg.technology.human.resource.mapper.PositionMapper;
+import com.neg.technology.human.resource.Position.model.mapper.PositionMapper;
 import com.neg.technology.human.resource.Position.service.PositionService;
 import com.neg.technology.human.resource.Position.validator.PositionValidator;
 import io.swagger.v3.oas.annotations.Operation;

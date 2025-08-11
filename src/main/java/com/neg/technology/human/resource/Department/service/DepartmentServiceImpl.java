@@ -1,8 +1,8 @@
 package com.neg.technology.human.resource.Department.service;
 
-import com.neg.technology.human.resource.business.BusinessLogger;
+import com.neg.technology.human.resource.Business.BusinessLogger;
 import com.neg.technology.human.resource.Department.model.entity.Department;
-import com.neg.technology.human.resource.exception.ResourceNotFoundException;
+import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.Department.repository.DepartmentRepository;
 import org.springframework.stereotype.Service;
 

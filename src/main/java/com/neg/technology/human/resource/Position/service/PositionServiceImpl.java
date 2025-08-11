@@ -1,8 +1,8 @@
 package com.neg.technology.human.resource.Position.service;
 
-import com.neg.technology.human.resource.business.BusinessLogger;
+import com.neg.technology.human.resource.Business.BusinessLogger;
 import com.neg.technology.human.resource.Position.model.entity.Position;
-import com.neg.technology.human.resource.exception.ResourceNotFoundException;
+import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.Position.repository.PositionRepository;
 import org.springframework.stereotype.Service;
 

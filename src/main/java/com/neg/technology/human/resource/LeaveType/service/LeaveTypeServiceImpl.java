@@ -1,8 +1,8 @@
 package com.neg.technology.human.resource.LeaveType.service;
 
-import com.neg.technology.human.resource.business.BusinessLogger;
-import com.neg.technology.human.resource.LeaveType.entity.LeaveType;
-import com.neg.technology.human.resource.exception.ResourceNotFoundException;
+import com.neg.technology.human.resource.Business.BusinessLogger;
+import com.neg.technology.human.resource.LeaveType.model.entity.LeaveType;
+import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.LeaveType.repository.LeaveTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

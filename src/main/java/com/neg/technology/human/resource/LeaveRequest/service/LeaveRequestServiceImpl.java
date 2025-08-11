@@ -1,9 +1,9 @@
 package com.neg.technology.human.resource.LeaveRequest.service;
 
-import com.neg.technology.human.resource.business.BusinessLogger;
-import com.neg.technology.human.resource.LeaveRequest.entity.LeaveRequest;
-import com.neg.technology.human.resource.LeaveType.entity.LeaveType;
-import com.neg.technology.human.resource.exception.ResourceNotFoundException;
+import com.neg.technology.human.resource.Business.BusinessLogger;
+import com.neg.technology.human.resource.LeaveRequest.model.entity.LeaveRequest;
+import com.neg.technology.human.resource.LeaveType.model.entity.LeaveType;
+import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.LeaveRequest.repository.LeaveRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

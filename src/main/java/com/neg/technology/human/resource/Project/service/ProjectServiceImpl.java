@@ -1,8 +1,8 @@
 package com.neg.technology.human.resource.Project.service;
 
-import com.neg.technology.human.resource.business.BusinessLogger;
+import com.neg.technology.human.resource.Business.BusinessLogger;
 import com.neg.technology.human.resource.Project.model.entity.Project;
-import com.neg.technology.human.resource.exception.ResourceNotFoundException;
+import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.Project.repository.ProjectRepository;
 import org.springframework.stereotype.Service;
 

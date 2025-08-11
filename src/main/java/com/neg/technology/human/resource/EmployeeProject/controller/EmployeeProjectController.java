@@ -5,9 +5,9 @@ import com.neg.technology.human.resource.dto.create.CreateEmployeeProjectRequest
 import com.neg.technology.human.resource.dto.entity.EmployeeProjectEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateEmployeeProjectRequestDTO;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
-import com.neg.technology.human.resource.EmployeeProject.entity.EmployeeProject;
-import com.neg.technology.human.resource.entity.Project;
-import com.neg.technology.human.resource.mapper.EmployeeProjectMapper;
+import com.neg.technology.human.resource.EmployeeProject.model.entity.EmployeeProject;
+import com.neg.technology.human.resource.Utility.Project;
+import com.neg.technology.human.resource.EmployeeProject.model.mapper.EmployeeProjectMapper;
 import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.repository.ProjectRepository;
 import com.neg.technology.human.resource.EmployeeProject.service.EmployeeProjectService;

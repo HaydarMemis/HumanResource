@@ -1,6 +1,6 @@
 package com.neg.technology.human.resource.Person.model.entity;
 
-import com.neg.technology.human.resource.entity.AuditableEntity;
+import com.neg.technology.human.resource.Utility.AuditableEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

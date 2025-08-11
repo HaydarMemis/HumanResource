@@ -1,6 +1,6 @@
 package com.neg.technology.human.resource.EmployeeProject.repository;
 
-import com.neg.technology.human.resource.EmployeeProject.entity.EmployeeProject;
+import com.neg.technology.human.resource.EmployeeProject.model.entity.EmployeeProject;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

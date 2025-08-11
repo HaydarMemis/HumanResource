@@ -1,6 +1,6 @@
 package com.neg.technology.human.resource.LeaveBalance.service;
 
-import com.neg.technology.human.resource.LeaveBalance.entity.LeaveBalance;
+import com.neg.technology.human.resource.LeaveBalance.model.entity.LeaveBalance;
 
 import java.util.List;
 import java.util.Optional;

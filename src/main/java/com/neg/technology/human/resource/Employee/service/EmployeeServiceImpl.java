@@ -10,12 +10,12 @@ import com.neg.technology.human.resource.Person.model.entity.Person;
 import com.neg.technology.human.resource.Person.repository.PersonRepository;
 import com.neg.technology.human.resource.Position.model.entity.Position;
 import com.neg.technology.human.resource.Position.repository.PositionRepository;
-import com.neg.technology.human.resource.business.BusinessLogger;
+import com.neg.technology.human.resource.Business.BusinessLogger;
 import com.neg.technology.human.resource.dto.create.CreateEmployeeRequestDTO;
 import com.neg.technology.human.resource.dto.update.UpdateEmployeeRequestDTO;
 import com.neg.hr.human.resource.entity.*;
-import com.neg.technology.human.resource.exception.ResourceNotFoundException;
-import com.neg.technology.human.resource.mapper.EmployeeMapper;
+import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
+import com.neg.technology.human.resource.Employee.model.mapper.EmployeeMapper;
 import com.neg.hr.human.resource.repository.*;
 import org.springframework.stereotype.Service;
 

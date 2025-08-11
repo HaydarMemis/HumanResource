@@ -6,7 +6,7 @@ import com.neg.technology.human.resource.dto.create.CreateDepartmentRequestDTO;
 import com.neg.technology.human.resource.dto.entity.DepartmentEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateDepartmentRequestDTO;
 import com.neg.technology.human.resource.Department.model.entity.Department;
-import com.neg.technology.human.resource.mapper.DepartmentMapper;
+import com.neg.technology.human.resource.Department.model.mapper.DepartmentMapper;
 import com.neg.technology.human.resource.Department.service.DepartmentService;
 import com.neg.technology.human.resource.Department.validator.DepartmentValidator;
 import io.swagger.v3.oas.annotations.Operation;

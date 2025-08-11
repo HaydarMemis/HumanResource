@@ -6,7 +6,7 @@ import com.neg.technology.human.resource.dto.create.CreateEmployeeRequestDTO;
 import com.neg.technology.human.resource.dto.entity.EmployeeEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateEmployeeRequestDTO;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
-import com.neg.technology.human.resource.mapper.EmployeeMapper;
+import com.neg.technology.human.resource.Employee.model.mapper.EmployeeMapper;
 import com.neg.technology.human.resource.Employee.service.EmployeeService;
 import com.neg.technology.human.resource.Employee.validator.EmployeeValidator;
 import io.swagger.v3.oas.annotations.Operation;

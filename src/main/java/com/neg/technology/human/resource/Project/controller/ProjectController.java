@@ -6,7 +6,7 @@ import com.neg.technology.human.resource.dto.create.CreateProjectRequestDTO;
 import com.neg.technology.human.resource.dto.entity.ProjectEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateProjectRequestDTO;
 import com.neg.technology.human.resource.Project.model.entity.Project;
-import com.neg.technology.human.resource.mapper.ProjectMapper;
+import com.neg.technology.human.resource.Project.model.mapper.ProjectMapper;
 import com.neg.technology.human.resource.Project.service.ProjectService;
 import com.neg.technology.human.resource.Project.validator.ProjectValidator;
 import io.swagger.v3.oas.annotations.Operation;
