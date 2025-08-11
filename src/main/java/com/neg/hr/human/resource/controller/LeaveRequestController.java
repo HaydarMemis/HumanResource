@@ -17,15 +17,18 @@ import com.neg.hr.human.resource.repository.EmployeeRepository;
 import com.neg.hr.human.resource.repository.LeaveTypeRepository;
 import com.neg.hr.human.resource.service.LeaveRequestService;
 import com.neg.hr.human.resource.validator.LeaveRequestValidator;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "LeaveRequest Controller", description = "Operations related to leave requests management")
 @RestController
 @RequestMapping("/api/leave-requests")
 public class LeaveRequestController {
@@ -45,24 +48,39 @@ public class LeaveRequestController {
         this.validator = validator;
     }
 
+    @Operation(summary = "Get all leave requests", description = "Retrieve all leave requests")
+    @ApiResponse(responseCode = "200", description = "List of leave requests retrieved successfully")
     @PostMapping("/getAll")
-    public List<LeaveRequestEntityDTO> getAllLeaveRequests() {
-        return leaveRequestService.findAll()
+    public ResponseEntity<List<LeaveRequestEntityDTO>> getAllLeaveRequests() {
+        List<LeaveRequestEntityDTO> list = leaveRequestService.findAll()
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
+        return ResponseEntity.ok(list);
     }
 
+    @Operation(summary = "Get leave request by ID", description = "Retrieve a leave request by its unique ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Leave request found"),
+            @ApiResponse(responseCode = "404", description = "Leave request not found")
+    })
     @PostMapping("/getById")
-    public ResponseEntity<LeaveRequestEntityDTO> getLeaveRequestById(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<LeaveRequestEntityDTO> getLeaveRequestById(
+            @Parameter(description = "ID of the leave request", required = true)
+            @Valid @RequestBody IdRequest request) {
         return leaveRequestService.findById(request.getId())
                 .map(LeaveRequestMapper::toDTO)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Create a new leave request", description = "Create a new leave request record")
+    @ApiResponse(responseCode = "200", description = "Leave request created successfully")
     @PostMapping("/create")
-    public ResponseEntity<LeaveRequestEntityDTO> createLeaveRequest(@Valid @RequestBody CreateLeaveRequestRequestDTO dto) {
+    public ResponseEntity<LeaveRequestEntityDTO> createLeaveRequest(
+            @Parameter(description = "Leave request data for creation", required = true)
+            @Valid @RequestBody CreateLeaveRequestRequestDTO dto) {
+
         validator.validateCreateDTO(dto);
 
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
@@ -79,8 +97,16 @@ public class LeaveRequestController {
         return ResponseEntity.ok(LeaveRequestMapper.toDTO(saved));
     }
 
+    @Operation(summary = "Update an existing leave request", description = "Update details of a leave request")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Leave request updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Leave request not found")
+    })
     @PostMapping("/update")
-    public ResponseEntity<LeaveRequestEntityDTO> updateLeaveRequest(@Valid @RequestBody UpdateLeaveRequestRequestDTO dto) {
+    public ResponseEntity<LeaveRequestEntityDTO> updateLeaveRequest(
+            @Parameter(description = "Leave request data for update", required = true)
+            @Valid @RequestBody UpdateLeaveRequestRequestDTO dto) {
+
         if (!leaveRequestService.existsById(dto.getId())) {
             return ResponseEntity.notFound().build();
         }
@@ -109,8 +135,15 @@ public class LeaveRequestController {
         return ResponseEntity.ok(LeaveRequestMapper.toDTO(updated));
     }
 
+    @Operation(summary = "Delete a leave request", description = "Delete a leave request by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Leave request deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Leave request not found")
+    })
     @PostMapping("/delete")
-    public ResponseEntity<Void> deleteLeaveRequest(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<Void> deleteLeaveRequest(
+            @Parameter(description = "ID of the leave request to delete", required = true)
+            @Valid @RequestBody IdRequest request) {
         if (!leaveRequestService.existsById(request.getId())) {
             return ResponseEntity.notFound().build();
         }
@@ -118,60 +151,89 @@ public class LeaveRequestController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Get leave requests by employee ID", description = "Retrieve leave requests for a specific employee")
+    @ApiResponse(responseCode = "200", description = "List of leave requests for employee retrieved successfully")
     @PostMapping("/getByEmployee")
-    public List<LeaveRequestEntityDTO> getLeaveRequestsByEmployee(@Valid @RequestBody IdRequest request) {
-        return leaveRequestService.findByEmployeeId(request.getId())
+    public ResponseEntity<List<LeaveRequestEntityDTO>> getLeaveRequestsByEmployee(
+            @Parameter(description = "Employee ID", required = true)
+            @Valid @RequestBody IdRequest request) {
+        List<LeaveRequestEntityDTO> list = leaveRequestService.findByEmployeeId(request.getId())
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
+        return ResponseEntity.ok(list);
     }
 
+    @Operation(summary = "Get leave requests by status", description = "Retrieve leave requests filtered by status")
+    @ApiResponse(responseCode = "200", description = "List of leave requests filtered by status retrieved successfully")
     @PostMapping("/getByStatus")
-    public List<LeaveRequestEntityDTO> getLeaveRequestsByStatus(@Valid @RequestBody StatusRequest request) {
-        return leaveRequestService.findByStatus(request.getStatus())
+    public ResponseEntity<List<LeaveRequestEntityDTO>> getLeaveRequestsByStatus(
+            @Parameter(description = "Status to filter", required = true)
+            @Valid @RequestBody StatusRequest request) {
+        List<LeaveRequestEntityDTO> list = leaveRequestService.findByStatus(request.getStatus())
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
+        return ResponseEntity.ok(list);
     }
 
+    @Operation(summary = "Get cancelled leave requests", description = "Retrieve leave requests that are cancelled")
+    @ApiResponse(responseCode = "200", description = "List of cancelled leave requests retrieved successfully")
     @PostMapping("/getCancelled")
-    public List<LeaveRequestEntityDTO> getCancelledLeaveRequests() {
-        return leaveRequestService.findByIsCancelledTrue()
+    public ResponseEntity<List<LeaveRequestEntityDTO>> getCancelledLeaveRequests() {
+        List<LeaveRequestEntityDTO> list = leaveRequestService.findByIsCancelledTrue()
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
+        return ResponseEntity.ok(list);
     }
 
+    @Operation(summary = "Get leave requests by approver ID", description = "Retrieve leave requests approved by a specific approver")
+    @ApiResponse(responseCode = "200", description = "List of leave requests approved by the approver retrieved successfully")
     @PostMapping("/getByApprover")
-    public List<LeaveRequestEntityDTO> getLeaveRequestsByApprover(@Valid @RequestBody IdRequest request) {
-        return leaveRequestService.findByApprovedById(request.getId())
+    public ResponseEntity<List<LeaveRequestEntityDTO>> getLeaveRequestsByApprover(
+            @Parameter(description = "Approver ID", required = true)
+            @Valid @RequestBody IdRequest request) {
+        List<LeaveRequestEntityDTO> list = leaveRequestService.findByApprovedById(request.getId())
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
+        return ResponseEntity.ok(list);
     }
 
+    @Operation(summary = "Get leave requests by employee and status", description = "Retrieve leave requests filtered by employee ID and status")
+    @ApiResponse(responseCode = "200", description = "List of leave requests filtered by employee and status retrieved successfully")
     @PostMapping("/getByEmployeeAndStatus")
-    public List<LeaveRequestEntityDTO> getLeaveRequestsByEmployeeAndStatus(
+    public ResponseEntity<List<LeaveRequestEntityDTO>> getLeaveRequestsByEmployeeAndStatus(
+            @Parameter(description = "Employee ID and status filter", required = true)
             @Valid @RequestBody EmployeeStatusRequest request) {
-        return leaveRequestService.findByEmployeeIdAndStatus(request.getEmployeeId(), request.getStatus())
+        List<LeaveRequestEntityDTO> list = leaveRequestService.findByEmployeeIdAndStatus(request.getEmployeeId(), request.getStatus())
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
+        return ResponseEntity.ok(list);
     }
 
+    @Operation(summary = "Get leave requests by date range", description = "Retrieve leave requests whose start date is between given dates")
+    @ApiResponse(responseCode = "200", description = "List of leave requests filtered by date range retrieved successfully")
     @PostMapping("/getByDateRange")
-    public List<LeaveRequestEntityDTO> getLeaveRequestsByDateRange(
+    public ResponseEntity<List<LeaveRequestEntityDTO>> getLeaveRequestsByDateRange(
+            @Parameter(description = "Date range filter", required = true)
             @Valid @RequestBody DateRangeRequest request) {
-        return leaveRequestService.findByStartDateBetween(request.getStartDate(), request.getEndDate())
+        List<LeaveRequestEntityDTO> list = leaveRequestService.findByStartDateBetween(request.getStartDate(), request.getEndDate())
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
+        return ResponseEntity.ok(list);
     }
 
+    @Operation(summary = "Get leave requests by employee, leave type and date range", description = "Retrieve leave requests filtered by employee ID, leave type ID and date range")
+    @ApiResponse(responseCode = "200", description = "List of leave requests filtered by employee, leave type and date range retrieved successfully")
     @PostMapping("/getByEmployeeLeaveTypeAndDateRange")
-    public List<LeaveRequestEntityDTO> getLeaveRequestsByEmployeeLeaveTypeAndDateRange(
+    public ResponseEntity<List<LeaveRequestEntityDTO>> getLeaveRequestsByEmployeeLeaveTypeAndDateRange(
+            @Parameter(description = "Filter by employee ID, leave type ID and date range", required = true)
             @Valid @RequestBody EmployeeLeaveTypeDateRangeRequest request) {
-        return leaveRequestService.findByEmployeeIdAndLeaveTypeIdAndStartDateBetween(
+        List<LeaveRequestEntityDTO> list = leaveRequestService.findByEmployeeIdAndLeaveTypeIdAndStartDateBetween(
                         request.getEmployeeId(),
                         request.getLeaveTypeId(),
                         request.getStartDate(),
@@ -179,17 +241,22 @@ public class LeaveRequestController {
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
+        return ResponseEntity.ok(list);
     }
 
+    @Operation(summary = "Get overlapping leave requests", description = "Retrieve leave requests overlapping given employee and date range")
+    @ApiResponse(responseCode = "200", description = "List of overlapping leave requests retrieved successfully")
     @PostMapping("/getOverlapping")
-    public List<LeaveRequestEntityDTO> getOverlappingLeaveRequests(
+    public ResponseEntity<List<LeaveRequestEntityDTO>> getOverlappingLeaveRequests(
+            @Parameter(description = "Employee ID and date range for overlap check", required = true)
             @Valid @RequestBody EmployeeDateRangeRequest request) {
-        return leaveRequestService.findOverlappingRequests(
+        List<LeaveRequestEntityDTO> list = leaveRequestService.findOverlappingRequests(
                         request.getEmployeeId(),
                         request.getStartDate(),
                         request.getEndDate())
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
+        return ResponseEntity.ok(list);
     }
 }

@@ -16,15 +16,18 @@ import com.neg.hr.human.resource.repository.EmployeeRepository;
 import com.neg.hr.human.resource.repository.LeaveTypeRepository;
 import com.neg.hr.human.resource.service.LeaveBalanceService;
 import com.neg.hr.human.resource.validator.LeaveBalanceValidator;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Leave Balance Controller", description = "Operations related to leave balance management")
 @RestController
 @RequestMapping("/api/leave_balances")
 public class LeaveBalanceController {
@@ -34,34 +37,49 @@ public class LeaveBalanceController {
     private final LeaveTypeRepository leaveTypeRepository;
     private final EmployeeRepository employeeRepository;
 
-    public LeaveBalanceController(LeaveBalanceService leaveBalanceService,
-                                  LeaveBalanceValidator leaveBalanceValidator,
-                                  LeaveTypeRepository leaveTypeRepository,
-                                  EmployeeRepository employeeRepository) {
+    public LeaveBalanceController(
+            LeaveBalanceService leaveBalanceService,
+            LeaveBalanceValidator leaveBalanceValidator,
+            LeaveTypeRepository leaveTypeRepository,
+            EmployeeRepository employeeRepository) {
         this.leaveBalanceService = leaveBalanceService;
         this.leaveBalanceValidator = leaveBalanceValidator;
         this.leaveTypeRepository = leaveTypeRepository;
         this.employeeRepository = employeeRepository;
     }
 
+    @Operation(summary = "Get all leave balances", description = "Retrieve all leave balance records")
+    @ApiResponse(responseCode = "200", description = "List of leave balances retrieved successfully")
     @PostMapping("/getAll")
-    public List<LeaveBalanceEntityDTO> getAllLeaveBalances() {
-        return leaveBalanceService.findAll()
+    public ResponseEntity<List<LeaveBalanceEntityDTO>> getAllLeaveBalances() {
+        List<LeaveBalanceEntityDTO> list = leaveBalanceService.findAll()
                 .stream()
                 .map(LeaveBalanceMapper::toDTO)
                 .toList();
+        return ResponseEntity.ok(list);
     }
 
+    @Operation(summary = "Get leave balance by ID", description = "Retrieve leave balance by its ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Leave balance found"),
+            @ApiResponse(responseCode = "404", description = "Leave balance not found")
+    })
     @PostMapping("/getById")
-    public ResponseEntity<LeaveBalanceEntityDTO> getLeaveBalanceById(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<LeaveBalanceEntityDTO> getLeaveBalanceById(
+            @Parameter(description = "ID of the leave balance", required = true)
+            @Valid @RequestBody IdRequest request) {
         return leaveBalanceService.findById(request.getId())
                 .map(LeaveBalanceMapper::toDTO)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Create leave balance", description = "Create a new leave balance record")
+    @ApiResponse(responseCode = "200", description = "Leave balance created successfully")
     @PostMapping("/create")
-    public ResponseEntity<LeaveBalanceEntityDTO> createLeaveBalance(@Valid @RequestBody CreateLeaveBalanceRequestDTO dto) {
+    public ResponseEntity<LeaveBalanceEntityDTO> createLeaveBalance(
+            @Parameter(description = "Leave balance creation data", required = true)
+            @Valid @RequestBody CreateLeaveBalanceRequestDTO dto) {
         leaveBalanceValidator.validateCreateDTO(dto);
 
         LeaveType leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
@@ -70,14 +88,22 @@ public class LeaveBalanceController {
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"));
 
-        LeaveBalance leaveBalance = LeaveBalanceMapper.toEntity(dto, employee, leaveType);
-        LeaveBalance saved = leaveBalanceService.save(leaveBalance);
+        LeaveBalance entity = LeaveBalanceMapper.toEntity(dto, employee, leaveType);
+        LeaveBalance saved = leaveBalanceService.save(entity);
 
         return ResponseEntity.ok(LeaveBalanceMapper.toDTO(saved));
     }
 
+    @Operation(summary = "Update leave balance", description = "Update an existing leave balance record")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Leave balance updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Leave balance not found")
+    })
     @PostMapping("/update")
-    public ResponseEntity<LeaveBalanceEntityDTO> updateLeaveBalance(@Valid @RequestBody UpdateLeaveBalanceRequestDTO dto) {
+    public ResponseEntity<LeaveBalanceEntityDTO> updateLeaveBalance(
+            @Parameter(description = "Leave balance update data", required = true)
+            @Valid @RequestBody UpdateLeaveBalanceRequestDTO dto) {
+
         if (!leaveBalanceService.existsById(dto.getId())) {
             return ResponseEntity.notFound().build();
         }
@@ -102,8 +128,15 @@ public class LeaveBalanceController {
         return ResponseEntity.ok(LeaveBalanceMapper.toDTO(updated));
     }
 
+    @Operation(summary = "Delete leave balance", description = "Delete a leave balance by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Leave balance deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Leave balance not found")
+    })
     @PostMapping("/delete")
-    public ResponseEntity<Void> deleteLeaveBalance(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<Void> deleteLeaveBalance(
+            @Parameter(description = "ID of the leave balance to delete", required = true)
+            @Valid @RequestBody IdRequest request) {
         if (!leaveBalanceService.existsById(request.getId())) {
             return ResponseEntity.notFound().build();
         }
@@ -111,24 +144,40 @@ public class LeaveBalanceController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Get leave balances by employee ID", description = "Retrieve leave balances for an employee")
+    @ApiResponse(responseCode = "200", description = "List of leave balances retrieved successfully")
     @PostMapping("/getByEmployee")
-    public List<LeaveBalanceEntityDTO> getLeaveBalancesByEmployee(@Valid @RequestBody IdRequest request) {
-        return leaveBalanceService.findByEmployeeId(request.getId())
+    public ResponseEntity<List<LeaveBalanceEntityDTO>> getLeaveBalancesByEmployee(
+            @Parameter(description = "Employee ID", required = true)
+            @Valid @RequestBody IdRequest request) {
+        List<LeaveBalanceEntityDTO> list = leaveBalanceService.findByEmployeeId(request.getId())
                 .stream()
                 .map(LeaveBalanceMapper::toDTO)
                 .toList();
+        return ResponseEntity.ok(list);
     }
 
+    @Operation(summary = "Get leave balances by employee and year", description = "Retrieve leave balances for an employee in a specific year")
+    @ApiResponse(responseCode = "200", description = "List of leave balances retrieved successfully")
     @PostMapping("/getByEmployeeAndYear")
-    public List<LeaveBalanceEntityDTO> getLeaveBalancesByEmployeeAndYear(@Valid @RequestBody EmployeeYearRequest request) {
-        return leaveBalanceService.findByEmployeeIdAndDate(request.getYear(), request.getEmployeeId())
+    public ResponseEntity<List<LeaveBalanceEntityDTO>> getLeaveBalancesByEmployeeAndYear(
+            @Parameter(description = "Employee and year data", required = true)
+            @Valid @RequestBody EmployeeYearRequest request) {
+        List<LeaveBalanceEntityDTO> list = leaveBalanceService.findByEmployeeIdAndDate(request.getYear(), request.getEmployeeId())
                 .stream()
                 .map(LeaveBalanceMapper::toDTO)
                 .toList();
+        return ResponseEntity.ok(list);
     }
 
+    @Operation(summary = "Get leave balance by employee and leave type", description = "Retrieve leave balance for an employee by leave type")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Leave balance found"),
+            @ApiResponse(responseCode = "404", description = "Leave balance not found")
+    })
     @PostMapping("/getByEmployeeAndLeaveType")
     public ResponseEntity<LeaveBalanceEntityDTO> getLeaveBalanceByEmployeeAndLeaveType(
+            @Parameter(description = "Employee and leave type data", required = true)
             @Valid @RequestBody EmployeeLeaveTypeRequest request) {
         return leaveBalanceService.findByEmployeeIdAndLeaveTypeId(request.getEmployeeId(), request.getLeaveTypeId())
                 .map(LeaveBalanceMapper::toDTO)
@@ -136,8 +185,14 @@ public class LeaveBalanceController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Get leave balance by employee, leave type, and year", description = "Retrieve leave balance for an employee by leave type and year")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Leave balance found"),
+            @ApiResponse(responseCode = "404", description = "Leave balance not found")
+    })
     @PostMapping("/getByEmployeeLeaveTypeAndYear")
     public ResponseEntity<LeaveBalanceEntityDTO> getLeaveBalanceByEmployeeLeaveTypeAndYear(
+            @Parameter(description = "Employee, leave type and year data", required = true)
             @Valid @RequestBody EmployeeLeaveTypeYearRequest request) {
         return leaveBalanceService.findByEmployeeIdAndLeaveTypeIdAndDate(
                         request.getEmployeeId(),
@@ -148,12 +203,16 @@ public class LeaveBalanceController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Get leave balances by leave type and year", description = "Retrieve leave balances for a leave type in a specific year")
+    @ApiResponse(responseCode = "200", description = "List of leave balances retrieved successfully")
     @PostMapping("/getByLeaveTypeAndYear")
-    public List<LeaveBalanceEntityDTO> getLeaveBalancesByLeaveTypeAndYear(
+    public ResponseEntity<List<LeaveBalanceEntityDTO>> getLeaveBalancesByLeaveTypeAndYear(
+            @Parameter(description = "Leave type and year data", required = true)
             @Valid @RequestBody LeaveTypeYearRequest request) {
-        return leaveBalanceService.findByLeaveTypeIdAndDate(request.getLeaveTypeId(), request.getYear())
+        List<LeaveBalanceEntityDTO> list = leaveBalanceService.findByLeaveTypeIdAndDate(request.getLeaveTypeId(), request.getYear())
                 .stream()
                 .map(LeaveBalanceMapper::toDTO)
                 .toList();
+        return ResponseEntity.ok(list);
     }
 }

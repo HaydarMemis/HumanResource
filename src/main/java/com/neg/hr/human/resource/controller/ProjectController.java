@@ -9,12 +9,15 @@ import com.neg.hr.human.resource.entity.Project;
 import com.neg.hr.human.resource.mapper.ProjectMapper;
 import com.neg.hr.human.resource.service.ProjectService;
 import com.neg.hr.human.resource.validator.ProjectValidator;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,6 +34,8 @@ public class ProjectController {
         this.projectValidator = projectValidator;
     }
 
+    @Operation(summary = "Get all projects", description = "Returns a list of all projects registered in the system.")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved")
     @PostMapping("/getAll")
     public List<ProjectEntityDTO> getAllProjects() {
         return projectService.findAll()
@@ -39,30 +44,59 @@ public class ProjectController {
                 .toList();
     }
 
+    @Operation(summary = "Get project by ID", description = "Returns the project with the specified ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Project found",
+                    content = @Content(schema = @Schema(implementation = ProjectEntityDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Project not found")
+    })
     @PostMapping("/getById")
-    public ResponseEntity<ProjectEntityDTO> getProjectById(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<ProjectEntityDTO> getProjectById(
+            @Parameter(description = "Project ID") @Valid @RequestBody IdRequest request) {
         return projectService.findById(request.getId())
                 .map(project -> ResponseEntity.ok(ProjectMapper.toDTO(project)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Get project by name", description = "Returns the project with the specified name.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Project found",
+                    content = @Content(schema = @Schema(implementation = ProjectEntityDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Project not found")
+    })
     @PostMapping("/getByName")
-    public ResponseEntity<ProjectEntityDTO> getProjectByName(@Valid @RequestBody NameRequest request) {
+    public ResponseEntity<ProjectEntityDTO> getProjectByName(
+            @Parameter(description = "Project name") @Valid @RequestBody NameRequest request) {
         return projectService.findByName(request.getName())
                 .map(project -> ResponseEntity.ok(ProjectMapper.toDTO(project)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Create a new project", description = "Creates a new project record.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Project successfully created",
+                    content = @Content(schema = @Schema(implementation = ProjectEntityDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid data")
+    })
     @PostMapping("/create")
-    public ResponseEntity<ProjectEntityDTO> createProject(@Valid @RequestBody CreateProjectRequestDTO dto) {
+    public ResponseEntity<ProjectEntityDTO> createProject(
+            @Parameter(description = "Project data to create") @Valid @RequestBody CreateProjectRequestDTO dto) {
         projectValidator.validateCreate(dto);
         Project project = ProjectMapper.toEntity(dto);
         Project saved = projectService.save(project);
         return ResponseEntity.ok(ProjectMapper.toDTO(saved));
     }
 
+    @Operation(summary = "Update a project", description = "Updates an existing project record.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Project successfully updated",
+                    content = @Content(schema = @Schema(implementation = ProjectEntityDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Project not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid data")
+    })
     @PostMapping("/update")
-    public ResponseEntity<ProjectEntityDTO> updateProject(@Valid @RequestBody UpdateProjectRequestDTO dto) {
+    public ResponseEntity<ProjectEntityDTO> updateProject(
+            @Parameter(description = "Updated project data") @Valid @RequestBody UpdateProjectRequestDTO dto) {
         if (!projectService.existsById(dto.getId())) {
             return ResponseEntity.notFound().build();
         }
@@ -73,8 +107,14 @@ public class ProjectController {
         return ResponseEntity.ok(ProjectMapper.toDTO(updated));
     }
 
+    @Operation(summary = "Delete a project", description = "Deletes the project with the specified ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Project successfully deleted"),
+            @ApiResponse(responseCode = "404", description = "Project not found")
+    })
     @PostMapping("/delete")
-    public ResponseEntity<Void> deleteProject(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<Void> deleteProject(
+            @Parameter(description = "ID of the project to delete") @Valid @RequestBody IdRequest request) {
         if (!projectService.existsById(request.getId())) {
             return ResponseEntity.notFound().build();
         }
@@ -82,8 +122,11 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Check if project exists by name", description = "Checks whether a project with the given name exists.")
+    @ApiResponse(responseCode = "200", description = "Returns true if the project exists, otherwise false")
     @PostMapping("/existsByName")
-    public boolean existsByName(@Valid @RequestBody NameRequest request) {
+    public boolean existsByName(
+            @Parameter(description = "Project name") @Valid @RequestBody NameRequest request) {
         return projectService.existsByName(request.getName());
     }
 }

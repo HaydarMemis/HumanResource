@@ -10,12 +10,15 @@ import com.neg.hr.human.resource.entity.Position;
 import com.neg.hr.human.resource.mapper.PositionMapper;
 import com.neg.hr.human.resource.service.PositionService;
 import com.neg.hr.human.resource.validator.PositionValidator;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,6 +35,8 @@ public class PositionController {
         this.positionValidator = positionValidator;
     }
 
+    @Operation(summary = "Get all positions", description = "Retrieves a list of all positions in the system.")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved list")
     @PostMapping("/getAll")
     public List<PositionEntityDTO> getAllPositions() {
         return positionService.findAll()
@@ -40,23 +45,45 @@ public class PositionController {
                 .toList();
     }
 
+    @Operation(summary = "Get position by ID", description = "Retrieves the position with the specified ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Position found",
+                    content = @Content(schema = @Schema(implementation = PositionEntityDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Position not found")
+    })
     @PostMapping("/getById")
-    public ResponseEntity<PositionEntityDTO> getPositionById(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<PositionEntityDTO> getPositionById(
+            @Parameter(description = "ID of the position") @Valid @RequestBody IdRequest request) {
         return positionService.findById(request.getId())
                 .map(position -> ResponseEntity.ok(PositionMapper.toDTO(position)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Create new position", description = "Creates a new position record.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Position successfully created",
+                    content = @Content(schema = @Schema(implementation = PositionEntityDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request data")
+    })
     @PostMapping("/create")
-    public ResponseEntity<PositionEntityDTO> createPosition(@Valid @RequestBody CreatePositionRequestDTO dto) {
+    public ResponseEntity<PositionEntityDTO> createPosition(
+            @Parameter(description = "Details of the position to be created") @Valid @RequestBody CreatePositionRequestDTO dto) {
         positionValidator.validateCreate(dto);
         Position position = PositionMapper.toEntity(dto);
         Position saved = positionService.save(position);
         return ResponseEntity.ok(PositionMapper.toDTO(saved));
     }
 
+    @Operation(summary = "Update position", description = "Updates an existing position.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Position successfully updated",
+                    content = @Content(schema = @Schema(implementation = PositionEntityDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Position not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data")
+    })
     @PostMapping("/update")
-    public ResponseEntity<PositionEntityDTO> updatePosition(@Valid @RequestBody UpdatePositionRequestDTO dto) {
+    public ResponseEntity<PositionEntityDTO> updatePosition(
+            @Parameter(description = "Details of the position to be updated") @Valid @RequestBody UpdatePositionRequestDTO dto) {
         if (!positionService.existsById(dto.getId())) {
             return ResponseEntity.notFound().build();
         }
@@ -67,8 +94,14 @@ public class PositionController {
         return ResponseEntity.ok(PositionMapper.toDTO(updated));
     }
 
+    @Operation(summary = "Delete position", description = "Deletes the position with the specified ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Position successfully deleted"),
+            @ApiResponse(responseCode = "404", description = "Position not found")
+    })
     @PostMapping("/delete")
-    public ResponseEntity<Void> deletePosition(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<Void> deletePosition(
+            @Parameter(description = "ID of the position to delete") @Valid @RequestBody IdRequest request) {
         if (!positionService.existsById(request.getId())) {
             return ResponseEntity.notFound().build();
         }
@@ -76,20 +109,33 @@ public class PositionController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Get position by title", description = "Retrieves the position with the specified title.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Position found",
+                    content = @Content(schema = @Schema(implementation = PositionEntityDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Position not found")
+    })
     @PostMapping("/getByTitle")
-    public ResponseEntity<PositionEntityDTO> getPositionByTitle(@Valid @RequestBody TitleRequest request) {
+    public ResponseEntity<PositionEntityDTO> getPositionByTitle(
+            @Parameter(description = "Title of the position") @Valid @RequestBody TitleRequest request) {
         return positionService.findByTitle(request.getTitle())
                 .map(position -> ResponseEntity.ok(PositionMapper.toDTO(position)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Check if position exists by title", description = "Checks whether a position with the given title exists.")
+    @ApiResponse(responseCode = "200", description = "Boolean result indicating existence")
     @PostMapping("/existsByTitle")
-    public boolean existsByTitle(@Valid @RequestBody TitleRequest request) {
+    public boolean existsByTitle(
+            @Parameter(description = "Title of the position") @Valid @RequestBody TitleRequest request) {
         return positionService.existsByTitle(request.getTitle());
     }
 
+    @Operation(summary = "Get positions by base salary", description = "Retrieves all positions with a base salary greater than or equal to the specified amount.")
+    @ApiResponse(responseCode = "200", description = "List of matching positions")
     @PostMapping("/getByBaseSalary")
-    public List<PositionEntityDTO> getPositionsByBaseSalary(@Valid @RequestBody SalaryRequest request) {
+    public List<PositionEntityDTO> getPositionsByBaseSalary(
+            @Parameter(description = "Minimum base salary filter") @Valid @RequestBody SalaryRequest request) {
         return positionService.findByBaseSalaryGreaterThanEqual(request.getSalary())
                 .stream()
                 .map(PositionMapper::toDTO)
