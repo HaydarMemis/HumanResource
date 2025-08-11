@@ -15,17 +15,17 @@ public class LeavePolicyRequestDTO {
     @NotNull(message = "Employee ID cannot be null")
     private Long employeeId;
 
-    private LocalDate date; // Doğum günü, resmi tatil veya diğer tarih bazlı kontroller için
+    private LocalDate date;
 
-    private Boolean multiplePregnancy; // Gebelik durumu
+    private Boolean multiplePregnancy;
 
-    private String relationType; // Yakınlık derecesi (bereavement)
+    private String relationType;
 
-    private Boolean firstMarriage; // İlk evlilik mi?
+    private Boolean firstMarriage;
 
-    private Boolean isSpouseWorking; // Eş çalışıyor mu?
+    private Boolean isSpouseWorking;
 
-    private Integer requestedDays; // Borç izin talebi için
+    private Integer requestedDays;
 
-    private Integer currentBorrowed; // Zaten alınan borç izin miktarı
+    private Integer currentBorrowed;
 }

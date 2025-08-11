@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 public class LeavePolicyResponseDTO {
 
-    private Boolean eligible; // Uygunluk durumu (true/false)
+    private Boolean eligible;
 
-    private Integer days; // İzin gün sayısı (varsa)
+    private Integer days;
 }
