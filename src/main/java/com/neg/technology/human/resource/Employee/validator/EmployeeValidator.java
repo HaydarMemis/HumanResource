@@ -28,7 +28,12 @@ public class EmployeeValidator {
     }
 
     public void validateCreateDTO(CreateEmployeeRequestDTO dto) {
-        validateCommon(dto.getPersonId(), dto.getDepartmentId(), dto.getPositionId(), dto.getCompanyId(), dto.getManagerId());
+        validateCommon(
+                dto.getPersonId(),
+                dto.getDepartmentId(),
+                dto.getPositionId(),
+                dto.getCompanyId(),
+                dto.getManagerId());
 
         if(dto.getHireDate() == null)
             throw new IllegalArgumentException("Hire date is required");

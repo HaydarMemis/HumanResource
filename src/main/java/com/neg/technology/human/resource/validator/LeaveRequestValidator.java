@@ -64,15 +64,21 @@ public class LeaveRequestValidator {
         if (employeeId == null || leaveTypeId == null) {
             throw new ValidationException("Employee ID and Leave Type ID are required");
         }
+
         if (startDate == null || endDate == null) {
             throw new ValidationException("Start date and End date are required");
         }
+
         if (startDate.isAfter(endDate)) {
             throw new ValidationException("Start date cannot be after end date");
         }
     }
 
-    private void validateExtraRules(Employee employee, LeaveType leaveType, LocalDate startDate, LocalDate endDate) {
+    private void validateExtraRules(
+            Employee employee,
+            LeaveType leaveType,
+            LocalDate startDate,
+            LocalDate endDate) {
         if (!Boolean.TRUE.equals(employee.getIsActive())) {
             throw new ValidationException("Inactive employees cannot request leave");
         }
@@ -92,6 +98,7 @@ public class LeaveRequestValidator {
                     throw new ValidationException("This leave type is restricted to " +
                             requiredGender.name().toLowerCase() + " employees only.");
                 }
+
             } catch (IllegalArgumentException e) {
                 throw new ValidationException("Invalid gender value for employee: " + employeeGenderStr);
             }
@@ -109,5 +116,4 @@ public class LeaveRequestValidator {
             throw new ValidationException("Leave request too far in advance");
         }
     }
-
 }

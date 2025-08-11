@@ -9,5 +9,4 @@ public class HumanResourceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(HumanResourceApplication.class, args);
 	}
-
 }

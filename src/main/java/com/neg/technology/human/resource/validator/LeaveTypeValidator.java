@@ -32,11 +32,21 @@ public class LeaveTypeValidator {
     }
 
     public void validateCreate(CreateLeaveTypeRequestDTO dto) {
-        validatorCommon(dto.getName(), dto.getIsAnnual(), dto.getGenderRequired(), dto.getIsUnpaid(), dto.getBorrowableLimit());
+        validatorCommon(
+                dto.getName(),
+                dto.getIsAnnual(),
+                dto.getGenderRequired(),
+                dto.getIsUnpaid(),
+                dto.getBorrowableLimit());
     }
 
     public void validateUpdate(UpdateLeaveTypeRequestDTO dto) {
-        validatorCommon(dto.getName(), dto.getIsAnnual(), dto.getGenderRequired(), dto.getIsUnpaid(), dto.getBorrowableLimit());
+        validatorCommon(
+                dto.getName(),
+                dto.getIsAnnual(),
+                dto.getGenderRequired(),
+                dto.getIsUnpaid(),
+                dto.getBorrowableLimit()
+        );
     }
-
 }

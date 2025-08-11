@@ -19,9 +19,11 @@ public class PersonValidator {
         if (!StringUtils.hasText(dto.getFirstName())) {
             throw new IllegalArgumentException("First name must not be empty");
         }
+
         if (dto.getEmail() != null && personService.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
+
         if (dto.getNationalId() != null && personService.existsByNationalId(dto.getNationalId())) {
             throw new IllegalArgumentException("National ID already exists");
         }
@@ -32,6 +34,7 @@ public class PersonValidator {
         if (!StringUtils.hasText(dto.getFirstName())) {
             throw new IllegalArgumentException("First name must not be empty");
         }
+
         if (dto.getEmail() != null) {
             personService.findByEmailIgnoreCase(dto.getEmail()).ifPresent(existingPerson -> {
                 if (!existingPerson.getId().equals(personId)) {
@@ -39,6 +42,7 @@ public class PersonValidator {
                 }
             });
         }
+
         if (dto.getNationalId() != null) {
             personService.findByNationalId(dto.getNationalId()).ifPresent(existingPerson -> {
                 if (!existingPerson.getId().equals(personId)) {
