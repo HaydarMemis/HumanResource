@@ -4,7 +4,6 @@ import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.dto.create.CreateEmployeeRequestDTO;
 import com.neg.technology.human.resource.dto.entity.EmployeeEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateEmployeeRequestDTO;
-import com.neg.hr.human.resource.entity.*;
 import com.neg.technology.human.resource.entity.*;
 
 public class EmployeeMapper {

@@ -3,7 +3,6 @@ package com.neg.technology.human.resource.controller;
 import com.neg.technology.human.resource.dto.create.CreatePersonRequestDTO;
 import com.neg.technology.human.resource.dto.entity.PersonEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdatePersonRequestDTO;
-import com.neg.hr.human.resource.dto.utilities.*;
 import com.neg.technology.human.resource.dto.utilities.*;
 import com.neg.technology.human.resource.entity.Person;
 import com.neg.technology.human.resource.mapper.PersonMapper;

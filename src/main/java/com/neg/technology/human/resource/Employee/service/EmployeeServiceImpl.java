@@ -5,11 +5,9 @@ import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.business.BusinessLogger;
 import com.neg.technology.human.resource.dto.create.CreateEmployeeRequestDTO;
 import com.neg.technology.human.resource.dto.update.UpdateEmployeeRequestDTO;
-import com.neg.hr.human.resource.entity.*;
 import com.neg.technology.human.resource.entity.*;
 import com.neg.technology.human.resource.exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.mapper.EmployeeMapper;
-import com.neg.hr.human.resource.repository.*;
 import com.neg.technology.human.resource.repository.*;
 import org.springframework.stereotype.Service;
 
