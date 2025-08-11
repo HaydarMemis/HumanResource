@@ -1,4 +1,4 @@
-package com.neg.hr.human.resource.dto;
+package com.neg.hr.human.resource.dto.utilities;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;

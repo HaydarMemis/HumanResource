@@ -1,9 +1,14 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.dto.*;
+import com.neg.hr.human.resource.dto.Employee.EmployeeDateRangeRequest;
+import com.neg.hr.human.resource.dto.Employee.EmployeeStatusRequest;
+import com.neg.hr.human.resource.dto.LeaveType.EmployeeLeaveTypeDateRangeRequest;
 import com.neg.hr.human.resource.dto.create.CreateLeaveRequestRequestDTO;
 import com.neg.hr.human.resource.dto.entity.LeaveRequestEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdateLeaveRequestRequestDTO;
+import com.neg.hr.human.resource.dto.utilities.DateRangeRequest;
+import com.neg.hr.human.resource.dto.utilities.IdRequest;
+import com.neg.hr.human.resource.dto.utilities.StatusRequest;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.entity.LeaveRequest;
 import com.neg.hr.human.resource.entity.LeaveType;

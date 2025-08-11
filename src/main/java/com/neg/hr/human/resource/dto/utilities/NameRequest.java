@@ -1,8 +1,6 @@
-package com.neg.hr.human.resource.dto;
+package com.neg.hr.human.resource.dto.utilities;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Getter

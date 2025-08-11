@@ -1,21 +1,17 @@
-package com.neg.hr.human.resource.dto;
+package com.neg.hr.human.resource.dto.Employee;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EmployeeLeaveTypeDateRangeRequest {
+public class EmployeeDateRangeRequest {
     @NotNull
     private Long employeeId;
-
-    @NotNull
-    private Long leaveTypeId;
 
     @NotNull
     private LocalDate startDate;

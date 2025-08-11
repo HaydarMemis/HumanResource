@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.dto.*;
 import com.neg.hr.human.resource.dto.create.CreatePersonRequestDTO;
 import com.neg.hr.human.resource.dto.entity.PersonEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdatePersonRequestDTO;
+import com.neg.hr.human.resource.dto.utilities.*;
 import com.neg.hr.human.resource.entity.Person;
 import com.neg.hr.human.resource.mapper.PersonMapper;
 import com.neg.hr.human.resource.service.PersonService;

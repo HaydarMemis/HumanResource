@@ -1,8 +1,8 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.dto.IdRequest;
-import com.neg.hr.human.resource.dto.SalaryRequest;
-import com.neg.hr.human.resource.dto.TitleRequest;
+import com.neg.hr.human.resource.dto.utilities.IdRequest;
+import com.neg.hr.human.resource.dto.utilities.SalaryRequest;
+import com.neg.hr.human.resource.dto.utilities.TitleRequest;
 import com.neg.hr.human.resource.dto.create.CreatePositionRequestDTO;
 import com.neg.hr.human.resource.dto.entity.PositionEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdatePositionRequestDTO;

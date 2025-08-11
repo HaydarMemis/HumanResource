@@ -1,5 +1,4 @@
-package com.neg.hr.human.resource.dto;
-
+package com.neg.hr.human.resource.dto.LeaveType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -9,7 +8,10 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LeaveTypeYearRequest {
+public class EmployeeLeaveTypeYearRequest {
+    @NotNull
+    private Long employeeId;
+
     @NotNull
     private Long leaveTypeId;
 

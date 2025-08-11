@@ -1,4 +1,4 @@
-package com.neg.hr.human.resource.dto;
+package com.neg.hr.human.resource.dto.utilities;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -8,10 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EmployeeStatusRequest {
-    @NotNull
-    private Long employeeId;
-
+public class StatusRequest {
     @NotNull
     private String status;
 }

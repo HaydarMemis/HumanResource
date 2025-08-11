@@ -1,4 +1,4 @@
-package com.neg.hr.human.resource.dto;
+package com.neg.hr.human.resource.dto.LeavePolicy;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

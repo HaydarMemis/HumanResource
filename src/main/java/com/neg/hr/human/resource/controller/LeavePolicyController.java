@@ -1,7 +1,7 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.dto.LeavePolicyRequestDTO;
-import com.neg.hr.human.resource.dto.LeavePolicyResponseDTO;
+import com.neg.hr.human.resource.dto.LeavePolicy.LeavePolicyRequestDTO;
+import com.neg.hr.human.resource.dto.LeavePolicy.LeavePolicyResponseDTO;
 import com.neg.hr.human.resource.entity.Employee;
 import com.neg.hr.human.resource.service.EmployeeService;
 import com.neg.hr.human.resource.service.LeavePolicyService;

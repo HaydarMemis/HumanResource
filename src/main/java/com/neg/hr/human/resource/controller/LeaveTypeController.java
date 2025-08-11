@@ -1,9 +1,9 @@
 package com.neg.hr.human.resource.controller;
 
-import com.neg.hr.human.resource.dto.BooleanRequest;
-import com.neg.hr.human.resource.dto.IdRequest;
-import com.neg.hr.human.resource.dto.IntegerRequest;
-import com.neg.hr.human.resource.dto.NameRequest;
+import com.neg.hr.human.resource.dto.utilities.BooleanRequest;
+import com.neg.hr.human.resource.dto.utilities.IdRequest;
+import com.neg.hr.human.resource.dto.utilities.IntegerRequest;
+import com.neg.hr.human.resource.dto.utilities.NameRequest;
 import com.neg.hr.human.resource.dto.create.CreateLeaveTypeRequestDTO;
 import com.neg.hr.human.resource.dto.entity.LeaveTypeEntityDTO;
 import com.neg.hr.human.resource.dto.update.UpdateLeaveTypeRequestDTO;

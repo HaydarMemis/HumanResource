@@ -1,6 +1,5 @@
-package com.neg.hr.human.resource.dto;
+package com.neg.hr.human.resource.dto.Employee;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -9,11 +8,10 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EmployeeYearRequest {
+public class EmployeeStatusRequest {
     @NotNull
     private Long employeeId;
 
     @NotNull
-    @Min(1900)
-    private Integer year;
+    private String status;
 }

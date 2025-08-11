@@ -1,4 +1,4 @@
-package com.neg.hr.human.resource.dto;
+package com.neg.hr.human.resource.dto.utilities;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MaritalStatusRequest {
+public class GenderRequest {
     @NotNull
-    private String status;
+    private String gender;
 }
