@@ -1,10 +1,13 @@
 package com.neg.technology.human.resource.Employee.validator;
 
+import com.neg.technology.human.resource.Company.repository.CompanyRepository;
+import com.neg.technology.human.resource.Department.repository.DepartmentRepository;
 import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
+import com.neg.technology.human.resource.Person.repository.PersonRepository;
+import com.neg.technology.human.resource.Position.repository.PositionRepository;
 import com.neg.technology.human.resource.dto.create.CreateEmployeeRequestDTO;
 import com.neg.technology.human.resource.dto.update.UpdateEmployeeRequestDTO;
 import com.neg.hr.human.resource.repository.*;
-import com.neg.technology.human.resource.repository.*;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -3,7 +3,7 @@ package com.neg.technology.human.resource.mapper;
 import com.neg.technology.human.resource.dto.create.CreatePersonRequestDTO;
 import com.neg.technology.human.resource.dto.entity.PersonEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdatePersonRequestDTO;
-import com.neg.technology.human.resource.entity.Person;
+import com.neg.technology.human.resource.Person.model.entity.Person;
 
 public class PersonMapper {
 

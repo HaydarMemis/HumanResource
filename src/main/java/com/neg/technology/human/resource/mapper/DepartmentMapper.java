@@ -3,7 +3,7 @@ package com.neg.technology.human.resource.mapper;
 import com.neg.technology.human.resource.dto.create.CreateDepartmentRequestDTO;
 import com.neg.technology.human.resource.dto.entity.DepartmentEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateDepartmentRequestDTO;
-import com.neg.technology.human.resource.entity.Department;
+import com.neg.technology.human.resource.Department.model.entity.Department;
 
 public class DepartmentMapper {
 

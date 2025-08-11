@@ -3,7 +3,7 @@ package com.neg.technology.human.resource.mapper;
 import com.neg.technology.human.resource.dto.create.CreateCompanyRequestDTO;
 import com.neg.technology.human.resource.dto.entity.CompanyEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateCompanyRequestDTO;
-import com.neg.technology.human.resource.entity.Company;
+import com.neg.technology.human.resource.Company.model.entity.Company;
 
 public class CompanyMapper {
 

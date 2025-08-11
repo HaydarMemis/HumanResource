@@ -3,7 +3,7 @@ package com.neg.technology.human.resource.mapper;
 import com.neg.technology.human.resource.dto.create.CreatePositionRequestDTO;
 import com.neg.technology.human.resource.dto.entity.PositionEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdatePositionRequestDTO;
-import com.neg.technology.human.resource.entity.Position;
+import com.neg.technology.human.resource.Position.model.entity.Position;
 
 public class PositionMapper {
 
