@@ -1,8 +1,8 @@
-package com.neg.technology.human.resource.validator;
+package com.neg.technology.human.resource.LeaveType.validator;
 
 import com.neg.technology.human.resource.dto.create.CreateLeaveTypeRequestDTO;
 import com.neg.technology.human.resource.dto.update.UpdateLeaveTypeRequestDTO;
-import com.neg.technology.human.resource.entity.LeaveType;
+import com.neg.technology.human.resource.LeaveType.entity.LeaveType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 

@@ -1,6 +1,6 @@
-package com.neg.technology.human.resource.repository;
+package com.neg.technology.human.resource.LeaveType.repository;
 
-import com.neg.technology.human.resource.entity.LeaveType;
+import com.neg.technology.human.resource.LeaveType.entity.LeaveType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

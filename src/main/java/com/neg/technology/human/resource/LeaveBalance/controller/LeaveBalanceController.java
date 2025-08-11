@@ -10,10 +10,10 @@ import com.neg.technology.human.resource.dto.update.UpdateLeaveBalanceRequestDTO
 import com.neg.technology.human.resource.dto.utilities.IdRequest;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.LeaveBalance.entity.LeaveBalance;
-import com.neg.technology.human.resource.entity.LeaveType;
+import com.neg.technology.human.resource.LeaveType.entity.LeaveType;
 import com.neg.technology.human.resource.mapper.LeaveBalanceMapper;
 import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
-import com.neg.technology.human.resource.repository.LeaveTypeRepository;
+import com.neg.technology.human.resource.LeaveType.repository.LeaveTypeRepository;
 import com.neg.technology.human.resource.LeaveBalance.service.LeaveBalanceService;
 import com.neg.technology.human.resource.LeaveBalance.validator.LeaveBalanceValidator;
 import io.swagger.v3.oas.annotations.Operation;

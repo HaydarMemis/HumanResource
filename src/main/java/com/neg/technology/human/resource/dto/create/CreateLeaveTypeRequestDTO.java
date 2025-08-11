@@ -1,6 +1,6 @@
 package com.neg.technology.human.resource.dto.create;
 
-import com.neg.technology.human.resource.entity.LeaveType.Gender;
+import com.neg.technology.human.resource.LeaveType.entity.LeaveType.Gender;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;

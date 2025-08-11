@@ -2,7 +2,7 @@ package com.neg.technology.human.resource.LeaveBalance.entity;
 
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.entity.AuditableEntity;
-import com.neg.technology.human.resource.entity.LeaveType;
+import com.neg.technology.human.resource.LeaveType.entity.LeaveType;
 import jakarta.persistence.*;
 import lombok.*;
 

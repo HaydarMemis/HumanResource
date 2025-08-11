@@ -5,7 +5,7 @@ import com.neg.technology.human.resource.dto.entity.LeaveBalanceEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateLeaveBalanceRequestDTO;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.LeaveBalance.entity.LeaveBalance;
-import com.neg.technology.human.resource.entity.LeaveType;
+import com.neg.technology.human.resource.LeaveType.entity.LeaveType;
 
 public class LeaveBalanceMapper {
     public static LeaveBalanceEntityDTO toDTO(LeaveBalance leaveBalance) {

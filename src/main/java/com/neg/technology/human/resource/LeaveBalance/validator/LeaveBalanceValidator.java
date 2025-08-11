@@ -3,9 +3,9 @@ package com.neg.technology.human.resource.LeaveBalance.validator;
 import com.neg.technology.human.resource.dto.create.CreateLeaveBalanceRequestDTO;
 import com.neg.technology.human.resource.dto.update.UpdateLeaveBalanceRequestDTO;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
-import com.neg.technology.human.resource.entity.LeaveType;
+import com.neg.technology.human.resource.LeaveType.entity.LeaveType;
 import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
-import com.neg.technology.human.resource.repository.LeaveTypeRepository;
+import com.neg.technology.human.resource.LeaveType.repository.LeaveTypeRepository;
 import org.springframework.stereotype.Service;
 
 @Service

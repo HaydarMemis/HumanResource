@@ -1,7 +1,7 @@
-package com.neg.technology.human.resource.service;
+package com.neg.technology.human.resource.LeaveRequest.service;
 
-import com.neg.technology.human.resource.entity.LeaveRequest;
-import com.neg.technology.human.resource.entity.LeaveType;
+import com.neg.technology.human.resource.LeaveRequest.entity.LeaveRequest;
+import com.neg.technology.human.resource.LeaveType.entity.LeaveType;
 
 import java.time.LocalDate;
 import java.util.List;

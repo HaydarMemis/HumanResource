@@ -4,8 +4,8 @@ import com.neg.technology.human.resource.dto.create.CreateLeaveRequestRequestDTO
 import com.neg.technology.human.resource.dto.entity.LeaveRequestEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateLeaveRequestRequestDTO;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
-import com.neg.technology.human.resource.entity.LeaveRequest;
-import com.neg.technology.human.resource.entity.LeaveType;
+import com.neg.technology.human.resource.LeaveRequest.entity.LeaveRequest;
+import com.neg.technology.human.resource.LeaveType.entity.LeaveType;
 
 public class LeaveRequestMapper {
 

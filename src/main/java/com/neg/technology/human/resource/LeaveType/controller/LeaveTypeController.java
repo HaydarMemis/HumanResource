@@ -1,4 +1,4 @@
-package com.neg.technology.human.resource.controller;
+package com.neg.technology.human.resource.LeaveType.controller;
 
 import com.neg.technology.human.resource.dto.create.CreateLeaveTypeRequestDTO;
 import com.neg.technology.human.resource.dto.entity.LeaveTypeEntityDTO;
@@ -7,10 +7,10 @@ import com.neg.technology.human.resource.dto.utilities.BooleanRequest;
 import com.neg.technology.human.resource.dto.utilities.IdRequest;
 import com.neg.technology.human.resource.dto.utilities.IntegerRequest;
 import com.neg.technology.human.resource.dto.utilities.NameRequest;
-import com.neg.technology.human.resource.entity.LeaveType;
+import com.neg.technology.human.resource.LeaveType.entity.LeaveType;
 import com.neg.technology.human.resource.mapper.LeaveTypeMapper;
-import com.neg.technology.human.resource.service.LeaveTypeService;
-import com.neg.technology.human.resource.validator.LeaveTypeValidator;
+import com.neg.technology.human.resource.LeaveType.service.LeaveTypeService;
+import com.neg.technology.human.resource.LeaveType.validator.LeaveTypeValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

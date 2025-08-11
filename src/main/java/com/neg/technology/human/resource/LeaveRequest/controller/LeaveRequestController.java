@@ -1,4 +1,4 @@
-package com.neg.technology.human.resource.controller;
+package com.neg.technology.human.resource.LeaveRequest.controller;
 
 import com.neg.technology.human.resource.dto.Employee.EmployeeDateRangeRequest;
 import com.neg.technology.human.resource.dto.Employee.EmployeeStatusRequest;
@@ -10,13 +10,13 @@ import com.neg.technology.human.resource.dto.utilities.DateRangeRequest;
 import com.neg.technology.human.resource.dto.utilities.IdRequest;
 import com.neg.technology.human.resource.dto.utilities.StatusRequest;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
-import com.neg.technology.human.resource.entity.LeaveRequest;
-import com.neg.technology.human.resource.entity.LeaveType;
+import com.neg.technology.human.resource.LeaveRequest.entity.LeaveRequest;
+import com.neg.technology.human.resource.LeaveType.entity.LeaveType;
 import com.neg.technology.human.resource.mapper.LeaveRequestMapper;
 import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
-import com.neg.technology.human.resource.repository.LeaveTypeRepository;
-import com.neg.technology.human.resource.service.LeaveRequestService;
-import com.neg.technology.human.resource.validator.LeaveRequestValidator;
+import com.neg.technology.human.resource.LeaveType.repository.LeaveTypeRepository;
+import com.neg.technology.human.resource.LeaveRequest.service.LeaveRequestService;
+import com.neg.technology.human.resource.LeaveRequest.validator.LeaveRequestValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

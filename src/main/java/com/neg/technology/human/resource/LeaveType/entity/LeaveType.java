@@ -1,7 +1,8 @@
-package com.neg.technology.human.resource.entity;
+package com.neg.technology.human.resource.LeaveType.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.neg.technology.human.resource.entity.AuditableEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

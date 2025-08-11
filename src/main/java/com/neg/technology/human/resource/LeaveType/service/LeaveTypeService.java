@@ -1,6 +1,6 @@
-package com.neg.technology.human.resource.service;
+package com.neg.technology.human.resource.LeaveType.service;
 
-import com.neg.technology.human.resource.entity.LeaveType;
+import com.neg.technology.human.resource.LeaveType.entity.LeaveType;
 
 import java.util.List;
 import java.util.Optional;
