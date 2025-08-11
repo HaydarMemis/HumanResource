@@ -8,8 +8,6 @@ public interface LeavePolicyService {
 
     int calculateAnnualLeaveDays(Employee employee);
 
-    int calculateAgeBasedLeaveBonus(Employee employee);
-
     boolean isBirthdayLeaveEligible(Employee employee, LocalDate date);
 
     int calculateMaternityLeaveDays(Employee employee, boolean multiplePregnancy);

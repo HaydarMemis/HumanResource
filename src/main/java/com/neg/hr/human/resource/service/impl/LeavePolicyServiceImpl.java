@@ -45,18 +45,12 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
         int yearsWorked = calculateYearsBetween(startDate, LocalDate.now());
 
         if (yearsWorked < 1) return 0;
-        if (yearsWorked < 5) return 14;
+        if (yearsWorked < 5) {
+            if (calculateAgeOfEmployee(employee) >= 50) return 20;
+            else return 14;
+        };
         if (yearsWorked < 15) return 20;
         return 26;
-    }
-
-    @Override
-    public int calculateAgeBasedLeaveBonus(Employee employee) {
-        LocalDate birthDate = getBirthDate(employee);
-        if (birthDate == null) return 0;
-
-        int age = calculateYearsBetween(birthDate, LocalDate.now());
-        return (age >= 50) ? 2 : 0;
     }
 
     @Override
@@ -120,5 +114,11 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
         return OFFICIAL_HOLIDAYS.contains(date) ||
                 date.getDayOfWeek() == DayOfWeek.SATURDAY ||
                 date.getDayOfWeek() == DayOfWeek.SUNDAY; // Optionally count the weekends as official holidays
+    }
+
+    public int calculateAgeOfEmployee(Employee employee) {
+        LocalDate birthDate = getBirthDate(employee);
+        if (birthDate == null) return 0;
+        return calculateYearsBetween(birthDate, LocalDate.now());
     }
 }
