@@ -1,4 +1,4 @@
-package com.neg.technology.human.resource.validator;
+package com.neg.technology.human.resource.LeaveBalance.validator;
 
 import com.neg.technology.human.resource.dto.create.CreateLeaveBalanceRequestDTO;
 import com.neg.technology.human.resource.dto.update.UpdateLeaveBalanceRequestDTO;

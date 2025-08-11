@@ -1,6 +1,6 @@
-package com.neg.technology.human.resource.repository;
+package com.neg.technology.human.resource.LeaveBalance.repository;
 
-import com.neg.technology.human.resource.entity.LeaveBalance;
+import com.neg.technology.human.resource.LeaveBalance.entity.LeaveBalance;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

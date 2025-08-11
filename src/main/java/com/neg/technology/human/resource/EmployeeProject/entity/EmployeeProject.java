@@ -1,6 +1,8 @@
-package com.neg.technology.human.resource.entity;
+package com.neg.technology.human.resource.EmployeeProject.entity;
 
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
+import com.neg.technology.human.resource.entity.AuditableEntity;
+import com.neg.technology.human.resource.entity.Project;
 import jakarta.persistence.*;
 import lombok.*;
 

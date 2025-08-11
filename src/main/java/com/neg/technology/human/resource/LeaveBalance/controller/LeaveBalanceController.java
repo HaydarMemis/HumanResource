@@ -1,4 +1,4 @@
-package com.neg.technology.human.resource.controller;
+package com.neg.technology.human.resource.LeaveBalance.controller;
 
 import com.neg.technology.human.resource.dto.Employee.EmployeeYearRequest;
 import com.neg.technology.human.resource.dto.LeaveType.EmployeeLeaveTypeRequest;
@@ -9,13 +9,13 @@ import com.neg.technology.human.resource.dto.entity.LeaveBalanceEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateLeaveBalanceRequestDTO;
 import com.neg.technology.human.resource.dto.utilities.IdRequest;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
-import com.neg.technology.human.resource.entity.LeaveBalance;
+import com.neg.technology.human.resource.LeaveBalance.entity.LeaveBalance;
 import com.neg.technology.human.resource.entity.LeaveType;
 import com.neg.technology.human.resource.mapper.LeaveBalanceMapper;
 import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.repository.LeaveTypeRepository;
-import com.neg.technology.human.resource.service.LeaveBalanceService;
-import com.neg.technology.human.resource.validator.LeaveBalanceValidator;
+import com.neg.technology.human.resource.LeaveBalance.service.LeaveBalanceService;
+import com.neg.technology.human.resource.LeaveBalance.validator.LeaveBalanceValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

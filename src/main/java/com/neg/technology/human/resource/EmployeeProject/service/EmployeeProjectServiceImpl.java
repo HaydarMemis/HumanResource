@@ -1,10 +1,9 @@
-package com.neg.technology.human.resource.service.impl;
+package com.neg.technology.human.resource.EmployeeProject.service;
 
 import com.neg.technology.human.resource.business.BusinessLogger;
-import com.neg.technology.human.resource.entity.EmployeeProject;
+import com.neg.technology.human.resource.EmployeeProject.entity.EmployeeProject;
 import com.neg.technology.human.resource.exception.ResourceNotFoundException;
-import com.neg.technology.human.resource.repository.EmployeeProjectRepository;
-import com.neg.technology.human.resource.service.EmployeeProjectService;
+import com.neg.technology.human.resource.EmployeeProject.repository.EmployeeProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

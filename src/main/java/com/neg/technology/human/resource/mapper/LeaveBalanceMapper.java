@@ -4,7 +4,7 @@ import com.neg.technology.human.resource.dto.create.CreateLeaveBalanceRequestDTO
 import com.neg.technology.human.resource.dto.entity.LeaveBalanceEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateLeaveBalanceRequestDTO;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
-import com.neg.technology.human.resource.entity.LeaveBalance;
+import com.neg.technology.human.resource.LeaveBalance.entity.LeaveBalance;
 import com.neg.technology.human.resource.entity.LeaveType;
 
 public class LeaveBalanceMapper {

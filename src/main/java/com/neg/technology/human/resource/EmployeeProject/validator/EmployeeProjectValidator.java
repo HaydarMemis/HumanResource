@@ -1,8 +1,8 @@
-package com.neg.technology.human.resource.validator;
+package com.neg.technology.human.resource.EmployeeProject.validator;
 
 import com.neg.technology.human.resource.dto.create.CreateEmployeeProjectRequestDTO;
 import com.neg.technology.human.resource.dto.update.UpdateEmployeeProjectRequestDTO;
-import com.neg.technology.human.resource.repository.EmployeeProjectRepository;
+import com.neg.technology.human.resource.EmployeeProject.repository.EmployeeProjectRepository;
 import org.springframework.stereotype.Service;
 
 @Service

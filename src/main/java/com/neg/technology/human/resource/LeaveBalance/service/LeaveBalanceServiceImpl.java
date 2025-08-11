@@ -1,10 +1,9 @@
-package com.neg.technology.human.resource.service.impl;
+package com.neg.technology.human.resource.LeaveBalance.service;
 
 import com.neg.technology.human.resource.business.BusinessLogger;
-import com.neg.technology.human.resource.entity.LeaveBalance;
+import com.neg.technology.human.resource.LeaveBalance.entity.LeaveBalance;
 import com.neg.technology.human.resource.exception.ResourceNotFoundException;
-import com.neg.technology.human.resource.repository.LeaveBalanceRepository;
-import com.neg.technology.human.resource.service.LeaveBalanceService;
+import com.neg.technology.human.resource.LeaveBalance.repository.LeaveBalanceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
