@@ -12,15 +12,15 @@ public interface PositionService {
 
     List<Position> findByBaseSalaryGreaterThanEqual(java.math.BigDecimal salary);
 
-    public Position save(Position position);
+    Position save(Position position);
 
-    public Optional<Position> findById(Long id);
+    Optional<Position> findById(Long id);
 
-    public List<Position> findAll();
+    List<Position> findAll();
 
     void deleteById(Long id);
 
-    public Position update(Long id, Position position);
+    Position update(Long id, Position position);
 
     boolean existsById(Long id);
 }

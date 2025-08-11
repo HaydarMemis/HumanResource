@@ -23,17 +23,17 @@ public interface PersonService {
 
     boolean existsByNationalId(String nationalId);
 
-    public Person save(Person person);
+    Person save(Person person);
 
-    public Optional<Person> findById(Long id);
+    Optional<Person> findById(Long id);
 
-    public List<Person> findAll();
+    List<Person> findAll();
 
     void deleteById(Long id);
 
-    public Person update(Long id, Person leaveBalance);
+    Person update(Long id, Person leaveBalance);
 
     boolean existsById(Long id);
 
-    public List<Person> searchByOptionalNames(String firstName, String lastName);
+    List<Person> searchByOptionalNames(String firstName, String lastName);
 }

@@ -20,15 +20,15 @@ public interface LeaveTypeService {
 
     List<LeaveType> findByValidAfterDaysGreaterThan(Integer days);
 
-    public LeaveType save(LeaveType leaveType);
+    LeaveType save(LeaveType leaveType);
 
     Optional<LeaveType> findById(Long id);
 
-    public List<LeaveType> findAll();
+    List<LeaveType> findAll();
 
-    public void delete(Long id);
+    void delete(Long id);
 
-    public LeaveType update(Long id, LeaveType leaveType);
+    LeaveType update(Long id, LeaveType leaveType);
 
     boolean existsById(Long id);
 

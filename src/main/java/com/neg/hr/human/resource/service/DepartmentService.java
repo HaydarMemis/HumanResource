@@ -14,14 +14,14 @@ public interface DepartmentService {
 
     boolean existsByName(String name);
 
-    public Department save(Department department);
+    Department save(Department department);
 
-    public Optional<Department> findById(Long id);
+    Optional<Department> findById(Long id);
 
-    public List<Department> findAll();
+    List<Department> findAll();
 
     void deleteById(Long id);
 
-    public Department update(Long id, Department department);
+    Department update(Long id, Department department);
     boolean existsById(Long id);
 }

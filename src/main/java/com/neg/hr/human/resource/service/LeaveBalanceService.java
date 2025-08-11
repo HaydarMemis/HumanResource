@@ -18,15 +18,15 @@ public interface LeaveBalanceService {
 
     boolean existsByEmployeeIdAndLeaveTypeIdAndDate(Long employeeId, Long leaveTypeId, Integer year);
 
-    public LeaveBalance save(LeaveBalance leaveBalance);
+    LeaveBalance save(LeaveBalance leaveBalance);
 
-    public Optional<LeaveBalance> findById(Long id);
+    Optional<LeaveBalance> findById(Long id);
 
-    public List<LeaveBalance> findAll();
+    List<LeaveBalance> findAll();
 
     void deleteById(Long id);
 
-    public LeaveBalance update(Long id, LeaveBalance leaveBalance);
+    LeaveBalance update(Long id, LeaveBalance leaveBalance);
 
     boolean existsById(Long id);
 }
