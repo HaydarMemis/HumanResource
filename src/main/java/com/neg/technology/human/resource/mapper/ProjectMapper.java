@@ -3,7 +3,7 @@ package com.neg.technology.human.resource.mapper;
 import com.neg.technology.human.resource.dto.create.CreateProjectRequestDTO;
 import com.neg.technology.human.resource.dto.entity.ProjectEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateProjectRequestDTO;
-import com.neg.technology.human.resource.entity.Project;
+import com.neg.technology.human.resource.Project.model.entity.Project;
 
 public class ProjectMapper {
 

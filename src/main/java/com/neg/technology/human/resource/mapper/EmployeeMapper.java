@@ -1,11 +1,14 @@
 package com.neg.technology.human.resource.mapper;
 
+import com.neg.technology.human.resource.Company.model.entity.Company;
+import com.neg.technology.human.resource.Department.model.entity.Department;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
+import com.neg.technology.human.resource.Person.model.entity.Person;
+import com.neg.technology.human.resource.Position.model.entity.Position;
 import com.neg.technology.human.resource.dto.create.CreateEmployeeRequestDTO;
 import com.neg.technology.human.resource.dto.entity.EmployeeEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateEmployeeRequestDTO;
 import com.neg.hr.human.resource.entity.*;
-import com.neg.technology.human.resource.entity.*;
 
 public class EmployeeMapper {
     public static EmployeeEntityDTO toDTO(Employee employee) {

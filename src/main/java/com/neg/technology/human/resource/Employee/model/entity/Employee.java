@@ -1,5 +1,9 @@
 package com.neg.technology.human.resource.Employee.model.entity;
 
+import com.neg.technology.human.resource.Company.model.entity.Company;
+import com.neg.technology.human.resource.Department.model.entity.Department;
+import com.neg.technology.human.resource.Person.model.entity.Person;
+import com.neg.technology.human.resource.Position.model.entity.Position;
 import com.neg.technology.human.resource.entity.*;
 import jakarta.persistence.*;
 import lombok.*;

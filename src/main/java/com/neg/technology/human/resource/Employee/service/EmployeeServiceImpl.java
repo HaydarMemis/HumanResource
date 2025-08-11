@@ -1,16 +1,22 @@
 package com.neg.technology.human.resource.Employee.service;
 
+import com.neg.technology.human.resource.Company.model.entity.Company;
+import com.neg.technology.human.resource.Company.repository.CompanyRepository;
+import com.neg.technology.human.resource.Department.model.entity.Department;
+import com.neg.technology.human.resource.Department.repository.DepartmentRepository;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
+import com.neg.technology.human.resource.Person.model.entity.Person;
+import com.neg.technology.human.resource.Person.repository.PersonRepository;
+import com.neg.technology.human.resource.Position.model.entity.Position;
+import com.neg.technology.human.resource.Position.repository.PositionRepository;
 import com.neg.technology.human.resource.business.BusinessLogger;
 import com.neg.technology.human.resource.dto.create.CreateEmployeeRequestDTO;
 import com.neg.technology.human.resource.dto.update.UpdateEmployeeRequestDTO;
 import com.neg.hr.human.resource.entity.*;
-import com.neg.technology.human.resource.entity.*;
 import com.neg.technology.human.resource.exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.mapper.EmployeeMapper;
 import com.neg.hr.human.resource.repository.*;
-import com.neg.technology.human.resource.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

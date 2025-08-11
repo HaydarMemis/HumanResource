@@ -5,7 +5,7 @@ import com.neg.technology.human.resource.dto.entity.EmployeeProjectEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateEmployeeProjectRequestDTO;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.entity.EmployeeProject;
-import com.neg.technology.human.resource.entity.Project;
+import com.neg.technology.human.resource.Project.model.entity.Project;
 
 public class EmployeeProjectMapper {
     public static EmployeeProjectEntityDTO toDTO(EmployeeProject employeeProject) {
