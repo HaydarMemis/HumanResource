@@ -1,15 +1,15 @@
 package com.neg.technology.human.resource.EmployeeProject.controller;
 
+import com.neg.technology.human.resource.Project.model.entity.Project;
+import com.neg.technology.human.resource.Project.repository.ProjectRepository;
 import com.neg.technology.human.resource.dto.utilities.IdRequest;
 import com.neg.technology.human.resource.dto.create.CreateEmployeeProjectRequestDTO;
 import com.neg.technology.human.resource.dto.entity.EmployeeProjectEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateEmployeeProjectRequestDTO;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.EmployeeProject.model.entity.EmployeeProject;
-import com.neg.technology.human.resource.Utility.Project;
 import com.neg.technology.human.resource.EmployeeProject.model.mapper.EmployeeProjectMapper;
 import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
-import com.neg.technology.human.resource.repository.ProjectRepository;
 import com.neg.technology.human.resource.EmployeeProject.service.EmployeeProjectService;
 import com.neg.technology.human.resource.EmployeeProject.validator.EmployeeProjectValidator;
 import io.swagger.v3.oas.annotations.Operation;

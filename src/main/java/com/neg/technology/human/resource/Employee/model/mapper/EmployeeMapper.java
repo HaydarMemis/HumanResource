@@ -8,7 +8,6 @@ import com.neg.technology.human.resource.Position.model.entity.Position;
 import com.neg.technology.human.resource.dto.create.CreateEmployeeRequestDTO;
 import com.neg.technology.human.resource.dto.entity.EmployeeEntityDTO;
 import com.neg.technology.human.resource.dto.update.UpdateEmployeeRequestDTO;
-import com.neg.hr.human.resource.entity.*;
 
 public class EmployeeMapper {
     public static EmployeeEntityDTO toDTO(Employee employee) {
