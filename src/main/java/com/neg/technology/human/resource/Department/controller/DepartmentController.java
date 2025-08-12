@@ -55,6 +55,7 @@ public class DepartmentController {
     public ResponseEntity<DepartmentResponse> getDepartmentById(
             @Parameter(description = "ID of the department to be retrieved", required = true)
             @Valid @RequestBody IdRequest request) {
+
         return departmentService.findById(request.getId())
                 .map(department -> ResponseEntity.ok(DepartmentMapper.toDTO(department)))
                 .orElse(ResponseEntity.notFound().build());
@@ -69,6 +70,7 @@ public class DepartmentController {
     public ResponseEntity<DepartmentResponse> getDepartmentByName(
             @Parameter(description = "Name of the department to be retrieved", required = true)
             @Valid @RequestBody NameRequest request) {
+
         return departmentService.findByName(request.getName())
                 .map(department -> ResponseEntity.ok(DepartmentMapper.toDTO(department)))
                 .orElse(ResponseEntity.notFound().build());
@@ -79,9 +81,10 @@ public class DepartmentController {
     @PostMapping("/create")
     public ResponseEntity<DepartmentResponse> createDepartment(
             @Parameter(description = "Department data for creation", required = true)
-            @Valid @RequestBody CreateDepartmentRequest dto) {
-        departmentValidator.validateCreate(dto);
-        Department department = DepartmentMapper.toEntity(dto);
+            @Valid @RequestBody CreateDepartmentRequest request) {
+
+        departmentValidator.validateCreate(request);
+        Department department = DepartmentMapper.toEntity(request);
         Department saved = departmentService.save(department);
         return ResponseEntity.ok(DepartmentMapper.toDTO(saved));
     }
@@ -93,14 +96,16 @@ public class DepartmentController {
     })
     @PostMapping("/update")
     public ResponseEntity<DepartmentResponse> updateDepartment(
-            @Valid @RequestBody UpdateDepartmentRequest dto) {
-        if (!departmentService.existsById(dto.getId())) {
+            @Valid @RequestBody UpdateDepartmentRequest request) {
+
+        if (!departmentService.existsById(request.getId())) {
             return ResponseEntity.notFound().build();
         }
-        departmentValidator.validateUpdate(dto);
-        Department existing = departmentService.findById(dto.getId()).get();
-        DepartmentMapper.updateEntity(existing, dto);
-        Department updated = departmentService.save(existing);
+
+        departmentValidator.validateUpdate(request);
+        Department department = DepartmentMapper.toEntity(request);
+        Department updated = departmentService.update(request.getId(), department);
+
         return ResponseEntity.ok(DepartmentMapper.toDTO(updated));
     }
 
@@ -113,11 +118,13 @@ public class DepartmentController {
     public ResponseEntity<Void> deleteDepartment(
             @Parameter(description = "ID of the department to delete", required = true)
             @Valid @RequestBody IdRequest request) {
-        if (!departmentService.existsById(request.getId())) {
+
+        try {
+            departmentService.deleteById(request.getId());
+            return ResponseEntity.noContent().build();
+        } catch (Exception ex) {
             return ResponseEntity.notFound().build();
         }
-        departmentService.deleteById(request.getId());
-        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Check if department exists by name", description = "Returns true if a department with the given name exists")
@@ -136,6 +143,7 @@ public class DepartmentController {
     public ResponseEntity<List<DepartmentResponse>> getDepartmentsByLocation(
             @Parameter(description = "Exact location of departments to retrieve", required = true)
             @Valid @RequestBody String location) {
+
         List<DepartmentResponse> departments = departmentService.findByLocation(location)
                 .stream()
                 .map(DepartmentMapper::toDTO)
@@ -149,6 +157,7 @@ public class DepartmentController {
     public ResponseEntity<List<DepartmentResponse>> getDepartmentsByLocationContaining(
             @Parameter(description = "Location keyword to search", required = true)
             @Valid @RequestBody String keyword) {
+
         List<DepartmentResponse> departments = departmentService.findByLocationContainingIgnoreCase(keyword)
                 .stream()
                 .map(DepartmentMapper::toDTO)

@@ -1,9 +1,10 @@
 package com.neg.technology.human.resource.Department.model.mapper;
 
-import com.neg.technology.human.resource.Department.model.request.CreateDepartmentRequest;
 import com.neg.technology.human.resource.Department.model.response.DepartmentResponse;
+import com.neg.technology.human.resource.Department.model.request.CreateDepartmentRequest;
 import com.neg.technology.human.resource.Department.model.request.UpdateDepartmentRequest;
 import com.neg.technology.human.resource.Department.model.entity.Department;
+import jakarta.validation.Valid;
 
 public class DepartmentMapper {
 
@@ -16,9 +17,18 @@ public class DepartmentMapper {
         );
     }
 
-    public static Department toEntity(CreateDepartmentRequest dto) {
+    public static Department toEntity(@Valid CreateDepartmentRequest dto) {
         if (dto == null) return null;
         return Department.builder()
+                .name(dto.getName())
+                .location(dto.getLocation())
+                .build();
+    }
+
+    public static Department toEntity(@Valid UpdateDepartmentRequest dto) {
+        if (dto == null) return null;
+        return Department.builder()
+                .id(dto.getId())
                 .name(dto.getName())
                 .location(dto.getLocation())
                 .build();
