@@ -7,6 +7,7 @@ import com.neg.technology.human.resource.Position.model.mapper.PositionMapper;
 import com.neg.technology.human.resource.Position.model.request.CreatePositionRequest;
 import com.neg.technology.human.resource.Position.model.request.UpdatePositionRequest;
 import com.neg.technology.human.resource.Position.model.response.PositionResponse;
+import com.neg.technology.human.resource.Position.model.response.PositionResponseList;
 import com.neg.technology.human.resource.Position.repository.PositionRepository;
 import com.neg.technology.human.resource.Position.validator.PositionValidator;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
@@ -33,59 +34,72 @@ public class PositionServiceImpl implements PositionService {
         this.positionMapper = positionMapper;
     }
 
-    // Entity-returning or Optional-returning eski metotlar durabilir, ama artık kullanma, controller bu yeni metotları çağıracak.
 
     @Override
     public List<PositionResponse> getAllPositions() {
-        return positionRepository.findAll()
+        List<PositionResponse> list = positionRepository.findAll()
                 .stream()
                 .map(positionMapper::toDTO)
                 .toList();
+        return (List<PositionResponse>) new PositionResponseList(list);
     }
 
     @Override
     public Optional<Position> findByTitle(String title) {
-        return Optional.empty();
+        return positionRepository.findByTitle(title);
     }
 
     @Override
     public boolean existsByTitle(String title) {
-        return false;
+        return positionRepository.existsByTitle(title);
     }
 
     @Override
     public List<Position> findByBaseSalaryGreaterThanEqual(BigDecimal salary) {
-        return List.of();
+        return positionRepository.findByBaseSalaryGreaterThanEqual(salary);
     }
 
     @Override
     public Position save(Position position) {
-        return null;
+        Position saved = positionRepository.save(position);
+        BusinessLogger.logCreated(Position.class, saved.getId(), saved.getTitle());
+        return saved;
     }
 
     @Override
     public Optional<Position> findById(Long id) {
-        return Optional.empty();
+        return positionRepository.findById(id);
     }
 
     @Override
     public List<Position> findAll() {
-        return List.of();
+        return positionRepository.findAll();
     }
 
     @Override
     public void deleteById(Long id) {
-
+        if(!positionRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Position", id);
+        }
+        positionRepository.deleteById(id);
+        BusinessLogger.logDeleted(Position.class, id);
     }
 
     @Override
     public Position update(Long id, Position position) {
-        return null;
+        Position existing = positionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Position", id));
+        existing.setTitle(position.getTitle());
+        existing.setBaseSalary(position.getBaseSalary());
+
+        Position updated = positionRepository.save(existing);
+        BusinessLogger.logUpdated(Position.class, updated.getId(), updated.getTitle());
+        return updated;
     }
 
     @Override
     public boolean existsById(Long id) {
-        return false;
+        return positionRepository.existsById(id);
     }
 
     @Override
@@ -140,10 +154,11 @@ public class PositionServiceImpl implements PositionService {
     }
 
     @Override
-    public List<PositionResponse> getPositionsByBaseSalary(SalaryRequest request) {
-        return positionRepository.findByBaseSalaryGreaterThanEqual(request.getSalary())
+    public PositionResponseList getPositionsByBaseSalary(SalaryRequest request) {
+        List<PositionResponse> list = positionRepository.findByBaseSalaryGreaterThanEqual(request.getSalary())
                 .stream()
                 .map(positionMapper::toDTO)
                 .toList();
+        return new PositionResponseList(list);
     }
 }

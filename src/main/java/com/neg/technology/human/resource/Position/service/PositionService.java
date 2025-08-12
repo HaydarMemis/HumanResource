@@ -4,6 +4,7 @@ import com.neg.technology.human.resource.Position.model.entity.Position;
 import com.neg.technology.human.resource.Position.model.request.CreatePositionRequest;
 import com.neg.technology.human.resource.Position.model.request.UpdatePositionRequest;
 import com.neg.technology.human.resource.Position.model.response.PositionResponse;
+import com.neg.technology.human.resource.Position.model.response.PositionResponseList;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
 import com.neg.technology.human.resource.Utility.request.SalaryRequest;
 import com.neg.technology.human.resource.Utility.request.TitleRequest;
@@ -45,6 +46,6 @@ public interface PositionService {
 
     boolean existsByTitle(TitleRequest request);
 
-    List<PositionResponse> getPositionsByBaseSalary(SalaryRequest request);
+    PositionResponseList getPositionsByBaseSalary(SalaryRequest request);
 
 }

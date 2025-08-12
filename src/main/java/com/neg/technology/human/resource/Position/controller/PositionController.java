@@ -1,5 +1,6 @@
 package com.neg.technology.human.resource.Position.controller;
 
+import com.neg.technology.human.resource.Position.model.response.PositionResponseList;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
 import com.neg.technology.human.resource.Utility.request.SalaryRequest;
 import com.neg.technology.human.resource.Utility.request.TitleRequest;
@@ -26,8 +27,8 @@ public class PositionController {
     @Operation(summary = "Get all positions", description = "Retrieves a list of all positions in the system.")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved list")
     @PostMapping("/getAll")
-    public ResponseEntity<List<PositionResponse>> getAllPositions() {
-        return ResponseEntity.ok(positionService.getAllPositions());
+    public ResponseEntity<PositionResponseList> getAllPositions() {
+        return ResponseEntity.ok((PositionResponseList) positionService.getAllPositions());
     }
 
     @Operation(summary = "Get position by ID", description = "Retrieves the position with the specified ID.")
@@ -76,7 +77,9 @@ public class PositionController {
     @Operation(summary = "Get positions by base salary", description = "Retrieves all positions with a base salary greater than or equal to the specified amount.")
     @ApiResponse(responseCode = "200", description = "List of matching positions")
     @PostMapping("/getByBaseSalary")
-    public ResponseEntity<List<PositionResponse>> getPositionsByBaseSalary(@Valid @RequestBody SalaryRequest request) {
-        return ResponseEntity.ok(positionService.getPositionsByBaseSalary(request));
+    public ResponseEntity<PositionResponseList> getPositionsByBaseSalary(@Valid @RequestBody SalaryRequest request) {
+        PositionResponseList responseList = positionService.getPositionsByBaseSalary(request);
+        return ResponseEntity.ok(responseList);
     }
+
 }
