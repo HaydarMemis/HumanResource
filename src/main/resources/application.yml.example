@@ -4,14 +4,23 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/hr_management
-    username: name
+    username: username
     password: password
     driver-class-name: org.postgresql.Driver
 
   liquibase:
     enabled: true
-    change-log: classpath:db/changelog/db.changelog-master.xml
+    change-log: classpath:db/changelog/db.changelog-master.yaml
     contexts: dev
+
+  logging:
+    config: classpath:logback-spring.xml
+
+  elasticsearch:
+    uris: http://localhost:9200
+    username: elastic
+    password:
+
   jpa:
     hibernate:
       ddl-auto: validate
