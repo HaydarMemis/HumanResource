@@ -4,6 +4,7 @@ import com.neg.technology.human.resource.Company.model.request.CreateCompanyRequ
 import com.neg.technology.human.resource.Company.model.response.CompanyResponse;
 import com.neg.technology.human.resource.Company.model.request.UpdateCompanyRequest;
 import com.neg.technology.human.resource.Company.model.entity.Company;
+import jakarta.validation.Valid;
 
 public class CompanyMapper {
 
@@ -12,7 +13,14 @@ public class CompanyMapper {
         return new CompanyResponse(company.getId(), company.getName());
     }
 
-    public static Company toEntity(CreateCompanyRequest dto) {
+    public static Company toEntity(@Valid UpdateCompanyRequest dto) {
+        if (dto == null) return null;
+        return Company.builder()
+                .name(dto.getName())
+                .build();
+    }
+
+    public static Company toEntity(@Valid CreateCompanyRequest dto) {
         if (dto == null) return null;
         return Company.builder()
                 .name(dto.getName())
