@@ -1,96 +1,134 @@
 package com.neg.technology.human.resource.LeaveBalance.service;
 
 import com.neg.technology.human.resource.Business.BusinessLogger;
-import com.neg.technology.human.resource.LeaveBalance.model.entity.LeaveBalance;
+import com.neg.technology.human.resource.Employee.model.entity.Employee;
+import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
+import com.neg.technology.human.resource.LeaveBalance.model.entity.LeaveBalance;
+import com.neg.technology.human.resource.LeaveBalance.model.mapper.LeaveBalanceMapper;
+import com.neg.technology.human.resource.LeaveBalance.model.request.CreateLeaveBalanceRequest;
+import com.neg.technology.human.resource.LeaveBalance.model.request.UpdateLeaveBalanceRequest;
+import com.neg.technology.human.resource.LeaveBalance.model.response.LeaveBalanceResponse;
 import com.neg.technology.human.resource.LeaveBalance.repository.LeaveBalanceRepository;
+import com.neg.technology.human.resource.LeaveType.model.entity.LeaveType;
+import com.neg.technology.human.resource.LeaveType.repository.LeaveTypeRepository;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Employee.model.request.EmployeeYearRequest;
+import com.neg.technology.human.resource.LeaveType.model.request.EmployeeLeaveTypeRequest;
+import com.neg.technology.human.resource.LeaveType.model.request.EmployeeLeaveTypeYearRequest;
+import com.neg.technology.human.resource.LeaveType.model.request.LeaveTypeYearRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class LeaveBalanceServiceImpl implements LeaveBalanceService {
 
     private final LeaveBalanceRepository leaveBalanceRepository;
+    private final EmployeeRepository employeeRepository;
+    private final LeaveTypeRepository leaveTypeRepository;
+    private final LeaveBalanceMapper leaveBalanceMapper;
 
-    public LeaveBalanceServiceImpl(LeaveBalanceRepository leaveBalanceRepository) {
+    public LeaveBalanceServiceImpl(LeaveBalanceRepository leaveBalanceRepository,
+                                   EmployeeRepository employeeRepository,
+                                   LeaveTypeRepository leaveTypeRepository,
+                                   LeaveBalanceMapper leaveBalanceMapper) {
         this.leaveBalanceRepository = leaveBalanceRepository;
+        this.employeeRepository = employeeRepository;
+        this.leaveTypeRepository = leaveTypeRepository;
+        this.leaveBalanceMapper = leaveBalanceMapper;
     }
 
     @Override
-    public List<LeaveBalance> findByEmployeeId(Long employeeId) {
-        return leaveBalanceRepository.findByEmployeeId(employeeId);
+    public List<LeaveBalanceResponse> getAll() {
+        return (List<LeaveBalanceResponse>) leaveBalanceMapper.toResponseList(leaveBalanceRepository.findAll());
     }
 
     @Override
-    public List<LeaveBalance> findByEmployeeIdAndDate(Integer year, Long employeeId) {
-        return leaveBalanceRepository.findByEmployeeIdAndDate(year, employeeId);
+    public ResponseEntity<LeaveBalanceResponse> getById(IdRequest request) {
+        return leaveBalanceRepository.findById(request.getId())
+                .map(leaveBalanceMapper::toResponse)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @Override
-    public Optional<LeaveBalance> findByEmployeeIdAndLeaveTypeId(Long employeeId, Long leaveTypeId) {
-        return leaveBalanceRepository.findByEmployeeIdAndLeaveTypeId(employeeId, leaveTypeId);
-    }
+    public LeaveBalanceResponse create(CreateLeaveBalanceRequest request) {
+        Employee employee = employeeRepository.findById(request.getEmployeeId())
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()));
 
-    @Override
-    public Optional<LeaveBalance> findByEmployeeIdAndLeaveTypeIdAndDate(Long employeeId, Long leaveTypeId, Integer year) {
-        return leaveBalanceRepository.findByEmployeeIdAndLeaveTypeIdAndDate(employeeId, leaveTypeId, year);
-    }
+        LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
+                .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId()));
 
-    @Override
-    public List<LeaveBalance> findByLeaveTypeIdAndDate(Long leaveTypeId, Integer year) {
-        return leaveBalanceRepository.findByLeaveTypeIdAndDate(leaveTypeId, year);
-    }
-
-    @Override
-    public boolean existsByEmployeeIdAndLeaveTypeIdAndDate(Long employeeId, Long leaveTypeId, Integer year) {
-        return leaveBalanceRepository.existsByEmployeeIdAndLeaveTypeIdAndDate(employeeId, leaveTypeId, year);
-    }
-
-    @Override
-    public LeaveBalance save(LeaveBalance leaveBalance) {
-        LeaveBalance saved = leaveBalanceRepository.save(leaveBalance);
+        LeaveBalance entity = leaveBalanceMapper.toEntity(request, employee, leaveType);
+        LeaveBalance saved = leaveBalanceRepository.save(entity);
         BusinessLogger.logCreated(LeaveBalance.class, saved.getId(), "LeaveBalance");
-        return saved;
+        return leaveBalanceMapper.toResponse(saved);
     }
 
     @Override
-    public List<LeaveBalance> findAll() {
-        return leaveBalanceRepository.findAll();
-    }
+    public ResponseEntity<LeaveBalanceResponse> update(UpdateLeaveBalanceRequest request) {
+        LeaveBalance existing = leaveBalanceRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("LeaveBalance", request.getId()));
 
-    @Override
-    public void deleteById(Long id) {
-        if(!leaveBalanceRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Leave Balance", id);
-        }
-        leaveBalanceRepository.deleteById(id);
-        BusinessLogger.logDeleted(LeaveBalance.class, id);
-    }
+        Employee employee = employeeRepository.findById(request.getEmployeeId())
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()));
 
-    @Override
-    public LeaveBalance update(Long id, LeaveBalance leaveBalance) {
-        LeaveBalance existing = leaveBalanceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Balance", id));
+        LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
+                .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId()));
 
-        existing.setEmployee(leaveBalance.getEmployee());
-        existing.setLeaveType(leaveBalance.getLeaveType());
-        existing.setDate(leaveBalance.getDate());
-        existing.setAmount(leaveBalance.getAmount());
-
+        leaveBalanceMapper.updateEntity(existing, request, employee, leaveType);
         LeaveBalance updated = leaveBalanceRepository.save(existing);
         BusinessLogger.logUpdated(LeaveBalance.class, updated.getId(), "LeaveBalance");
-        return updated;
+        return ResponseEntity.ok(leaveBalanceMapper.toResponse(updated));
     }
 
     @Override
-    public boolean existsById(Long id) {
-        return leaveBalanceRepository.existsById(id);
+    public void delete(IdRequest request) {
+        if (!leaveBalanceRepository.existsById(request.getId())) {
+            throw new ResourceNotFoundException("LeaveBalance", request.getId());
+        }
+        leaveBalanceRepository.deleteById(request.getId());
+        BusinessLogger.logDeleted(LeaveBalance.class, request.getId());
     }
 
     @Override
-    public Optional<LeaveBalance> findById(Long id) {
-        return leaveBalanceRepository.findById(id);
+    public List<LeaveBalanceResponse> getByEmployee(IdRequest request) {
+        return (List<LeaveBalanceResponse>) leaveBalanceMapper.toResponseList(
+                leaveBalanceRepository.findByEmployeeId(request.getId())
+        );
+    }
+
+    @Override
+    public List<LeaveBalanceResponse> getByEmployeeAndYear(EmployeeYearRequest request) {
+        return (List<LeaveBalanceResponse>) leaveBalanceMapper.toResponseList(
+                leaveBalanceRepository.findByEmployeeIdAndDate(request.getYear(), request.getEmployeeId())
+        );
+    }
+
+    @Override
+    public ResponseEntity<LeaveBalanceResponse> getByEmployeeAndLeaveType(EmployeeLeaveTypeRequest request) {
+        return leaveBalanceRepository.findByEmployeeIdAndLeaveTypeId(
+                        request.getEmployeeId(), request.getLeaveTypeId())
+                .map(leaveBalanceMapper::toResponse)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @Override
+    public ResponseEntity<LeaveBalanceResponse> getByEmployeeLeaveTypeAndYear(EmployeeLeaveTypeYearRequest request) {
+        return leaveBalanceRepository.findByEmployeeIdAndLeaveTypeIdAndDate(
+                        request.getEmployeeId(), request.getLeaveTypeId(), request.getYear())
+                .map(leaveBalanceMapper::toResponse)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @Override
+    public List<LeaveBalanceResponse> getByLeaveTypeAndYear(LeaveTypeYearRequest request) {
+        return (List<LeaveBalanceResponse>) leaveBalanceMapper.toResponseList(
+                leaveBalanceRepository.findByLeaveTypeIdAndDate(request.getLeaveTypeId(), request.getYear())
+        );
     }
 }

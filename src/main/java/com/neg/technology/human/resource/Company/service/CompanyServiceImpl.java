@@ -45,6 +45,11 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
+    public Optional<Company> findByName(String name) {
+        return Optional.empty();
+    }
+
+    @Override
     public void deleteCompany(Long id) {
         if (!companyRepository.existsById(id)) {
             throw new ResourceNotFoundException("Company", id);

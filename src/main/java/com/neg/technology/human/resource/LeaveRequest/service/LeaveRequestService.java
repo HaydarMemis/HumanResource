@@ -1,41 +1,38 @@
 package com.neg.technology.human.resource.LeaveRequest.service;
 
-import com.neg.technology.human.resource.LeaveRequest.model.entity.LeaveRequest;
-import com.neg.technology.human.resource.LeaveType.model.entity.LeaveType;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import com.neg.technology.human.resource.LeaveRequest.model.request.*;
+import com.neg.technology.human.resource.LeaveRequest.model.response.LeaveRequestResponse;
+import com.neg.technology.human.resource.LeaveRequest.model.response.LeaveRequestResponseList;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.request.StatusRequest;
+import com.neg.technology.human.resource.Employee.model.request.EmployeeDateRangeRequest;
+import com.neg.technology.human.resource.Employee.model.request.EmployeeStatusRequest;
+import com.neg.technology.human.resource.LeaveType.model.request.EmployeeLeaveTypeDateRangeRequest;
 
 public interface LeaveRequestService {
+    LeaveRequestResponseList getAll();
 
-    List<LeaveRequest> findByEmployeeId(Long employeeId);
+    LeaveRequestResponse getById(IdRequest request);
 
-    List<LeaveRequest> findByStartDateBetween(LocalDate start, LocalDate end);
+    LeaveRequestResponse create(CreateLeaveRequestRequest dto);
 
-    List<LeaveRequest> findByEmployeeIdAndStatus(Long employeeId, String status);
+    LeaveRequestResponse update(UpdateLeaveRequestRequest dto);
 
-    List<LeaveRequest> findByStatus(String status);
+    void delete(IdRequest request);
 
-    List<LeaveRequest> findByIsCancelledTrue();
+    LeaveRequestResponseList getByEmployee(IdRequest request);
 
-    List<LeaveRequest> findByApprovedById(Long approverId);
+    LeaveRequestResponseList getByStatus(StatusRequest request);
 
-    List<LeaveRequest> findByLeaveType(LeaveType leaveType);
+    LeaveRequestResponseList getCancelled();
 
-    List<LeaveRequest> findByEmployeeIdAndLeaveTypeIdAndStartDateBetween(Long employeeId, Long leaveTypeId, LocalDate startDate, LocalDate endDate);
+    LeaveRequestResponseList getByApprover(IdRequest request);
 
-    List<LeaveRequest> findOverlappingRequests(Long employeeId, LocalDate startDate, LocalDate endDate);
+    LeaveRequestResponseList getByEmployeeAndStatus(EmployeeStatusRequest request);
 
-    LeaveRequest save(LeaveRequest leaveRequest);
+    LeaveRequestResponseList getByDateRange(EmployeeDateRangeRequest request);
 
-    Optional<LeaveRequest> findById(Long id);
+    LeaveRequestResponseList getByEmployeeLeaveTypeAndDateRange(EmployeeLeaveTypeDateRangeRequest request);
 
-    List<LeaveRequest> findAll();
-
-    void deleteById(Long id);
-
-    LeaveRequest update(Long id, LeaveRequest leaveRequest);
-
-    boolean existsById(Long id);
+    LeaveRequestResponseList getOverlapping(EmployeeDateRangeRequest request);
 }

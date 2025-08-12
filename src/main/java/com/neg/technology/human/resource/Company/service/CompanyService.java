@@ -1,5 +1,6 @@
 package com.neg.technology.human.resource.Company.service;
 
+import com.neg.technology.human.resource.Company.model.entity.Company;
 import com.neg.technology.human.resource.Company.model.request.CreateCompanyRequest;
 import com.neg.technology.human.resource.Company.model.request.UpdateCompanyRequest;
 import com.neg.technology.human.resource.Company.model.response.CompanyResponse;
@@ -13,6 +14,8 @@ public interface CompanyService {
     CompanyResponse createCompany(CreateCompanyRequest request);
 
     Optional<CompanyResponse> updateCompany(UpdateCompanyRequest request);
+
+    Optional<Company> findByName(String name);
 
     void deleteCompany(Long id);
 

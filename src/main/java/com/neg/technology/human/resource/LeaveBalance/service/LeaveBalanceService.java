@@ -1,32 +1,36 @@
 package com.neg.technology.human.resource.LeaveBalance.service;
 
-import com.neg.technology.human.resource.LeaveBalance.model.entity.LeaveBalance;
+import com.neg.technology.human.resource.LeaveBalance.model.request.CreateLeaveBalanceRequest;
+import com.neg.technology.human.resource.LeaveBalance.model.request.UpdateLeaveBalanceRequest;
+import com.neg.technology.human.resource.LeaveBalance.model.response.LeaveBalanceResponse;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Employee.model.request.EmployeeYearRequest;
+import com.neg.technology.human.resource.LeaveType.model.request.EmployeeLeaveTypeRequest;
+import com.neg.technology.human.resource.LeaveType.model.request.EmployeeLeaveTypeYearRequest;
+import com.neg.technology.human.resource.LeaveType.model.request.LeaveTypeYearRequest;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface LeaveBalanceService {
-    List<LeaveBalance> findByEmployeeId(Long employeeId);
 
-    List<LeaveBalance> findByEmployeeIdAndDate(Integer year, Long employeeId);
+    List<LeaveBalanceResponse> getAll();
 
-    Optional<LeaveBalance> findByEmployeeIdAndLeaveTypeId(Long employeeId, Long leaveTypeId);
+    ResponseEntity<LeaveBalanceResponse> getById(IdRequest request);
 
-    Optional<LeaveBalance> findByEmployeeIdAndLeaveTypeIdAndDate(Long employeeId, Long leaveTypeId, Integer year);
+    LeaveBalanceResponse create(CreateLeaveBalanceRequest request);
 
-    List<LeaveBalance> findByLeaveTypeIdAndDate(Long leaveTypeId, Integer year);
+    ResponseEntity<LeaveBalanceResponse> update(UpdateLeaveBalanceRequest request);
 
-    boolean existsByEmployeeIdAndLeaveTypeIdAndDate(Long employeeId, Long leaveTypeId, Integer year);
+    void delete(IdRequest request);
 
-    LeaveBalance save(LeaveBalance leaveBalance);
+    List<LeaveBalanceResponse> getByEmployee(IdRequest request);
 
-    Optional<LeaveBalance> findById(Long id);
+    List<LeaveBalanceResponse> getByEmployeeAndYear(EmployeeYearRequest request);
 
-    List<LeaveBalance> findAll();
+    ResponseEntity<LeaveBalanceResponse> getByEmployeeAndLeaveType(EmployeeLeaveTypeRequest request);
 
-    void deleteById(Long id);
+    ResponseEntity<LeaveBalanceResponse> getByEmployeeLeaveTypeAndYear(EmployeeLeaveTypeYearRequest request);
 
-    LeaveBalance update(Long id, LeaveBalance leaveBalance);
-
-    boolean existsById(Long id);
+    List<LeaveBalanceResponse> getByLeaveTypeAndYear(LeaveTypeYearRequest request);
 }
