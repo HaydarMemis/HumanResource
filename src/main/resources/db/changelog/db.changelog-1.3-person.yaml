@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - changeSet:
+      id: "4"
+      author: "Ayşe Şule"
+      changes:
+        - createTable:
+            tableName: person
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: VARCHAR(255)
+              - column:
+                  name: national_id
+                  type: VARCHAR(20)
+              - column:
+                  name: birth_date
+                  type: DATE
+              - column:
+                  name: gender
+                  type: VARCHAR(255)
+              - column:
+                  name: email
+                  type: TEXT
+              - column:
+                  name: phone
+                  type: VARCHAR(255)
+              - column:
+                  name: address
+                  type: TEXT
+              - column:
+                  name: marital_status
+                  type: VARCHAR(255)
+              - column:
+                  name: deleted
+                  type: VARCHAR(1)
+                  defaultValue: "N"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP

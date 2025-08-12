@@ -1,0 +1,133 @@
+databaseChangeLog:
+  - changeSet:
+      id: "10-insert-dummy-leave-request"
+      author: "Ayşe Şule"
+      changes:
+        - insert:
+            tableName: leave_request
+            columns:
+              - column:
+                  name: employee_id
+                  valueNumeric: 1
+              - column:
+                  name: leave_type_id
+                  valueNumeric: 1
+              - column:
+                  name: start_date
+                  valueDate: "2025-08-01"
+              - column:
+                  name: end_date
+                  valueDate: "2025-08-05"
+              - column:
+                  name: requested_days
+                  valueNumeric: 5
+              - column:
+                  name: status
+                  value: "APPROVED"
+              - column:
+                  name: reason
+                  value: "Family vacation"
+              - column:
+                  name: approved_by
+                  valueNumeric: 2
+              - column:
+                  name: approved_at
+                  valueDate: "2025-07-25T09:00:00"
+              - column:
+                  name: approved_note
+                  value: "Enjoy your leave"
+              - column:
+                  name: is_cancelled
+                  valueBoolean: false
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-07-20T08:30:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-07-25T09:05:00"
+
+        - insert:
+            tableName: leave_request
+            columns:
+              - column:
+                  name: employee_id
+                  valueNumeric: 2
+              - column:
+                  name: leave_type_id
+                  valueNumeric: 2
+              - column:
+                  name: start_date
+                  valueDate: "2025-09-15"
+              - column:
+                  name: end_date
+                  valueDate: "2025-12-15"
+              - column:
+                  name: requested_days
+                  valueNumeric: 92
+              - column:
+                  name: status
+                  value: "PENDING"
+              - column:
+                  name: reason
+                  value: "Expected delivery"
+              - column:
+                  name: approved_by
+                  valueNumeric: 3
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-07-21T10:00:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-07-21T10:00:00"
+
+        - insert:
+            tableName: leave_request
+            columns:
+              - column:
+                  name: employee_id
+                  valueNumeric: 3
+              - column:
+                  name: leave_type_id
+                  valueNumeric: 3
+              - column:
+                  name: start_date
+                  valueDate: "2025-07-28"
+              - column:
+                  name: end_date
+                  valueDate: "2025-08-02"
+              - column:
+                  name: requested_days
+                  valueNumeric: 6
+              - column:
+                  name: status
+                  value: "REJECTED"
+              - column:
+                  name: reason
+                  value: "Personal reasons"
+              - column:
+                  name: approved_by
+                  valueNumeric: 2
+              - column:
+                  name: approved_at
+                  valueDate: "2025-07-23T15:00:00"
+              - column:
+                  name: approved_note
+                  value: "Not possible due to project deadlines"
+              - column:
+                  name: is_cancelled
+                  valueBoolean: false
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-07-22T11:30:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-07-23T15:05:00"

@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: "2-insert-dummy-department"
+      author: "Ayşe Şule"
+      changes:
+        - insert:
+            tableName: department
+            columns:
+              - column:
+                  name: name
+                  value: "Human Resources"
+              - column:
+                  name: location
+                  value: "Head Office - Istanbul"
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-07-24T10:00:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-07-24T10:00:00"
+
+        - insert:
+            tableName: department
+            columns:
+              - column:
+                  name: name
+                  value: "Software Development"
+              - column:
+                  name: location
+                  value: "Remote"
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-07-24T10:05:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-07-24T10:05:00"
+
+        - insert:
+            tableName: department
+            columns:
+              - column:
+                  name: name
+                  value: "Finance"
+              - column:
+                  name: location
+                  value: "Head Office - Ankara"
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-07-24T10:10:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-07-24T10:10:00"

@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: "2"
+      author: "Ayşe Şule"
+      changes:
+        - createTable:
+            tableName: department
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: location
+                  type: TEXT
+              - column:
+                  name: deleted
+                  type: VARCHAR(1)
+                  defaultValue: "N"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP

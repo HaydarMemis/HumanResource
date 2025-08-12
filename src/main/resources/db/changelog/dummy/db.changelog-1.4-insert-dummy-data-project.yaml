@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: "5-insert-dummy-project"
+      author: "Ayşe Şule"
+      changes:
+        - insert:
+            tableName: project
+            columns:
+              - column:
+                  name: name
+                  value: "HR System Migration"
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-07-24T10:00:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-07-24T10:00:00"
+
+        - insert:
+            tableName: project
+            columns:
+              - column:
+                  name: name
+                  value: "Payroll Automation"
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-07-24T10:05:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-07-24T10:05:00"
+
+        - insert:
+            tableName: project
+            columns:
+              - column:
+                  name: name
+                  value: "Recruitment Portal"
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-07-24T10:10:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-07-24T10:10:00"

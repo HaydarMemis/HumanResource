@@ -1,0 +1,124 @@
+databaseChangeLog:
+  - changeSet:
+      id: "8-insert-dummy-leave-type"
+      author: "Ayşe Şule"
+      changes:
+        - insert:
+            tableName: leave_type
+            columns:
+              - column:
+                  name: name
+                  value: "Annual Leave"
+              - column:
+                  name: is_annual
+                  valueBoolean: true
+              - column:
+                  name: gender_required
+                  value: null
+              - column:
+                  name: default_days
+                  valueNumeric: 14
+              - column:
+                  name: valid_after_days
+                  valueNumeric: 0
+              - column:
+                  name: valid_until_days
+                  valueNumeric: 365
+              - column:
+                  name: is_unpaid
+                  valueBoolean: false
+              - column:
+                  name: reset_period
+                  value: "YEARLY"
+              - column:
+                  name: borrowable_limit
+                  valueNumeric: 5
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2023-01-01T08:00:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2023-01-01T08:00:00"
+
+        - insert:
+            tableName: leave_type
+            columns:
+              - column:
+                  name: name
+                  value: "Maternity Leave"
+              - column:
+                  name: is_annual
+                  valueBoolean: false
+              - column:
+                  name: gender_required
+                  value: "FEMALE"
+              - column:
+                  name: default_days
+                  valueNumeric: 112
+              - column:
+                  name: valid_after_days
+                  valueNumeric: 0
+              - column:
+                  name: valid_until_days
+                  valueNumeric: 365
+              - column:
+                  name: is_unpaid
+                  valueBoolean: false
+              - column:
+                  name: reset_period
+                  value: "ONCE"
+              - column:
+                  name: borrowable_limit
+                  valueNumeric: 0
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2023-01-02T08:00:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2023-01-02T08:00:00"
+
+        - insert:
+            tableName: leave_type
+            columns:
+              - column:
+                  name: name
+                  value: "Unpaid Leave"
+              - column:
+                  name: is_annual
+                  valueBoolean: false
+              - column:
+                  name: gender_required
+                  value: null
+              - column:
+                  name: default_days
+                  valueNumeric: 30
+              - column:
+                  name: valid_after_days
+                  valueNumeric: 0
+              - column:
+                  name: valid_until_days
+                  valueNumeric: 365
+              - column:
+                  name: is_unpaid
+                  valueBoolean: true
+              - column:
+                  name: reset_period
+                  value: "YEARLY"
+              - column:
+                  name: borrowable_limit
+                  valueNumeric: 0
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2023-01-03T08:00:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2023-01-03T08:00:00"

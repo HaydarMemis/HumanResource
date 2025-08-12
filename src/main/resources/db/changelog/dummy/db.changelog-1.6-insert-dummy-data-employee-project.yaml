@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: "7-insert-dummy-employee-project"
+      author: "Ayşe Şule"
+      changes:
+        - insert:
+            tableName: employee_project
+            columns:
+              - column:
+                  name: employee_id
+                  valueNumeric: 1
+              - column:
+                  name: project_id
+                  valueNumeric: 1
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2023-04-01T09:00:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2023-04-01T09:00:00"
+
+        - insert:
+            tableName: employee_project
+            columns:
+              - column:
+                  name: employee_id
+                  valueNumeric: 2
+              - column:
+                  name: project_id
+                  valueNumeric: 1
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2023-04-02T09:00:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2023-04-02T09:00:00"
+
+        - insert:
+            tableName: employee_project
+            columns:
+              - column:
+                  name: employee_id
+                  valueNumeric: 3
+              - column:
+                  name: project_id
+                  valueNumeric: 2
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2023-04-03T09:00:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2023-04-03T09:00:00"
