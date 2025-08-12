@@ -31,42 +31,42 @@ databaseChangeLog:
       relativeToChangelogFile: true
 
   - include:
-      file: dummy/db.changelog-1.0-incert-dummy-data-company.yaml
+      file: dummy/db.changelog-1.0-insert-dummy-data-company.yaml
       relativeToChangelogFile: true
       context: dev
   - include:
-      file: dummy/db.changelog-1.1-incert-dummy-data-department.yaml
+      file: dummy/db.changelog-1.1-insert-dummy-data-department.yaml
       relativeToChangelogFile: true
       context: dev
   - include:
-      file: dummy/db.changelog-1.2-incert-dummy-data-position.yaml
+      file: dummy/db.changelog-1.2-insert-dummy-data-position.yaml
       relativeToChangelogFile: true
       context: dev
   - include:
-      file: dummy/db.changelog-1.3-incert-dummy-data-person.yaml
+      file: dummy/db.changelog-1.3-insert-dummy-data-person.yaml
       relativeToChangelogFile: true
       context: dev
   - include:
-      file: dummy/db.changelog-1.4-incert-dummy-data-project.yaml
+      file: dummy/db.changelog-1.4-insert-dummy-data-project.yaml
       relativeToChangelogFile: true
       context: dev
   - include:
-      file: dummy/db.changelog-1.5-incert-dummy-data-employee.yaml
+      file: dummy/db.changelog-1.5-insert-dummy-data-employee.yaml
       relativeToChangelogFile: true
       context: dev
   - include:
-      file: dummy/db.changelog-1.6-incert-dummy-data-employee-project.yaml
+      file: dummy/db.changelog-1.6-insert-dummy-data-employee-project.yaml
       relativeToChangelogFile: true
       context: dev
   - include:
-      file: dummy/db.changelog-1.7-incert-dummy-data-leave-type.yaml
+      file: dummy/db.changelog-1.7-insert-dummy-data-leave-type.yaml
       relativeToChangelogFile: true
       context: dev
   - include:
-      file: dummy/db.changelog-1.8-incert-dummy-data-leave-balance.yaml
+      file: dummy/db.changelog-1.8-insert-dummy-data-leave-balance.yaml
       relativeToChangelogFile: true
       context: dev
   - include:
-      file: dummy/db.changelog-1.9-incert-dummy-data-leave-request.yaml
+      file: dummy/db.changelog-1.9-insert-dummy-data-leave-request.yaml
       relativeToChangelogFile: true
       context: dev
