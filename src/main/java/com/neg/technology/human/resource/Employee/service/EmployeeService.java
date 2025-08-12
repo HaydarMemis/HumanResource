@@ -1,7 +1,7 @@
 package com.neg.technology.human.resource.Employee.service;
 
-import com.neg.technology.human.resource.dto.create.CreateEmployeeRequestDTO;
-import com.neg.technology.human.resource.dto.update.UpdateEmployeeRequestDTO;
+import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
+import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 
 import java.time.LocalDateTime;
@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EmployeeService {
-    Employee createEmployee(CreateEmployeeRequestDTO dto);
-    Employee updateEmployee(UpdateEmployeeRequestDTO dto);
+    Employee createEmployee(CreateEmployeeRequest dto);
+    Employee updateEmployee(UpdateEmployeeRequest dto);
     boolean existsById(Long id);
 
     Optional<Employee> findByPersonId(Long personId);

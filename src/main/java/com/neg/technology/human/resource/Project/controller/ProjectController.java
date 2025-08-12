@@ -1,10 +1,10 @@
 package com.neg.technology.human.resource.Project.controller;
 
-import com.neg.technology.human.resource.dto.utilities.IdRequest;
-import com.neg.technology.human.resource.dto.utilities.NameRequest;
-import com.neg.technology.human.resource.dto.create.CreateProjectRequestDTO;
-import com.neg.technology.human.resource.dto.entity.ProjectEntityDTO;
-import com.neg.technology.human.resource.dto.update.UpdateProjectRequestDTO;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.request.NameRequest;
+import com.neg.technology.human.resource.Project.model.request.CreateProjectRequest;
+import com.neg.technology.human.resource.Project.model.response.ProjectResponse;
+import com.neg.technology.human.resource.Project.model.request.UpdateProjectRequest;
 import com.neg.technology.human.resource.Project.model.entity.Project;
 import com.neg.technology.human.resource.Project.model.mapper.ProjectMapper;
 import com.neg.technology.human.resource.Project.service.ProjectService;
@@ -37,7 +37,7 @@ public class ProjectController {
     @Operation(summary = "Get all projects", description = "Returns a list of all projects registered in the system.")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved")
     @PostMapping("/getAll")
-    public List<ProjectEntityDTO> getAllProjects() {
+    public List<ProjectResponse> getAllProjects() {
         return projectService.findAll()
                 .stream()
                 .map(ProjectMapper::toDTO)
@@ -47,11 +47,11 @@ public class ProjectController {
     @Operation(summary = "Get project by ID", description = "Returns the project with the specified ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Project found",
-                    content = @Content(schema = @Schema(implementation = ProjectEntityDTO.class))),
+                    content = @Content(schema = @Schema(implementation = ProjectResponse.class))),
             @ApiResponse(responseCode = "404", description = "Project not found")
     })
     @PostMapping("/getById")
-    public ResponseEntity<ProjectEntityDTO> getProjectById(
+    public ResponseEntity<ProjectResponse> getProjectById(
             @Parameter(description = "Project ID") @Valid @RequestBody IdRequest request) {
         return projectService.findById(request.getId())
                 .map(project -> ResponseEntity.ok(ProjectMapper.toDTO(project)))
@@ -61,11 +61,11 @@ public class ProjectController {
     @Operation(summary = "Get project by name", description = "Returns the project with the specified name.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Project found",
-                    content = @Content(schema = @Schema(implementation = ProjectEntityDTO.class))),
+                    content = @Content(schema = @Schema(implementation = ProjectResponse.class))),
             @ApiResponse(responseCode = "404", description = "Project not found")
     })
     @PostMapping("/getByName")
-    public ResponseEntity<ProjectEntityDTO> getProjectByName(
+    public ResponseEntity<ProjectResponse> getProjectByName(
             @Parameter(description = "Project name") @Valid @RequestBody NameRequest request) {
         return projectService.findByName(request.getName())
                 .map(project -> ResponseEntity.ok(ProjectMapper.toDTO(project)))
@@ -75,12 +75,12 @@ public class ProjectController {
     @Operation(summary = "Create a new project", description = "Creates a new project record.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Project successfully created",
-                    content = @Content(schema = @Schema(implementation = ProjectEntityDTO.class))),
+                    content = @Content(schema = @Schema(implementation = ProjectResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping("/create")
-    public ResponseEntity<ProjectEntityDTO> createProject(
-            @Parameter(description = "Project data to create") @Valid @RequestBody CreateProjectRequestDTO dto) {
+    public ResponseEntity<ProjectResponse> createProject(
+            @Parameter(description = "Project data to create") @Valid @RequestBody CreateProjectRequest dto) {
         projectValidator.validateCreate(dto);
         Project project = ProjectMapper.toEntity(dto);
         Project saved = projectService.save(project);
@@ -90,13 +90,13 @@ public class ProjectController {
     @Operation(summary = "Update a project", description = "Updates an existing project record.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Project successfully updated",
-                    content = @Content(schema = @Schema(implementation = ProjectEntityDTO.class))),
+                    content = @Content(schema = @Schema(implementation = ProjectResponse.class))),
             @ApiResponse(responseCode = "404", description = "Project not found"),
             @ApiResponse(responseCode = "400", description = "Invalid data")
     })
     @PostMapping("/update")
-    public ResponseEntity<ProjectEntityDTO> updateProject(
-            @Parameter(description = "Updated project data") @Valid @RequestBody UpdateProjectRequestDTO dto) {
+    public ResponseEntity<ProjectResponse> updateProject(
+            @Parameter(description = "Updated project data") @Valid @RequestBody UpdateProjectRequest dto) {
         if (!projectService.existsById(dto.getId())) {
             return ResponseEntity.notFound().build();
         }

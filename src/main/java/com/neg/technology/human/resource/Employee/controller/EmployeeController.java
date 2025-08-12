@@ -1,10 +1,10 @@
 package com.neg.technology.human.resource.Employee.controller;
 
-import com.neg.technology.human.resource.dto.utilities.DateRequest;
-import com.neg.technology.human.resource.dto.utilities.IdRequest;
-import com.neg.technology.human.resource.dto.create.CreateEmployeeRequestDTO;
-import com.neg.technology.human.resource.dto.entity.EmployeeEntityDTO;
-import com.neg.technology.human.resource.dto.update.UpdateEmployeeRequestDTO;
+import com.neg.technology.human.resource.Utility.request.DateRequest;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
+import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;
+import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.Employee.model.mapper.EmployeeMapper;
 import com.neg.technology.human.resource.Employee.service.EmployeeService;
@@ -39,8 +39,8 @@ public class EmployeeController {
     @Operation(summary = "Get all employees", description = "Retrieve a list of all employees")
     @ApiResponse(responseCode = "200", description = "List of employees retrieved successfully")
     @PostMapping("/getAll")
-    public ResponseEntity<List<EmployeeEntityDTO>> getAllEmployees() {
-        List<EmployeeEntityDTO> employees = employeeService.findAll()
+    public ResponseEntity<List<EmployeeResponse>> getAllEmployees() {
+        List<EmployeeResponse> employees = employeeService.findAll()
                 .stream()
                 .map(EmployeeMapper::toDTO)
                 .collect(Collectors.toList());
@@ -53,7 +53,7 @@ public class EmployeeController {
             @ApiResponse(responseCode = "404", description = "Employee not found")
     })
     @PostMapping("/getById")
-    public ResponseEntity<EmployeeEntityDTO> getEmployeeById(
+    public ResponseEntity<EmployeeResponse> getEmployeeById(
             @Parameter(description = "ID of the employee to retrieve", required = true)
             @Valid @RequestBody IdRequest request) {
         return employeeService.findById(request.getId())
@@ -64,9 +64,9 @@ public class EmployeeController {
     @Operation(summary = "Create new employee", description = "Create a new employee record")
     @ApiResponse(responseCode = "200", description = "Employee created successfully")
     @PostMapping("/create")
-    public ResponseEntity<EmployeeEntityDTO> createEmployee(
+    public ResponseEntity<EmployeeResponse> createEmployee(
             @Parameter(description = "Employee data for creation", required = true)
-            @Valid @RequestBody CreateEmployeeRequestDTO dto) {
+            @Valid @RequestBody CreateEmployeeRequest dto) {
         employeeValidator.validateCreateDTO(dto);
         Employee saved = employeeService.createEmployee(dto);
         return ResponseEntity.ok(EmployeeMapper.toDTO(saved));
@@ -78,8 +78,8 @@ public class EmployeeController {
             @ApiResponse(responseCode = "404", description = "Employee not found")
     })
     @PostMapping("/update")
-    public ResponseEntity<EmployeeEntityDTO> updateEmployee(
-            @Valid @RequestBody UpdateEmployeeRequestDTO dto) {
+    public ResponseEntity<EmployeeResponse> updateEmployee(
+            @Valid @RequestBody UpdateEmployeeRequest dto) {
         if (!employeeService.existsById(dto.getId())) {
             return ResponseEntity.notFound().build();
         }
@@ -107,8 +107,8 @@ public class EmployeeController {
     @Operation(summary = "Get active employees", description = "Retrieve all employees that are currently active")
     @ApiResponse(responseCode = "200", description = "Active employees retrieved successfully")
     @PostMapping("/getActive")
-    public ResponseEntity<List<EmployeeEntityDTO>> getActiveEmployees() {
-        List<EmployeeEntityDTO> employees = employeeService.findByIsActiveTrue()
+    public ResponseEntity<List<EmployeeResponse>> getActiveEmployees() {
+        List<EmployeeResponse> employees = employeeService.findByIsActiveTrue()
                 .stream()
                 .map(EmployeeMapper::toDTO)
                 .collect(Collectors.toList());
@@ -118,8 +118,8 @@ public class EmployeeController {
     @Operation(summary = "Get inactive employees", description = "Retrieve all employees that are currently inactive")
     @ApiResponse(responseCode = "200", description = "Inactive employees retrieved successfully")
     @PostMapping("/getInactive")
-    public ResponseEntity<List<EmployeeEntityDTO>> getInactiveEmployees() {
-        List<EmployeeEntityDTO> employees = employeeService.findByIsActiveFalse()
+    public ResponseEntity<List<EmployeeResponse>> getInactiveEmployees() {
+        List<EmployeeResponse> employees = employeeService.findByIsActiveFalse()
                 .stream()
                 .map(EmployeeMapper::toDTO)
                 .collect(Collectors.toList());
@@ -129,10 +129,10 @@ public class EmployeeController {
     @Operation(summary = "Get employees by department ID", description = "Retrieve all employees belonging to a specific department")
     @ApiResponse(responseCode = "200", description = "Employees retrieved successfully")
     @PostMapping("/getByDepartment")
-    public ResponseEntity<List<EmployeeEntityDTO>> getEmployeesByDepartment(
+    public ResponseEntity<List<EmployeeResponse>> getEmployeesByDepartment(
             @Parameter(description = "Department ID", required = true)
             @Valid @RequestBody IdRequest request) {
-        List<EmployeeEntityDTO> employees = employeeService.findByDepartmentId(request.getId())
+        List<EmployeeResponse> employees = employeeService.findByDepartmentId(request.getId())
                 .stream()
                 .map(EmployeeMapper::toDTO)
                 .collect(Collectors.toList());
@@ -142,10 +142,10 @@ public class EmployeeController {
     @Operation(summary = "Get employees by position ID", description = "Retrieve all employees holding a specific position")
     @ApiResponse(responseCode = "200", description = "Employees retrieved successfully")
     @PostMapping("/getByPosition")
-    public ResponseEntity<List<EmployeeEntityDTO>> getEmployeesByPosition(
+    public ResponseEntity<List<EmployeeResponse>> getEmployeesByPosition(
             @Parameter(description = "Position ID", required = true)
             @Valid @RequestBody IdRequest request) {
-        List<EmployeeEntityDTO> employees = employeeService.findByPositionId(request.getId())
+        List<EmployeeResponse> employees = employeeService.findByPositionId(request.getId())
                 .stream()
                 .map(EmployeeMapper::toDTO)
                 .collect(Collectors.toList());
@@ -155,10 +155,10 @@ public class EmployeeController {
     @Operation(summary = "Get employees by company ID", description = "Retrieve all employees working for a specific company")
     @ApiResponse(responseCode = "200", description = "Employees retrieved successfully")
     @PostMapping("/getByCompany")
-    public ResponseEntity<List<EmployeeEntityDTO>> getEmployeesByCompany(
+    public ResponseEntity<List<EmployeeResponse>> getEmployeesByCompany(
             @Parameter(description = "Company ID", required = true)
             @Valid @RequestBody IdRequest request) {
-        List<EmployeeEntityDTO> employees = employeeService.findByCompanyId(request.getId())
+        List<EmployeeResponse> employees = employeeService.findByCompanyId(request.getId())
                 .stream()
                 .map(EmployeeMapper::toDTO)
                 .collect(Collectors.toList());
@@ -168,11 +168,11 @@ public class EmployeeController {
     @Operation(summary = "Get employees hired before a specific date", description = "Retrieve all employees hired before the given date")
     @ApiResponse(responseCode = "200", description = "Employees retrieved successfully")
     @PostMapping("/getHiredBefore")
-    public ResponseEntity<List<EmployeeEntityDTO>> getEmployeesHiredBefore(
+    public ResponseEntity<List<EmployeeResponse>> getEmployeesHiredBefore(
             @Parameter(description = "Date in ISO format (e.g., 2024-01-01T00:00:00)", required = true)
             @Valid @RequestBody DateRequest request) {
         LocalDateTime dateTime = LocalDateTime.parse(request.getDate());
-        List<EmployeeEntityDTO> employees = employeeService.findByHireDateBefore(dateTime)
+        List<EmployeeResponse> employees = employeeService.findByHireDateBefore(dateTime)
                 .stream()
                 .map(EmployeeMapper::toDTO)
                 .collect(Collectors.toList());
@@ -182,11 +182,11 @@ public class EmployeeController {
     @Operation(summary = "Get employees whose employment ended before a specific date", description = "Retrieve all employees whose employment end date is before the given date")
     @ApiResponse(responseCode = "200", description = "Employees retrieved successfully")
     @PostMapping("/getEmploymentEndedBefore")
-    public ResponseEntity<List<EmployeeEntityDTO>> getEmployeesEmploymentEndedBefore(
+    public ResponseEntity<List<EmployeeResponse>> getEmployeesEmploymentEndedBefore(
             @Parameter(description = "Date in ISO format (e.g., 2024-01-01T00:00:00)", required = true)
             @Valid @RequestBody DateRequest request) {
         LocalDateTime dateTime = LocalDateTime.parse(request.getDate());
-        List<EmployeeEntityDTO> employees = employeeService.findByEmploymentEndDateBefore(dateTime)
+        List<EmployeeResponse> employees = employeeService.findByEmploymentEndDateBefore(dateTime)
                 .stream()
                 .map(EmployeeMapper::toDTO)
                 .collect(Collectors.toList());

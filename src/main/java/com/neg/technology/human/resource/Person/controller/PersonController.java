@@ -1,9 +1,9 @@
 package com.neg.technology.human.resource.Person.controller;
 
-import com.neg.technology.human.resource.dto.create.CreatePersonRequestDTO;
-import com.neg.technology.human.resource.dto.entity.PersonEntityDTO;
-import com.neg.technology.human.resource.dto.update.UpdatePersonRequestDTO;
-import com.neg.technology.human.resource.dto.utilities.*;
+import com.neg.technology.human.resource.Person.model.request.CreatePersonRequest;
+import com.neg.technology.human.resource.Person.model.response.PersonResponse;
+import com.neg.technology.human.resource.Person.model.request.UpdatePersonRequest;
+import com.neg.technology.human.resource.Utility.request.*;
 import com.neg.technology.human.resource.Person.model.entity.Person;
 import com.neg.technology.human.resource.Person.model.mapper.PersonMapper;
 import com.neg.technology.human.resource.Person.service.PersonService;
@@ -37,8 +37,8 @@ public class PersonController {
     @Operation(summary = "Get all persons", description = "Retrieve a list of all persons")
     @ApiResponse(responseCode = "200", description = "List of persons retrieved successfully")
     @PostMapping("/getAll")
-    public ResponseEntity<List<PersonEntityDTO>> getAllPersons() {
-        List<PersonEntityDTO> persons = personService.findAll()
+    public ResponseEntity<List<PersonResponse>> getAllPersons() {
+        List<PersonResponse> persons = personService.findAll()
                 .stream()
                 .map(PersonMapper::toDTO)
                 .toList();
@@ -51,7 +51,7 @@ public class PersonController {
             @ApiResponse(responseCode = "404", description = "Person not found")
     })
     @PostMapping("/getById")
-    public ResponseEntity<PersonEntityDTO> getPersonById(
+    public ResponseEntity<PersonResponse> getPersonById(
             @Parameter(description = "ID of the person to be retrieved", required = true)
             @Valid @RequestBody IdRequest request) {
         return personService.findById(request.getId())
@@ -62,9 +62,9 @@ public class PersonController {
     @Operation(summary = "Create new person", description = "Create a new person record")
     @ApiResponse(responseCode = "200", description = "Person created successfully")
     @PostMapping("/create")
-    public ResponseEntity<PersonEntityDTO> createPerson(
+    public ResponseEntity<PersonResponse> createPerson(
             @Parameter(description = "Person data for creation", required = true)
-            @Valid @RequestBody CreatePersonRequestDTO dto) {
+            @Valid @RequestBody CreatePersonRequest dto) {
         personValidator.validateCreate(dto);
         Person person = PersonMapper.toEntity(dto);
         Person saved = personService.save(person);
@@ -77,9 +77,9 @@ public class PersonController {
             @ApiResponse(responseCode = "404", description = "Person not found")
     })
     @PostMapping("/update")
-    public ResponseEntity<PersonEntityDTO> updatePerson(
+    public ResponseEntity<PersonResponse> updatePerson(
             @Parameter(description = "Person data for update", required = true)
-            @Valid @RequestBody UpdatePersonRequestDTO dto) {
+            @Valid @RequestBody UpdatePersonRequest dto) {
         if (!personService.existsById(dto.getId())) {
             return ResponseEntity.notFound().build();
         }
@@ -109,10 +109,10 @@ public class PersonController {
     @Operation(summary = "Get persons by gender", description = "Retrieve a list of persons filtered by gender")
     @ApiResponse(responseCode = "200", description = "List of persons filtered by gender retrieved successfully")
     @PostMapping("/getByGender")
-    public ResponseEntity<List<PersonEntityDTO>> getPersonsByGender(
+    public ResponseEntity<List<PersonResponse>> getPersonsByGender(
             @Parameter(description = "Gender to filter by", required = true)
             @Valid @RequestBody GenderRequest request) {
-        List<PersonEntityDTO> persons = personService.findByGenderIgnoreCase(request.getGender())
+        List<PersonResponse> persons = personService.findByGenderIgnoreCase(request.getGender())
                 .stream()
                 .map(PersonMapper::toDTO)
                 .toList();
@@ -122,11 +122,11 @@ public class PersonController {
     @Operation(summary = "Get persons born before a date", description = "Retrieve persons born before the specified date")
     @ApiResponse(responseCode = "200", description = "List of persons born before given date retrieved successfully")
     @PostMapping("/getBornBefore")
-    public ResponseEntity<List<PersonEntityDTO>> getPersonsBornBefore(
+    public ResponseEntity<List<PersonResponse>> getPersonsBornBefore(
             @Parameter(description = "Date to compare birth dates (yyyy-MM-dd)", required = true)
             @Valid @RequestBody DateRequest request) {
         LocalDate birthDate = LocalDate.parse(request.getDate());
-        List<PersonEntityDTO> persons = personService.findByBirthDateBefore(birthDate)
+        List<PersonResponse> persons = personService.findByBirthDateBefore(birthDate)
                 .stream()
                 .map(PersonMapper::toDTO)
                 .toList();
@@ -136,10 +136,10 @@ public class PersonController {
     @Operation(summary = "Get persons by marital status", description = "Retrieve a list of persons filtered by marital status")
     @ApiResponse(responseCode = "200", description = "List of persons filtered by marital status retrieved successfully")
     @PostMapping("/getByMaritalStatus")
-    public ResponseEntity<List<PersonEntityDTO>> getPersonsByMaritalStatus(
+    public ResponseEntity<List<PersonResponse>> getPersonsByMaritalStatus(
             @Parameter(description = "Marital status to filter by", required = true)
             @Valid @RequestBody MaritalStatusRequest request) {
-        List<PersonEntityDTO> persons = personService.findByMaritalStatusIgnoreCase(request.getStatus())
+        List<PersonResponse> persons = personService.findByMaritalStatusIgnoreCase(request.getStatus())
                 .stream()
                 .map(PersonMapper::toDTO)
                 .toList();
@@ -152,7 +152,7 @@ public class PersonController {
             @ApiResponse(responseCode = "404", description = "Person not found")
     })
     @PostMapping("/getByNationalId")
-    public ResponseEntity<PersonEntityDTO> getPersonByNationalId(
+    public ResponseEntity<PersonResponse> getPersonByNationalId(
             @Parameter(description = "National ID of the person", required = true)
             @Valid @RequestBody NationalIdRequest request) {
         return personService.findByNationalId(request.getNationalId())
@@ -163,10 +163,10 @@ public class PersonController {
     @Operation(summary = "Search persons by name", description = "Search for persons by first and/or last name")
     @ApiResponse(responseCode = "200", description = "List of persons matching the search criteria retrieved successfully")
     @PostMapping("/searchByName")
-    public ResponseEntity<List<PersonEntityDTO>> searchPersonsByName(
+    public ResponseEntity<List<PersonResponse>> searchPersonsByName(
             @Parameter(description = "Search criteria containing first and/or last name", required = true)
             @Valid @RequestBody NameSearchRequest request) {
-        List<PersonEntityDTO> persons = personService.searchByOptionalNames(request.getFirstName(), request.getLastName())
+        List<PersonResponse> persons = personService.searchByOptionalNames(request.getFirstName(), request.getLastName())
                 .stream()
                 .map(PersonMapper::toDTO)
                 .toList();
@@ -179,7 +179,7 @@ public class PersonController {
             @ApiResponse(responseCode = "404", description = "Person not found")
     })
     @PostMapping("/getByEmail")
-    public ResponseEntity<PersonEntityDTO> getPersonByEmail(
+    public ResponseEntity<PersonResponse> getPersonByEmail(
             @Parameter(description = "Email of the person", required = true)
             @Valid @RequestBody EmailRequest request) {
         return personService.findByEmailIgnoreCase(request.getEmail())

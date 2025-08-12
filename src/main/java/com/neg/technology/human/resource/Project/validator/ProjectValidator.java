@@ -1,7 +1,7 @@
 package com.neg.technology.human.resource.Project.validator;
 
-import com.neg.technology.human.resource.dto.create.CreateProjectRequestDTO;
-import com.neg.technology.human.resource.dto.update.UpdateProjectRequestDTO;
+import com.neg.technology.human.resource.Project.model.request.CreateProjectRequest;
+import com.neg.technology.human.resource.Project.model.request.UpdateProjectRequest;
 import com.neg.technology.human.resource.Project.service.ProjectService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -15,7 +15,7 @@ public class ProjectValidator {
         this.projectService = projectService;
     }
 
-    public void validateCreate(CreateProjectRequestDTO dto) {
+    public void validateCreate(CreateProjectRequest dto) {
         if (!StringUtils.hasText(dto.getName())) {
             throw new IllegalArgumentException("Project name must not be empty");
         }
@@ -24,7 +24,7 @@ public class ProjectValidator {
         }
     }
 
-    public void validateUpdate(UpdateProjectRequestDTO dto, Long id) {
+    public void validateUpdate(UpdateProjectRequest dto, Long id) {
         if (!StringUtils.hasText(dto.getName())) {
             throw new IllegalArgumentException("Project name must not be empty");
         }

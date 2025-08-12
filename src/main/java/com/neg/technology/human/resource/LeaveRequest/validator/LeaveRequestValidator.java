@@ -1,7 +1,7 @@
 package com.neg.technology.human.resource.LeaveRequest.validator;
 
-import com.neg.technology.human.resource.dto.create.CreateLeaveRequestRequestDTO;
-import com.neg.technology.human.resource.dto.update.UpdateLeaveRequestRequestDTO;
+import com.neg.technology.human.resource.LeaveRequest.model.request.CreateLeaveRequestRequest;
+import com.neg.technology.human.resource.LeaveRequest.model.request.UpdateLeaveRequestRequest;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.LeaveBalance.model.entity.LeaveBalance;
 import com.neg.technology.human.resource.LeaveType.model.entity.LeaveType;
@@ -23,7 +23,7 @@ public class LeaveRequestValidator {
     private final LeaveTypeRepository leaveTypeRepository;
     private final LeaveBalanceRepository leaveBalanceRepository;
 
-    public void validateCreateDTO(CreateLeaveRequestRequestDTO dto) {
+    public void validateCreateDTO(CreateLeaveRequestRequest dto) {
         validateCommon(dto.getEmployeeId(), dto.getLeaveTypeId(), dto.getStartDate(), dto.getEndDate());
 
         Employee employee = employeeRepository.findById(dto.getEmployeeId())
@@ -44,7 +44,7 @@ public class LeaveRequestValidator {
         validateExtraRules(employee, leaveType, dto.getStartDate(), dto.getEndDate());
     }
 
-    public void validateUpdateDTO(UpdateLeaveRequestRequestDTO dto) {
+    public void validateUpdateDTO(UpdateLeaveRequestRequest dto) {
         if (dto.getEmployeeId() != null && dto.getLeaveTypeId() != null &&
                 dto.getStartDate() != null && dto.getEndDate() != null) {
 

@@ -1,7 +1,7 @@
 package com.neg.technology.human.resource.Company.validator;
 
-import com.neg.technology.human.resource.dto.create.CreateCompanyRequestDTO;
-import com.neg.technology.human.resource.dto.update.UpdateCompanyRequestDTO;
+import com.neg.technology.human.resource.Company.model.request.CreateCompanyRequest;
+import com.neg.technology.human.resource.Company.model.request.UpdateCompanyRequest;
 import com.neg.technology.human.resource.Company.service.CompanyService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -15,7 +15,7 @@ public class CompanyValidator {
         this.companyService = companyService;
     }
 
-    public void validateCreate(CreateCompanyRequestDTO dto) {
+    public void validateCreate(CreateCompanyRequest dto) {
         if (!StringUtils.hasText(dto.getName())) {
             throw new IllegalArgumentException("Company name must not be empty");
         }
@@ -24,7 +24,7 @@ public class CompanyValidator {
         }
     }
 
-    public void validateUpdate(UpdateCompanyRequestDTO dto) {
+    public void validateUpdate(UpdateCompanyRequest dto) {
         if (!StringUtils.hasText(dto.getName())) {
             throw new IllegalArgumentException("Company name must not be empty");
         }

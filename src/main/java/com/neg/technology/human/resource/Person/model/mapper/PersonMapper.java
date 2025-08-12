@@ -1,16 +1,16 @@
 package com.neg.technology.human.resource.Person.model.mapper;
 
-import com.neg.technology.human.resource.dto.create.CreatePersonRequestDTO;
-import com.neg.technology.human.resource.dto.entity.PersonEntityDTO;
-import com.neg.technology.human.resource.dto.update.UpdatePersonRequestDTO;
+import com.neg.technology.human.resource.Person.model.request.CreatePersonRequest;
+import com.neg.technology.human.resource.Person.model.response.PersonResponse;
+import com.neg.technology.human.resource.Person.model.request.UpdatePersonRequest;
 import com.neg.technology.human.resource.Person.model.entity.Person;
 
 public class PersonMapper {
 
-    public static PersonEntityDTO toDTO(Person person) {
+    public static PersonResponse toDTO(Person person) {
         if (person == null) return null;
 
-        return new PersonEntityDTO(
+        return new PersonResponse(
                 person.getId(),
                 person.getFirstName(),
                 person.getLastName(),
@@ -24,7 +24,7 @@ public class PersonMapper {
         );
     }
 
-    public static Person toEntity(CreatePersonRequestDTO dto) {
+    public static Person toEntity(CreatePersonRequest dto) {
         if (dto == null) return null;
 
         return Person.builder()
@@ -40,7 +40,7 @@ public class PersonMapper {
                 .build();
     }
 
-    public static void updateEntity(Person person, UpdatePersonRequestDTO dto) {
+    public static void updateEntity(Person person, UpdatePersonRequest dto) {
         if (person == null || dto == null) return;
 
         if (dto.getFirstName() != null) person.setFirstName(dto.getFirstName());

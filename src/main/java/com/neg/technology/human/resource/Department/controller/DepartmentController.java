@@ -1,10 +1,10 @@
 package com.neg.technology.human.resource.Department.controller;
 
-import com.neg.technology.human.resource.dto.utilities.IdRequest;
-import com.neg.technology.human.resource.dto.utilities.NameRequest;
-import com.neg.technology.human.resource.dto.create.CreateDepartmentRequestDTO;
-import com.neg.technology.human.resource.dto.entity.DepartmentEntityDTO;
-import com.neg.technology.human.resource.dto.update.UpdateDepartmentRequestDTO;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.request.NameRequest;
+import com.neg.technology.human.resource.Department.model.request.CreateDepartmentRequest;
+import com.neg.technology.human.resource.Department.model.response.DepartmentResponse;
+import com.neg.technology.human.resource.Department.model.request.UpdateDepartmentRequest;
 import com.neg.technology.human.resource.Department.model.entity.Department;
 import com.neg.technology.human.resource.Department.model.mapper.DepartmentMapper;
 import com.neg.technology.human.resource.Department.service.DepartmentService;
@@ -38,8 +38,8 @@ public class DepartmentController {
     @Operation(summary = "Get all departments", description = "Retrieve a list of all departments")
     @ApiResponse(responseCode = "200", description = "List of departments retrieved successfully")
     @PostMapping("/getAll")
-    public ResponseEntity<List<DepartmentEntityDTO>> getAllDepartments() {
-        List<DepartmentEntityDTO> departments = departmentService.findAll()
+    public ResponseEntity<List<DepartmentResponse>> getAllDepartments() {
+        List<DepartmentResponse> departments = departmentService.findAll()
                 .stream()
                 .map(DepartmentMapper::toDTO)
                 .collect(Collectors.toList());
@@ -52,7 +52,7 @@ public class DepartmentController {
             @ApiResponse(responseCode = "404", description = "Department not found")
     })
     @PostMapping("/getById")
-    public ResponseEntity<DepartmentEntityDTO> getDepartmentById(
+    public ResponseEntity<DepartmentResponse> getDepartmentById(
             @Parameter(description = "ID of the department to be retrieved", required = true)
             @Valid @RequestBody IdRequest request) {
         return departmentService.findById(request.getId())
@@ -66,7 +66,7 @@ public class DepartmentController {
             @ApiResponse(responseCode = "404", description = "Department not found")
     })
     @PostMapping("/getByName")
-    public ResponseEntity<DepartmentEntityDTO> getDepartmentByName(
+    public ResponseEntity<DepartmentResponse> getDepartmentByName(
             @Parameter(description = "Name of the department to be retrieved", required = true)
             @Valid @RequestBody NameRequest request) {
         return departmentService.findByName(request.getName())
@@ -77,9 +77,9 @@ public class DepartmentController {
     @Operation(summary = "Create new department", description = "Create a new department record")
     @ApiResponse(responseCode = "200", description = "Department created successfully")
     @PostMapping("/create")
-    public ResponseEntity<DepartmentEntityDTO> createDepartment(
+    public ResponseEntity<DepartmentResponse> createDepartment(
             @Parameter(description = "Department data for creation", required = true)
-            @Valid @RequestBody CreateDepartmentRequestDTO dto) {
+            @Valid @RequestBody CreateDepartmentRequest dto) {
         departmentValidator.validateCreate(dto);
         Department department = DepartmentMapper.toEntity(dto);
         Department saved = departmentService.save(department);
@@ -92,8 +92,8 @@ public class DepartmentController {
             @ApiResponse(responseCode = "404", description = "Department not found")
     })
     @PostMapping("/update")
-    public ResponseEntity<DepartmentEntityDTO> updateDepartment(
-            @Valid @RequestBody UpdateDepartmentRequestDTO dto) {
+    public ResponseEntity<DepartmentResponse> updateDepartment(
+            @Valid @RequestBody UpdateDepartmentRequest dto) {
         if (!departmentService.existsById(dto.getId())) {
             return ResponseEntity.notFound().build();
         }
@@ -133,10 +133,10 @@ public class DepartmentController {
     @Operation(summary = "Get departments by location", description = "Retrieve all departments in a specific location")
     @ApiResponse(responseCode = "200", description = "Departments retrieved successfully")
     @PostMapping("/getByLocation")
-    public ResponseEntity<List<DepartmentEntityDTO>> getDepartmentsByLocation(
+    public ResponseEntity<List<DepartmentResponse>> getDepartmentsByLocation(
             @Parameter(description = "Exact location of departments to retrieve", required = true)
             @Valid @RequestBody String location) {
-        List<DepartmentEntityDTO> departments = departmentService.findByLocation(location)
+        List<DepartmentResponse> departments = departmentService.findByLocation(location)
                 .stream()
                 .map(DepartmentMapper::toDTO)
                 .collect(Collectors.toList());
@@ -146,10 +146,10 @@ public class DepartmentController {
     @Operation(summary = "Search departments by location keyword", description = "Retrieve all departments where the location contains the given keyword (case-insensitive)")
     @ApiResponse(responseCode = "200", description = "Departments retrieved successfully")
     @PostMapping("/getByLocationContaining")
-    public ResponseEntity<List<DepartmentEntityDTO>> getDepartmentsByLocationContaining(
+    public ResponseEntity<List<DepartmentResponse>> getDepartmentsByLocationContaining(
             @Parameter(description = "Location keyword to search", required = true)
             @Valid @RequestBody String keyword) {
-        List<DepartmentEntityDTO> departments = departmentService.findByLocationContainingIgnoreCase(keyword)
+        List<DepartmentResponse> departments = departmentService.findByLocationContainingIgnoreCase(keyword)
                 .stream()
                 .map(DepartmentMapper::toDTO)
                 .collect(Collectors.toList());

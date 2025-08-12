@@ -5,8 +5,8 @@ import com.neg.technology.human.resource.Department.repository.DepartmentReposit
 import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.Person.repository.PersonRepository;
 import com.neg.technology.human.resource.Position.repository.PositionRepository;
-import com.neg.technology.human.resource.dto.create.CreateEmployeeRequestDTO;
-import com.neg.technology.human.resource.dto.update.UpdateEmployeeRequestDTO;
+import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
+import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,7 +29,7 @@ public class EmployeeValidator {
         this.companyRepository = companyRepository;
     }
 
-    public void validateCreateDTO(CreateEmployeeRequestDTO dto) {
+    public void validateCreateDTO(CreateEmployeeRequest dto) {
         validateCommon(
                 dto.getPersonId(),
                 dto.getDepartmentId(),
@@ -51,7 +51,7 @@ public class EmployeeValidator {
             throw new IllegalArgumentException("Employment end date cannot be before start date");
     }
 
-    public void validateUpdateDTO(UpdateEmployeeRequestDTO dto) {
+    public void validateUpdateDTO(UpdateEmployeeRequest dto) {
         validateCommon(dto.getPersonId(), dto.getDepartmentId(), dto.getPositionId(), dto.getCompanyId(), dto.getManagerId());
 
         if(dto.getEmploymentStartDate() != null && dto.getEmploymentEndDate() != null &&

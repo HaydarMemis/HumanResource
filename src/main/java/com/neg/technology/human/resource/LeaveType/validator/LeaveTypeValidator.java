@@ -1,7 +1,7 @@
 package com.neg.technology.human.resource.LeaveType.validator;
 
-import com.neg.technology.human.resource.dto.create.CreateLeaveTypeRequestDTO;
-import com.neg.technology.human.resource.dto.update.UpdateLeaveTypeRequestDTO;
+import com.neg.technology.human.resource.LeaveType.model.request.CreateLeaveTypeRequest;
+import com.neg.technology.human.resource.LeaveType.model.request.UpdateLeaveTypeRequest;
 import com.neg.technology.human.resource.LeaveType.model.entity.LeaveType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -31,7 +31,7 @@ public class LeaveTypeValidator {
         }
     }
 
-    public void validateCreate(CreateLeaveTypeRequestDTO dto) {
+    public void validateCreate(CreateLeaveTypeRequest dto) {
         validatorCommon(
                 dto.getName(),
                 dto.getIsAnnual(),
@@ -40,7 +40,7 @@ public class LeaveTypeValidator {
                 dto.getBorrowableLimit());
     }
 
-    public void validateUpdate(UpdateLeaveTypeRequestDTO dto) {
+    public void validateUpdate(UpdateLeaveTypeRequest dto) {
         validatorCommon(
                 dto.getName(),
                 dto.getIsAnnual(),

@@ -1,22 +1,22 @@
 package com.neg.technology.human.resource.Department.model.mapper;
 
-import com.neg.technology.human.resource.dto.create.CreateDepartmentRequestDTO;
-import com.neg.technology.human.resource.dto.entity.DepartmentEntityDTO;
-import com.neg.technology.human.resource.dto.update.UpdateDepartmentRequestDTO;
+import com.neg.technology.human.resource.Department.model.request.CreateDepartmentRequest;
+import com.neg.technology.human.resource.Department.model.response.DepartmentResponse;
+import com.neg.technology.human.resource.Department.model.request.UpdateDepartmentRequest;
 import com.neg.technology.human.resource.Department.model.entity.Department;
 
 public class DepartmentMapper {
 
-    public static DepartmentEntityDTO toDTO(Department department) {
+    public static DepartmentResponse toDTO(Department department) {
         if (department == null) return null;
-        return new DepartmentEntityDTO(
+        return new DepartmentResponse(
                 department.getId(),
                 department.getName(),
                 department.getLocation()
         );
     }
 
-    public static Department toEntity(CreateDepartmentRequestDTO dto) {
+    public static Department toEntity(CreateDepartmentRequest dto) {
         if (dto == null) return null;
         return Department.builder()
                 .name(dto.getName())
@@ -24,7 +24,7 @@ public class DepartmentMapper {
                 .build();
     }
 
-    public static void updateEntity(Department department, UpdateDepartmentRequestDTO dto) {
+    public static void updateEntity(Department department, UpdateDepartmentRequest dto) {
         if (department == null || dto == null) return;
         if (dto.getName() != null) department.setName(dto.getName());
         if (dto.getLocation() != null) department.setLocation(dto.getLocation());

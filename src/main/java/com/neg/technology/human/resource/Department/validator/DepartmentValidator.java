@@ -1,7 +1,7 @@
 package com.neg.technology.human.resource.Department.validator;
 
-import com.neg.technology.human.resource.dto.create.CreateDepartmentRequestDTO;
-import com.neg.technology.human.resource.dto.update.UpdateDepartmentRequestDTO;
+import com.neg.technology.human.resource.Department.model.request.CreateDepartmentRequest;
+import com.neg.technology.human.resource.Department.model.request.UpdateDepartmentRequest;
 import com.neg.technology.human.resource.Department.service.DepartmentService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -15,7 +15,7 @@ public class DepartmentValidator {
         this.departmentService = departmentService;
     }
 
-    public void validateCreate(CreateDepartmentRequestDTO dto) {
+    public void validateCreate(CreateDepartmentRequest dto) {
         if (!StringUtils.hasText(dto.getName())) {
             throw new IllegalArgumentException("Department name must not be empty");
         }
@@ -24,7 +24,7 @@ public class DepartmentValidator {
         }
     }
 
-    public void validateUpdate(UpdateDepartmentRequestDTO dto) {
+    public void validateUpdate(UpdateDepartmentRequest dto) {
         if (!StringUtils.hasText(dto.getName())) {
             throw new IllegalArgumentException("Department name must not be empty");
         }

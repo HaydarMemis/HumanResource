@@ -5,15 +5,15 @@ import com.neg.technology.human.resource.Department.model.entity.Department;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.Person.model.entity.Person;
 import com.neg.technology.human.resource.Position.model.entity.Position;
-import com.neg.technology.human.resource.dto.create.CreateEmployeeRequestDTO;
-import com.neg.technology.human.resource.dto.entity.EmployeeEntityDTO;
-import com.neg.technology.human.resource.dto.update.UpdateEmployeeRequestDTO;
+import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
+import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;
+import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
 
 public class EmployeeMapper {
-    public static EmployeeEntityDTO toDTO(Employee employee) {
+    public static EmployeeResponse toDTO(Employee employee) {
         if (employee == null) return null;
 
-        return EmployeeEntityDTO.builder()
+        return EmployeeResponse.builder()
                 .id(employee.getId())
                 .firstName(employee.getPerson().getFirstName())
                 .lastName(employee.getPerson().getLastName())
@@ -26,7 +26,7 @@ public class EmployeeMapper {
                 .build();
     }
 
-    public static Employee toEntity(CreateEmployeeRequestDTO dto,
+    public static Employee toEntity(CreateEmployeeRequest dto,
                                     Person person,
                                     Department department,
                                     Position position,
@@ -48,7 +48,7 @@ public class EmployeeMapper {
     }
 
     public static void updateEntity(Employee employee,
-                                    UpdateEmployeeRequestDTO dto,
+                                    UpdateEmployeeRequest dto,
                                     Person person,
                                     Department department,
                                     Position position,

@@ -11,8 +11,8 @@ import com.neg.technology.human.resource.Person.repository.PersonRepository;
 import com.neg.technology.human.resource.Position.model.entity.Position;
 import com.neg.technology.human.resource.Position.repository.PositionRepository;
 import com.neg.technology.human.resource.Business.BusinessLogger;
-import com.neg.technology.human.resource.dto.create.CreateEmployeeRequestDTO;
-import com.neg.technology.human.resource.dto.update.UpdateEmployeeRequestDTO;
+import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
+import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.Employee.model.mapper.EmployeeMapper;
 import org.springframework.stereotype.Service;
@@ -151,7 +151,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee createEmployee(CreateEmployeeRequestDTO dto) {
+    public Employee createEmployee(CreateEmployeeRequest dto) {
         Person person = personRepository.findById(dto.getPersonId())
                 .orElseThrow(() -> new ResourceNotFoundException("Person", dto.getPersonId()));
         Department department = departmentRepository.findById(dto.getDepartmentId())
@@ -177,7 +177,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee updateEmployee(UpdateEmployeeRequestDTO dto) {
+    public Employee updateEmployee(UpdateEmployeeRequest dto) {
         if (dto.getId() == null) {
             throw new IllegalArgumentException("Employee ID must be provided for update.");
         }

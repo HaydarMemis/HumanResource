@@ -1,14 +1,14 @@
 package com.neg.technology.human.resource.LeaveRequest.controller;
 
-import com.neg.technology.human.resource.dto.Employee.EmployeeDateRangeRequest;
-import com.neg.technology.human.resource.dto.Employee.EmployeeStatusRequest;
-import com.neg.technology.human.resource.dto.LeaveType.EmployeeLeaveTypeDateRangeRequest;
-import com.neg.technology.human.resource.dto.create.CreateLeaveRequestRequestDTO;
-import com.neg.technology.human.resource.dto.entity.LeaveRequestEntityDTO;
-import com.neg.technology.human.resource.dto.update.UpdateLeaveRequestRequestDTO;
-import com.neg.technology.human.resource.dto.utilities.DateRangeRequest;
-import com.neg.technology.human.resource.dto.utilities.IdRequest;
-import com.neg.technology.human.resource.dto.utilities.StatusRequest;
+import com.neg.technology.human.resource.Employee.model.request.EmployeeDateRangeRequest;
+import com.neg.technology.human.resource.Employee.model.request.EmployeeStatusRequest;
+import com.neg.technology.human.resource.LeaveType.model.request.EmployeeLeaveTypeDateRangeRequest;
+import com.neg.technology.human.resource.LeaveRequest.model.request.CreateLeaveRequestRequest;
+import com.neg.technology.human.resource.LeaveRequest.model.response.LeaveRequestResponse;
+import com.neg.technology.human.resource.LeaveRequest.model.request.UpdateLeaveRequestRequest;
+import com.neg.technology.human.resource.Utility.request.DateRangeRequest;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.request.StatusRequest;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.LeaveRequest.model.entity.LeaveRequest;
 import com.neg.technology.human.resource.LeaveType.model.entity.LeaveType;
@@ -51,8 +51,8 @@ public class LeaveRequestController {
     @Operation(summary = "Get all leave requests", description = "Retrieve all leave requests")
     @ApiResponse(responseCode = "200", description = "List of leave requests retrieved successfully")
     @PostMapping("/getAll")
-    public ResponseEntity<List<LeaveRequestEntityDTO>> getAllLeaveRequests() {
-        List<LeaveRequestEntityDTO> list = leaveRequestService.findAll()
+    public ResponseEntity<List<LeaveRequestResponse>> getAllLeaveRequests() {
+        List<LeaveRequestResponse> list = leaveRequestService.findAll()
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
@@ -65,7 +65,7 @@ public class LeaveRequestController {
             @ApiResponse(responseCode = "404", description = "Leave request not found")
     })
     @PostMapping("/getById")
-    public ResponseEntity<LeaveRequestEntityDTO> getLeaveRequestById(
+    public ResponseEntity<LeaveRequestResponse> getLeaveRequestById(
             @Parameter(description = "ID of the leave request", required = true)
             @Valid @RequestBody IdRequest request) {
         return leaveRequestService.findById(request.getId())
@@ -77,9 +77,9 @@ public class LeaveRequestController {
     @Operation(summary = "Create a new leave request", description = "Create a new leave request record")
     @ApiResponse(responseCode = "200", description = "Leave request created successfully")
     @PostMapping("/create")
-    public ResponseEntity<LeaveRequestEntityDTO> createLeaveRequest(
+    public ResponseEntity<LeaveRequestResponse> createLeaveRequest(
             @Parameter(description = "Leave request data for creation", required = true)
-            @Valid @RequestBody CreateLeaveRequestRequestDTO dto) {
+            @Valid @RequestBody CreateLeaveRequestRequest dto) {
 
         validator.validateCreateDTO(dto);
 
@@ -103,9 +103,9 @@ public class LeaveRequestController {
             @ApiResponse(responseCode = "404", description = "Leave request not found")
     })
     @PostMapping("/update")
-    public ResponseEntity<LeaveRequestEntityDTO> updateLeaveRequest(
+    public ResponseEntity<LeaveRequestResponse> updateLeaveRequest(
             @Parameter(description = "Leave request data for update", required = true)
-            @Valid @RequestBody UpdateLeaveRequestRequestDTO dto) {
+            @Valid @RequestBody UpdateLeaveRequestRequest dto) {
 
         if (!leaveRequestService.existsById(dto.getId())) {
             return ResponseEntity.notFound().build();
@@ -154,10 +154,10 @@ public class LeaveRequestController {
     @Operation(summary = "Get leave requests by employee ID", description = "Retrieve leave requests for a specific employee")
     @ApiResponse(responseCode = "200", description = "List of leave requests for employee retrieved successfully")
     @PostMapping("/getByEmployee")
-    public ResponseEntity<List<LeaveRequestEntityDTO>> getLeaveRequestsByEmployee(
+    public ResponseEntity<List<LeaveRequestResponse>> getLeaveRequestsByEmployee(
             @Parameter(description = "Employee ID", required = true)
             @Valid @RequestBody IdRequest request) {
-        List<LeaveRequestEntityDTO> list = leaveRequestService.findByEmployeeId(request.getId())
+        List<LeaveRequestResponse> list = leaveRequestService.findByEmployeeId(request.getId())
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
@@ -167,10 +167,10 @@ public class LeaveRequestController {
     @Operation(summary = "Get leave requests by status", description = "Retrieve leave requests filtered by status")
     @ApiResponse(responseCode = "200", description = "List of leave requests filtered by status retrieved successfully")
     @PostMapping("/getByStatus")
-    public ResponseEntity<List<LeaveRequestEntityDTO>> getLeaveRequestsByStatus(
+    public ResponseEntity<List<LeaveRequestResponse>> getLeaveRequestsByStatus(
             @Parameter(description = "Status to filter", required = true)
             @Valid @RequestBody StatusRequest request) {
-        List<LeaveRequestEntityDTO> list = leaveRequestService.findByStatus(request.getStatus())
+        List<LeaveRequestResponse> list = leaveRequestService.findByStatus(request.getStatus())
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
@@ -180,8 +180,8 @@ public class LeaveRequestController {
     @Operation(summary = "Get cancelled leave requests", description = "Retrieve leave requests that are cancelled")
     @ApiResponse(responseCode = "200", description = "List of cancelled leave requests retrieved successfully")
     @PostMapping("/getCancelled")
-    public ResponseEntity<List<LeaveRequestEntityDTO>> getCancelledLeaveRequests() {
-        List<LeaveRequestEntityDTO> list = leaveRequestService.findByIsCancelledTrue()
+    public ResponseEntity<List<LeaveRequestResponse>> getCancelledLeaveRequests() {
+        List<LeaveRequestResponse> list = leaveRequestService.findByIsCancelledTrue()
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
@@ -191,10 +191,10 @@ public class LeaveRequestController {
     @Operation(summary = "Get leave requests by approver ID", description = "Retrieve leave requests approved by a specific approver")
     @ApiResponse(responseCode = "200", description = "List of leave requests approved by the approver retrieved successfully")
     @PostMapping("/getByApprover")
-    public ResponseEntity<List<LeaveRequestEntityDTO>> getLeaveRequestsByApprover(
+    public ResponseEntity<List<LeaveRequestResponse>> getLeaveRequestsByApprover(
             @Parameter(description = "Approver ID", required = true)
             @Valid @RequestBody IdRequest request) {
-        List<LeaveRequestEntityDTO> list = leaveRequestService.findByApprovedById(request.getId())
+        List<LeaveRequestResponse> list = leaveRequestService.findByApprovedById(request.getId())
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
@@ -204,10 +204,10 @@ public class LeaveRequestController {
     @Operation(summary = "Get leave requests by employee and status", description = "Retrieve leave requests filtered by employee ID and status")
     @ApiResponse(responseCode = "200", description = "List of leave requests filtered by employee and status retrieved successfully")
     @PostMapping("/getByEmployeeAndStatus")
-    public ResponseEntity<List<LeaveRequestEntityDTO>> getLeaveRequestsByEmployeeAndStatus(
+    public ResponseEntity<List<LeaveRequestResponse>> getLeaveRequestsByEmployeeAndStatus(
             @Parameter(description = "Employee ID and status filter", required = true)
             @Valid @RequestBody EmployeeStatusRequest request) {
-        List<LeaveRequestEntityDTO> list = leaveRequestService.findByEmployeeIdAndStatus(request.getEmployeeId(), request.getStatus())
+        List<LeaveRequestResponse> list = leaveRequestService.findByEmployeeIdAndStatus(request.getEmployeeId(), request.getStatus())
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
@@ -217,10 +217,10 @@ public class LeaveRequestController {
     @Operation(summary = "Get leave requests by date range", description = "Retrieve leave requests whose start date is between given dates")
     @ApiResponse(responseCode = "200", description = "List of leave requests filtered by date range retrieved successfully")
     @PostMapping("/getByDateRange")
-    public ResponseEntity<List<LeaveRequestEntityDTO>> getLeaveRequestsByDateRange(
+    public ResponseEntity<List<LeaveRequestResponse>> getLeaveRequestsByDateRange(
             @Parameter(description = "Date range filter", required = true)
             @Valid @RequestBody DateRangeRequest request) {
-        List<LeaveRequestEntityDTO> list = leaveRequestService.findByStartDateBetween(request.getStartDate(), request.getEndDate())
+        List<LeaveRequestResponse> list = leaveRequestService.findByStartDateBetween(request.getStartDate(), request.getEndDate())
                 .stream()
                 .map(LeaveRequestMapper::toDTO)
                 .toList();
@@ -230,10 +230,10 @@ public class LeaveRequestController {
     @Operation(summary = "Get leave requests by employee, leave type and date range", description = "Retrieve leave requests filtered by employee ID, leave type ID and date range")
     @ApiResponse(responseCode = "200", description = "List of leave requests filtered by employee, leave type and date range retrieved successfully")
     @PostMapping("/getByEmployeeLeaveTypeAndDateRange")
-    public ResponseEntity<List<LeaveRequestEntityDTO>> getLeaveRequestsByEmployeeLeaveTypeAndDateRange(
+    public ResponseEntity<List<LeaveRequestResponse>> getLeaveRequestsByEmployeeLeaveTypeAndDateRange(
             @Parameter(description = "Filter by employee ID, leave type ID and date range", required = true)
             @Valid @RequestBody EmployeeLeaveTypeDateRangeRequest request) {
-        List<LeaveRequestEntityDTO> list = leaveRequestService.findByEmployeeIdAndLeaveTypeIdAndStartDateBetween(
+        List<LeaveRequestResponse> list = leaveRequestService.findByEmployeeIdAndLeaveTypeIdAndStartDateBetween(
                         request.getEmployeeId(),
                         request.getLeaveTypeId(),
                         request.getStartDate(),
@@ -247,10 +247,10 @@ public class LeaveRequestController {
     @Operation(summary = "Get overlapping leave requests", description = "Retrieve leave requests overlapping given employee and date range")
     @ApiResponse(responseCode = "200", description = "List of overlapping leave requests retrieved successfully")
     @PostMapping("/getOverlapping")
-    public ResponseEntity<List<LeaveRequestEntityDTO>> getOverlappingLeaveRequests(
+    public ResponseEntity<List<LeaveRequestResponse>> getOverlappingLeaveRequests(
             @Parameter(description = "Employee ID and date range for overlap check", required = true)
             @Valid @RequestBody EmployeeDateRangeRequest request) {
-        List<LeaveRequestEntityDTO> list = leaveRequestService.findOverlappingRequests(
+        List<LeaveRequestResponse> list = leaveRequestService.findOverlappingRequests(
                         request.getEmployeeId(),
                         request.getStartDate(),
                         request.getEndDate())
