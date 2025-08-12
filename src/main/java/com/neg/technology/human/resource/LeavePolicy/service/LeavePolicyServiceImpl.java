@@ -1,7 +1,6 @@
-package com.neg.technology.human.resource.LeavePolicy.service.impl;
+package com.neg.technology.human.resource.LeavePolicy.service;
 
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
-import com.neg.technology.human.resource.LeavePolicy.service.LeavePolicyService;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
