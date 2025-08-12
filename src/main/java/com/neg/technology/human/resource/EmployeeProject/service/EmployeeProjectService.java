@@ -1,28 +1,31 @@
 package com.neg.technology.human.resource.EmployeeProject.service;
 
-import com.neg.technology.human.resource.EmployeeProject.model.entity.EmployeeProject;
+import com.neg.technology.human.resource.EmployeeProject.model.request.CreateEmployeeProjectRequest;
+import com.neg.technology.human.resource.EmployeeProject.model.request.UpdateEmployeeProjectRequest;
+import com.neg.technology.human.resource.EmployeeProject.model.response.EmployeeProjectResponse;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface EmployeeProjectService {
-    EmployeeProject save(EmployeeProject employeeProject);
+    List<EmployeeProjectResponse> getAllEmployeeProjects();
 
-    Optional<EmployeeProject> findById(Long id);
+    Optional<EmployeeProjectResponse> getEmployeeProjectById(IdRequest request);
 
-    List<EmployeeProject> findAll();
+    EmployeeProjectResponse createEmployeeProject(CreateEmployeeProjectRequest request);
 
-    List<EmployeeProject> findByEmployeeId(Long employeeId);
+    Optional<EmployeeProjectResponse> updateEmployeeProject(UpdateEmployeeProjectRequest request);
 
-    List<EmployeeProject> findByProjectId(Long projectId);
-
-    boolean existsByEmployeeIdAndProjectId(Long employeeId, Long projectId);
-
-    void deleteById(Long id);
+    void deleteEmployeeProject(Long id);
 
     void deleteByEmployeeId(Long employeeId);
 
     void deleteByProjectId(Long projectId);
 
-    EmployeeProject update(Long id, EmployeeProject employeeProject);
+    List<EmployeeProjectResponse> getByEmployeeId(Long employeeId);
+
+    List<EmployeeProjectResponse> getByProjectId(Long projectId);
+
+    boolean existsByEmployeeIdAndProjectId(Long employeeId, Long projectId);
 }

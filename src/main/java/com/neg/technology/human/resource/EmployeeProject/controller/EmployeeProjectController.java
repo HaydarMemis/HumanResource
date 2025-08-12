@@ -1,15 +1,9 @@
 package com.neg.technology.human.resource.EmployeeProject.controller;
 
-import com.neg.technology.human.resource.Project.model.entity.Project;
-import com.neg.technology.human.resource.Project.repository.ProjectRepository;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
 import com.neg.technology.human.resource.EmployeeProject.model.request.CreateEmployeeProjectRequest;
-import com.neg.technology.human.resource.EmployeeProject.model.response.EmployeeProjectResponse;
 import com.neg.technology.human.resource.EmployeeProject.model.request.UpdateEmployeeProjectRequest;
-import com.neg.technology.human.resource.Employee.model.entity.Employee;
-import com.neg.technology.human.resource.EmployeeProject.model.entity.EmployeeProject;
-import com.neg.technology.human.resource.EmployeeProject.model.mapper.EmployeeProjectMapper;
-import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
+import com.neg.technology.human.resource.EmployeeProject.model.response.EmployeeProjectResponse;
 import com.neg.technology.human.resource.EmployeeProject.service.EmployeeProjectService;
 import com.neg.technology.human.resource.EmployeeProject.validator.EmployeeProjectValidator;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,166 +23,98 @@ import java.util.List;
 public class EmployeeProjectController {
 
     private final EmployeeProjectService employeeProjectService;
-    private final EmployeeRepository employeeRepository;
-    private final ProjectRepository projectRepository;
     private final EmployeeProjectValidator employeeProjectValidator;
 
-    public EmployeeProjectController(
-            EmployeeProjectService employeeProjectService,
-            EmployeeRepository employeeRepository,
-            ProjectRepository projectRepository,
-            EmployeeProjectValidator employeeProjectValidator) {
+    public EmployeeProjectController(EmployeeProjectService employeeProjectService,
+                                     EmployeeProjectValidator employeeProjectValidator) {
         this.employeeProjectService = employeeProjectService;
-        this.employeeRepository = employeeRepository;
-        this.projectRepository = projectRepository;
         this.employeeProjectValidator = employeeProjectValidator;
     }
 
-    @Operation(summary = "Get all employee projects", description = "Retrieve all employee project records")
+    @Operation(summary = "Get all employee projects")
     @ApiResponse(responseCode = "200", description = "List of employee projects retrieved successfully")
     @PostMapping("/getAll")
     public ResponseEntity<List<EmployeeProjectResponse>> getAll() {
-        List<EmployeeProjectResponse> projects = employeeProjectService.findAll()
-                .stream()
-                .map(EmployeeProjectMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(projects);
+        return ResponseEntity.ok(employeeProjectService.getAllEmployeeProjects());
     }
 
-    @Operation(summary = "Get employee project by ID", description = "Retrieve an employee project by its ID")
+    @Operation(summary = "Get employee project by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Employee project found"),
             @ApiResponse(responseCode = "404", description = "Employee project not found")
     })
     @PostMapping("/getById")
-    public ResponseEntity<EmployeeProjectResponse> getById(
-            @Parameter(description = "ID of the employee project", required = true)
-            @Valid @RequestBody IdRequest request) {
-        return employeeProjectService.findById(request.getId())
-                .map(EmployeeProjectMapper::toDTO)
+    public ResponseEntity<EmployeeProjectResponse> getById(@Valid @RequestBody IdRequest request) {
+        return employeeProjectService.getEmployeeProjectById(request)
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Create new employee project", description = "Create a new employee project record")
+    @Operation(summary = "Create new employee project")
     @ApiResponse(responseCode = "200", description = "Employee project created successfully")
     @PostMapping("/create")
-    public ResponseEntity<EmployeeProjectResponse> create(
-            @Parameter(description = "Employee project creation data", required = true)
-            @Valid @RequestBody CreateEmployeeProjectRequest dto) {
-
-        employeeProjectValidator.validateCreateDTO(dto);
-
-        Employee employee = employeeRepository.findById(dto.getEmployeeId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"));
-        Project project = projectRepository.findById(dto.getProjectId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
-
-        EmployeeProject entity = EmployeeProjectMapper.toEntity(dto, employee, project);
-        EmployeeProject saved = employeeProjectService.save(entity);
-
-        return ResponseEntity.ok(EmployeeProjectMapper.toDTO(saved));
+    public ResponseEntity<EmployeeProjectResponse> create(@Valid @RequestBody CreateEmployeeProjectRequest request) {
+        employeeProjectValidator.validateCreateDTO(request);
+        return ResponseEntity.ok(employeeProjectService.createEmployeeProject(request));
     }
 
-    @Operation(summary = "Update existing employee project", description = "Update an existing employee project record")
+    @Operation(summary = "Update existing employee project")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Employee project updated successfully"),
             @ApiResponse(responseCode = "404", description = "Employee project not found")
     })
     @PostMapping("/update")
-    public ResponseEntity<EmployeeProjectResponse> update(
-            @Parameter(description = "Employee project update data", required = true)
-            @Valid @RequestBody UpdateEmployeeProjectRequest dto) {
-
-        employeeProjectValidator.validateUpdateDTO(dto.getId(), dto);
-
-        Employee employee = null;
-        if (dto.getEmployeeId() != null) {
-            employee = employeeRepository.findById(dto.getEmployeeId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"));
-        }
-
-        Project project = null;
-        if (dto.getProjectId() != null) {
-            project = projectRepository.findById(dto.getProjectId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
-        }
-
-        EmployeeProject existing = employeeProjectService.findById(dto.getId())
-                .orElseThrow(() -> new IllegalArgumentException("EmployeeProject not found with ID: " + dto.getId()));
-
-        EmployeeProjectMapper.updateEntity(existing, dto, employee, project);
-
-        EmployeeProject updated = employeeProjectService.update(dto.getId(), existing);
-
-        return ResponseEntity.ok(EmployeeProjectMapper.toDTO(updated));
+    public ResponseEntity<EmployeeProjectResponse> update(@Valid @RequestBody UpdateEmployeeProjectRequest request) {
+        employeeProjectValidator.validateUpdateDTO(request.getId(), request);
+        return employeeProjectService.updateEmployeeProject(request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Delete employee project by ID", description = "Delete an employee project by its ID")
+    @Operation(summary = "Delete employee project by ID")
     @ApiResponse(responseCode = "204", description = "Employee project deleted successfully")
     @PostMapping("/delete")
-    public ResponseEntity<Void> delete(
-            @Parameter(description = "ID of the employee project to delete", required = true)
-            @Valid @RequestBody IdRequest request) {
-        employeeProjectService.deleteById(request.getId());
+    public ResponseEntity<Void> delete(@Valid @RequestBody IdRequest request) {
+        employeeProjectService.deleteEmployeeProject(request.getId());
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Delete employee projects by employee ID", description = "Delete all projects of an employee")
+    @Operation(summary = "Delete employee projects by employee ID")
     @ApiResponse(responseCode = "204", description = "Employee projects deleted successfully")
     @PostMapping("/deleteByEmployee")
-    public ResponseEntity<Void> deleteByEmployee(
-            @Parameter(description = "Employee ID whose projects to delete", required = true)
-            @Valid @RequestBody IdRequest request) {
+    public ResponseEntity<Void> deleteByEmployee(@Valid @RequestBody IdRequest request) {
         employeeProjectService.deleteByEmployeeId(request.getId());
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Delete employee projects by project ID", description = "Delete all employee assignments of a project")
+    @Operation(summary = "Delete employee projects by project ID")
     @ApiResponse(responseCode = "204", description = "Employee projects deleted successfully")
     @PostMapping("/deleteByProject")
-    public ResponseEntity<Void> deleteByProject(
-            @Parameter(description = "Project ID whose employee assignments to delete", required = true)
-            @Valid @RequestBody IdRequest request) {
+    public ResponseEntity<Void> deleteByProject(@Valid @RequestBody IdRequest request) {
         employeeProjectService.deleteByProjectId(request.getId());
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Get employee projects by employee ID", description = "Retrieve projects assigned to an employee")
+    @Operation(summary = "Get employee projects by employee ID")
     @ApiResponse(responseCode = "200", description = "List of employee projects retrieved successfully")
     @PostMapping("/getByEmployee")
-    public ResponseEntity<List<EmployeeProjectResponse>> getByEmployee(
-            @Parameter(description = "Employee ID to get projects for", required = true)
-            @Valid @RequestBody IdRequest request) {
-        List<EmployeeProjectResponse> projects = employeeProjectService.findByEmployeeId(request.getId())
-                .stream()
-                .map(EmployeeProjectMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(projects);
+    public ResponseEntity<List<EmployeeProjectResponse>> getByEmployee(@Valid @RequestBody IdRequest request) {
+        return ResponseEntity.ok(employeeProjectService.getByEmployeeId(request.getId()));
     }
 
-    @Operation(summary = "Get employee projects by project ID", description = "Retrieve employees assigned to a project")
+    @Operation(summary = "Get employee projects by project ID")
     @ApiResponse(responseCode = "200", description = "List of employee projects retrieved successfully")
     @PostMapping("/getByProject")
-    public ResponseEntity<List<EmployeeProjectResponse>> getByProject(
-            @Parameter(description = "Project ID to get employee assignments for", required = true)
-            @Valid @RequestBody IdRequest request) {
-        List<EmployeeProjectResponse> projects = employeeProjectService.findByProjectId(request.getId())
-                .stream()
-                .map(EmployeeProjectMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(projects);
+    public ResponseEntity<List<EmployeeProjectResponse>> getByProject(@Valid @RequestBody IdRequest request) {
+        return ResponseEntity.ok(employeeProjectService.getByProjectId(request.getId()));
     }
 
-    @Operation(summary = "Check if an employee is assigned to a project", description = "Returns true if the employee is assigned to the given project")
+    @Operation(summary = "Check if an employee is assigned to a project")
     @ApiResponse(responseCode = "200", description = "Existence check completed")
     @PostMapping("/existsByEmployeeAndProject")
     public ResponseEntity<Boolean> existsByEmployeeAndProject(
-            @Parameter(description = "Employee ID", required = true)
             @RequestParam Long employeeId,
-            @Parameter(description = "Project ID", required = true)
             @RequestParam Long projectId) {
-        boolean exists = employeeProjectService.existsByEmployeeIdAndProjectId(employeeId, projectId);
-        return ResponseEntity.ok(exists);
+        return ResponseEntity.ok(employeeProjectService.existsByEmployeeIdAndProjectId(employeeId, projectId));
     }
 }

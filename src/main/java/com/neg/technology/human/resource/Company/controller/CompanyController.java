@@ -3,14 +3,11 @@ package com.neg.technology.human.resource.Company.controller;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
 import com.neg.technology.human.resource.Utility.request.NameRequest;
 import com.neg.technology.human.resource.Company.model.request.CreateCompanyRequest;
-import com.neg.technology.human.resource.Company.model.response.CompanyResponse;
 import com.neg.technology.human.resource.Company.model.request.UpdateCompanyRequest;
-import com.neg.technology.human.resource.Company.model.entity.Company;
-import com.neg.technology.human.resource.Company.model.mapper.CompanyMapper;
+import com.neg.technology.human.resource.Company.model.response.CompanyResponse;
 import com.neg.technology.human.resource.Company.service.CompanyService;
 import com.neg.technology.human.resource.Company.validator.CompanyValidator;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Tag(name = "Company Controller", description = "Operations related to company management")
 @RestController
@@ -34,53 +30,73 @@ public class CompanyController {
         this.companyValidator = companyValidator;
     }
 
+    @Operation(summary = "Create a new company")
+    @ApiResponse(responseCode = "200", description = "Company created successfully")
     @PostMapping("/create")
     public ResponseEntity<CompanyResponse> createCompany(@Valid @RequestBody CreateCompanyRequest request) {
         companyValidator.validateCreate(request);
-        Company company = CompanyMapper.toEntity(request);
-        Company saved = companyService.save(company);
-        return ResponseEntity.ok(CompanyMapper.toDTO(saved));
+        CompanyResponse response = companyService.createCompany(request);
+        return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Update an existing company")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Company updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Company not found")
+    })
     @PostMapping("/update")
     public ResponseEntity<CompanyResponse> updateCompany(@Valid @RequestBody UpdateCompanyRequest request) {
         companyValidator.validateUpdate(request);
-        Company updated = companyService.update(request.getId(), CompanyMapper.toEntity(request));
-        return ResponseEntity.ok(CompanyMapper.toDTO(updated));
+        return companyService.updateCompany(request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Delete a company by ID")
+    @ApiResponse(responseCode = "204", description = "Company deleted successfully")
     @PostMapping("/delete")
     public ResponseEntity<Void> deleteCompany(@Valid @RequestBody IdRequest request) {
-        companyService.deleteById(request.getId());
+        companyService.deleteCompany(request.getId());
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Get all companies")
+    @ApiResponse(responseCode = "200", description = "List of companies retrieved successfully")
     @PostMapping("/getAll")
     public ResponseEntity<List<CompanyResponse>> getAllCompanies() {
-        List<CompanyResponse> list = companyService.findAll().stream()
-                .map(CompanyMapper::toDTO)
-                .toList();
+        List<CompanyResponse> list = companyService.getAllCompanies();
         return ResponseEntity.ok(list);
     }
 
+    @Operation(summary = "Get a company by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Company found"),
+            @ApiResponse(responseCode = "404", description = "Company not found")
+    })
     @PostMapping("/getById")
     public ResponseEntity<CompanyResponse> getCompanyById(@Valid @RequestBody IdRequest request) {
-        return companyService.findById(request.getId())
-                .map(company -> ResponseEntity.ok(CompanyMapper.toDTO(company)))
+        return companyService.getCompanyById(request)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Get a company by name")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Company found"),
+            @ApiResponse(responseCode = "404", description = "Company not found")
+    })
     @PostMapping("/getByName")
     public ResponseEntity<CompanyResponse> getCompanyByName(@Valid @RequestBody NameRequest request) {
-        return companyService.findByName(request.getName())
-                .map(company -> ResponseEntity.ok(CompanyMapper.toDTO(company)))
+        return companyService.getCompanyByName(request)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Check if a company exists by name")
+    @ApiResponse(responseCode = "200", description = "Existence check completed")
     @PostMapping("/exists")
     public ResponseEntity<Boolean> companyExists(@Valid @RequestBody NameRequest request) {
         boolean exists = companyService.existsByName(request.getName());
         return ResponseEntity.ok(exists);
     }
 }
-

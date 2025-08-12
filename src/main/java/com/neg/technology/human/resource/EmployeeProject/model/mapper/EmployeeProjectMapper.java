@@ -20,6 +20,8 @@ public class EmployeeProjectMapper {
     }
 
     public static EmployeeProject toEntity(CreateEmployeeProjectRequest dto, Employee employee, Project project) {
+        if(dto == null || employee == null || project == null) return null;
+
         return EmployeeProject.builder()
                 .employee(employee)
                 .project(project)
@@ -28,6 +30,8 @@ public class EmployeeProjectMapper {
 
     public static void updateEntity(EmployeeProject existing, UpdateEmployeeProjectRequest dto,
                                     Employee employee, Project project) {
+        if (existing == null || dto == null) return;
+
         if (employee != null) existing.setEmployee(employee);
         if (project != null) existing.setProject(project);
     }

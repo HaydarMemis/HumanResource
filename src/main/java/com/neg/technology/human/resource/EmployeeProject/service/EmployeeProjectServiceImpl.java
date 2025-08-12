@@ -2,39 +2,84 @@ package com.neg.technology.human.resource.EmployeeProject.service;
 
 import com.neg.technology.human.resource.Business.BusinessLogger;
 import com.neg.technology.human.resource.EmployeeProject.model.entity.EmployeeProject;
-import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
+import com.neg.technology.human.resource.EmployeeProject.model.mapper.EmployeeProjectMapper;
+import com.neg.technology.human.resource.EmployeeProject.model.request.CreateEmployeeProjectRequest;
+import com.neg.technology.human.resource.EmployeeProject.model.request.UpdateEmployeeProjectRequest;
+import com.neg.technology.human.resource.EmployeeProject.model.response.EmployeeProjectResponse;
 import com.neg.technology.human.resource.EmployeeProject.repository.EmployeeProjectRepository;
+import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
+import com.neg.technology.human.resource.Project.repository.ProjectRepository;
+import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EmployeeProjectServiceImpl implements EmployeeProjectService {
 
     private final EmployeeProjectRepository employeeProjectRepository;
+    private final EmployeeRepository employeeRepository;
+    private final ProjectRepository projectRepository;
 
     @Override
-    public EmployeeProject save(EmployeeProject employeeProject) {
-        EmployeeProject saved = employeeProjectRepository.save(employeeProject);
+    public List<EmployeeProjectResponse> getAllEmployeeProjects() {
+        return employeeProjectRepository.findAll()
+                .stream()
+                .map(EmployeeProjectMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<EmployeeProjectResponse> getEmployeeProjectById(IdRequest request) {
+        return employeeProjectRepository.findById(request.getId())
+                .map(EmployeeProjectMapper::toDTO);
+    }
+
+    @Override
+    public EmployeeProjectResponse createEmployeeProject(CreateEmployeeProjectRequest dto) {
+        EmployeeProject entity = mapToEntity(dto);
+        EmployeeProject saved = employeeProjectRepository.save(entity);
         BusinessLogger.logCreated(EmployeeProject.class, saved.getId(), "EmployeeProject");
-        return saved;
+        return EmployeeProjectMapper.toDTO(saved);
+    }
+
+    private EmployeeProject mapToEntity(CreateEmployeeProjectRequest dto) {
+        var employee = employeeRepository.findById(dto.getEmployeeId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"));
+        var project = projectRepository.findById(dto.getProjectId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
+
+        return EmployeeProjectMapper.toEntity(dto, employee, project);
     }
 
     @Override
-    public Optional<EmployeeProject> findById(Long id) {
-        return employeeProjectRepository.findById(id);
+    public Optional<EmployeeProjectResponse> updateEmployeeProject(UpdateEmployeeProjectRequest dto) {
+        var employee = dto.getEmployeeId() != null
+                ? employeeRepository.findById(dto.getEmployeeId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"))
+                : null;
+
+        var project = dto.getProjectId() != null
+                ? projectRepository.findById(dto.getProjectId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"))
+                : null;
+
+        return employeeProjectRepository.findById(dto.getId())
+                .map(existing -> {
+                    EmployeeProjectMapper.updateEntity(existing, dto, employee, project);
+                    EmployeeProject updated = employeeProjectRepository.save(existing);
+                    BusinessLogger.logUpdated(EmployeeProject.class, updated.getId(), "EmployeeProject");
+                    return EmployeeProjectMapper.toDTO(updated);
+                });
     }
 
     @Override
-    public List<EmployeeProject> findAll() {
-        return employeeProjectRepository.findAll();
-    }
-
-    @Override
-    public void deleteById(Long id) {
+    public void deleteEmployeeProject(Long id) {
         if (!employeeProjectRepository.existsById(id)) {
             throw new ResourceNotFoundException("Employee Project", id);
         }
@@ -61,25 +106,19 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
     }
 
     @Override
-    public EmployeeProject update(Long id, EmployeeProject employeeProject) {
-        EmployeeProject existing = employeeProjectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee Project", id));
-
-        existing.setEmployee(employeeProject.getEmployee());
-        existing.setProject(employeeProject.getProject());
-        EmployeeProject updated = employeeProjectRepository.save(existing);
-        BusinessLogger.logUpdated(EmployeeProject.class, updated.getId(), "EmployeeProject");
-        return updated;
+    public List<EmployeeProjectResponse> getByEmployeeId(Long employeeId) {
+        return employeeProjectRepository.findByEmployeeId(employeeId)
+                .stream()
+                .map(EmployeeProjectMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<EmployeeProject> findByEmployeeId(Long employeeId) {
-        return employeeProjectRepository.findByEmployeeId(employeeId);
-    }
-
-    @Override
-    public List<EmployeeProject> findByProjectId(Long projectId) {
-        return employeeProjectRepository.findByProjectId(projectId);
+    public List<EmployeeProjectResponse> getByProjectId(Long projectId) {
+        return employeeProjectRepository.findByProjectId(projectId)
+                .stream()
+                .map(EmployeeProjectMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
