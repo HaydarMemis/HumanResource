@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: "8"
+      author: "Ayşe Şule"
+      changes:
+        - createTable:
+            tableName: leave_type
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_annual
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+              - column:
+                  name: gender_required
+                  type: VARCHAR(10)
+              - column:
+                  name: default_days
+                  type: INTEGER
+              - column:
+                  name: valid_after_days
+                  type: INTEGER
+              - column:
+                  name: valid_until_days
+                  type: INTEGER
+              - column:
+                  name: is_unpaid
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reset_period
+                  type: VARCHAR(255)
+              - column:
+                  name: borrowable_limit
+                  type: INTEGER
+              - column:
+                  name: deleted
+                  type: VARCHAR(1)
+                  defaultValue: "N"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP

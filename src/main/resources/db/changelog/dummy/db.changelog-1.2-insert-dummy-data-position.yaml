@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: "3-insert-dummy-position"
+      author: "Ayşe Şule"
+      changes:
+        - insert:
+            tableName: position
+            columns:
+              - column:
+                  name: title
+                  value: "Software Engineer"
+              - column:
+                  name: base_salary
+                  valueNumeric: 75000.00
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-07-24T10:15:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-07-24T10:15:00"
+
+        - insert:
+            tableName: position
+            columns:
+              - column:
+                  name: title
+                  value: "HR Specialist"
+              - column:
+                  name: base_salary
+                  valueNumeric: 50000.00
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-07-24T10:20:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-07-24T10:20:00"
+
+        - insert:
+            tableName: position
+            columns:
+              - column:
+                  name: title
+                  value: "Finance Analyst"
+              - column:
+                  name: base_salary
+                  valueNumeric: 60000.00
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-07-24T10:25:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-07-24T10:25:00"

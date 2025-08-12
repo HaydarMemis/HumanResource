@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: "3"
+      author: "Ayşe Şule"
+      changes:
+        - createTable:
+            tableName: position
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: base_salary
+                  type: NUMERIC(19,2)
+              - column:
+                  name: deleted
+                  type: VARCHAR(1)
+                  defaultValue: "N"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP

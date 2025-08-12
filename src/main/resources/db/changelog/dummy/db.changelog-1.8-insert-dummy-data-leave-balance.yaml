@@ -1,0 +1,79 @@
+databaseChangeLog:
+  - changeSet:
+      id: "9-insert-dummy-leave-balance"
+      author: "Ayşe Şule"
+      changes:
+        - insert:
+            tableName: leave_balance
+            columns:
+              - column:
+                  name: employee_id
+                  valueNumeric: 1
+              - column:
+                  name: leave_type_id
+                  valueNumeric: 1
+              - column:
+                  name: date
+                  valueNumeric: 20250101
+              - column:
+                  name: amount
+                  valueNumeric: 14.00
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-01-01T09:00:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-01-01T09:00:00"
+
+        - insert:
+            tableName: leave_balance
+            columns:
+              - column:
+                  name: employee_id
+                  valueNumeric: 2
+              - column:
+                  name: leave_type_id
+                  valueNumeric: 2
+              - column:
+                  name: date
+                  valueNumeric: 20250201
+              - column:
+                  name: amount
+                  valueNumeric: 112.00
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-02-01T09:00:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-02-01T09:00:00"
+
+        - insert:
+            tableName: leave_balance
+            columns:
+              - column:
+                  name: employee_id
+                  valueNumeric: 1
+              - column:
+                  name: leave_type_id
+                  valueNumeric: 3
+              - column:
+                  name: date
+                  valueNumeric: 20250301
+              - column:
+                  name: amount
+                  valueNumeric: 5.00
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2025-03-01T09:00:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2025-03-01T09:00:00"
