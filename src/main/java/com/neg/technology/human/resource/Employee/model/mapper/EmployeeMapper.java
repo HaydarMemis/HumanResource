@@ -10,18 +10,19 @@ import com.neg.technology.human.resource.Employee.model.response.EmployeeRespons
 import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
 
 public class EmployeeMapper {
+
     public static EmployeeResponse toDTO(Employee employee) {
         if (employee == null) return null;
 
         return EmployeeResponse.builder()
                 .id(employee.getId())
-                .firstName(employee.getPerson().getFirstName())
-                .lastName(employee.getPerson().getLastName())
-                .phone(employee.getPerson().getPhone())
+                .firstName(employee.getPerson() != null ? employee.getPerson().getFirstName() : null)
+                .lastName(employee.getPerson() != null ? employee.getPerson().getLastName() : null)
+                .phone(employee.getPerson() != null ? employee.getPerson().getPhone() : null)
                 .departmentName(employee.getDepartment() != null ? employee.getDepartment().getName() : null)
                 .positionTitle(employee.getPosition() != null ? employee.getPosition().getTitle() : null)
-                .managerFirstName(employee.getManager() != null ? employee.getManager().getPerson().getFirstName() : null)
-                .managerLastName(employee.getManager() != null ? employee.getManager().getPerson().getLastName() : null)
+                .managerFirstName(employee.getManager() != null && employee.getManager().getPerson() != null ? employee.getManager().getPerson().getFirstName() : null)
+                .managerLastName(employee.getManager() != null && employee.getManager().getPerson() != null ? employee.getManager().getPerson().getLastName() : null)
                 .companyName(employee.getCompany() != null ? employee.getCompany().getName() : null)
                 .build();
     }
