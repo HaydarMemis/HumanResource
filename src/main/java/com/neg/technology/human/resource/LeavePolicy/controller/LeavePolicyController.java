@@ -20,11 +20,9 @@ import org.springframework.web.bind.annotation.*;
 public class LeavePolicyController {
 
     private final LeavePolicyService leavePolicyService;
-    private final EmployeeService employeeService;
 
-    public LeavePolicyController(LeavePolicyService leavePolicyService, EmployeeService employeeService) {
+    public LeavePolicyController(LeavePolicyService leavePolicyService) {
         this.leavePolicyService = leavePolicyService;
-        this.employeeService = employeeService;
     }
 
     @Operation(summary = "Get annual leave days")
@@ -102,10 +100,5 @@ public class LeavePolicyController {
     @GetMapping("/all")
     public ResponseEntity<LeavePolicyResponseList> getAllLeavePolicies() {
         return leavePolicyService.getAllLeavePolicies();
-    }
-
-    private Employee getEmployee(Long employeeId) {
-        return (Employee) employeeService.findById(employeeId)
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
     }
 }

@@ -36,10 +36,8 @@ public class LeaveRequestController {
     }
 
     @Operation(summary = "Get leave request by ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Leave request found"),
-            @ApiResponse(responseCode = "404", description = "Leave request not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Leave request found")
+    @ApiResponse(responseCode = "404", description = "Leave request not found")
     @PostMapping("/getById")
     public ResponseEntity<LeaveRequestResponse> getLeaveRequestById(@Valid @RequestBody IdRequest request) {
         LeaveRequestResponse dto = leaveRequestService.getById(request);

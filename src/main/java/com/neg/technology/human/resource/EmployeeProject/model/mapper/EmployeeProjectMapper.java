@@ -8,6 +8,8 @@ import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.EmployeeProject.model.entity.EmployeeProject;
 
 public class EmployeeProjectMapper {
+    private EmployeeProjectMapper(){}
+
     public static EmployeeProjectResponse toDTO(EmployeeProject employeeProject) {
         if (employeeProject == null) return null;
 

@@ -38,7 +38,7 @@ public class LeaveTypeMapper {
     public List<LeaveTypeResponse> toDTOList(List<LeaveType> leaveTypes) {
         return leaveTypes.stream()
                 .map(this::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // Alias: toResponseList

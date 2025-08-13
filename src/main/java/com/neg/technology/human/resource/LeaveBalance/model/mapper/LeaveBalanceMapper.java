@@ -42,7 +42,7 @@ public class LeaveBalanceMapper {
     public LeaveBalanceResponseList toResponseList(List<LeaveBalance> leaveBalances) {
         List<LeaveBalanceResponse> responses = leaveBalances.stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
         return new LeaveBalanceResponseList(responses);
     }
 

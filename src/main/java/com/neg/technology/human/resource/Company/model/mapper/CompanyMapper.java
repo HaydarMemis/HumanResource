@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 
 public class CompanyMapper {
 
+    private CompanyMapper() {}
+
     public static CompanyResponse toDTO(Company company) {
         if (company == null) return null;
         return new CompanyResponse(company.getId(), company.getName());

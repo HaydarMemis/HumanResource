@@ -1,6 +1,6 @@
 package com.neg.technology.human.resource.LeaveRequest.service;
 
-import com.neg.technology.human.resource.Business.BusinessLogger;
+import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.LeaveRequest.model.entity.LeaveRequest;
 import com.neg.technology.human.resource.LeaveRequest.model.mapper.LeaveRequestMapper;
 import com.neg.technology.human.resource.LeaveRequest.model.request.*;
@@ -20,9 +20,7 @@ import com.neg.technology.human.resource.LeaveType.model.request.EmployeeLeaveTy
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +36,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         List<LeaveRequest> entities = leaveRequestRepository.findAll();
         List<LeaveRequestResponse> responses = entities.stream()
                 .map(LeaveRequestMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
         return new LeaveRequestResponseList(responses);
     }
 
@@ -66,7 +64,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         LeaveRequest entity = LeaveRequestMapper.toEntity(dto, employee, leaveType, approver);
         LeaveRequest saved = leaveRequestRepository.save(entity);
 
-        BusinessLogger.logCreated(LeaveRequest.class, saved.getId(), "LeaveRequest");
+        RequestLogger.logCreated(LeaveRequest.class, saved.getId(), "LeaveRequest");
 
         return LeaveRequestMapper.toDTO(saved);
     }
@@ -98,7 +96,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
 
         LeaveRequest updated = leaveRequestRepository.save(existing);
 
-        BusinessLogger.logUpdated(LeaveRequest.class, updated.getId(), "LeaveRequest");
+        RequestLogger.logUpdated(LeaveRequest.class, updated.getId(), "LeaveRequest");
 
         return LeaveRequestMapper.toDTO(updated);
     }
@@ -109,7 +107,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
             throw new ResourceNotFoundException("Leave Request", request.getId());
         }
         leaveRequestRepository.deleteById(request.getId());
-        BusinessLogger.logDeleted(LeaveRequest.class, request.getId());
+        RequestLogger.logDeleted(LeaveRequest.class, request.getId());
     }
 
     @Override
@@ -117,7 +115,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         List<LeaveRequest> list = leaveRequestRepository.findByEmployeeId(request.getId());
         List<LeaveRequestResponse> responses = list.stream()
                 .map(LeaveRequestMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
         return new LeaveRequestResponseList(responses);
     }
 
@@ -126,7 +124,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         List<LeaveRequest> list = leaveRequestRepository.findByStatus(request.getStatus());
         List<LeaveRequestResponse> responses = list.stream()
                 .map(LeaveRequestMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
         return new LeaveRequestResponseList(responses);
     }
 
@@ -135,7 +133,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         List<LeaveRequest> list = leaveRequestRepository.findByIsCancelledTrue();
         List<LeaveRequestResponse> responses = list.stream()
                 .map(LeaveRequestMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
         return new LeaveRequestResponseList(responses);
     }
 
@@ -144,7 +142,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         List<LeaveRequest> list = leaveRequestRepository.findByApprovedById(request.getId());
         List<LeaveRequestResponse> responses = list.stream()
                 .map(LeaveRequestMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
         return new LeaveRequestResponseList(responses);
     }
 
@@ -153,7 +151,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         List<LeaveRequest> list = leaveRequestRepository.findByEmployeeIdAndStatus(request.getEmployeeId(), request.getStatus());
         List<LeaveRequestResponse> responses = list.stream()
                 .map(LeaveRequestMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
         return new LeaveRequestResponseList(responses);
     }
 
@@ -162,7 +160,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         List<LeaveRequest> list = leaveRequestRepository.findByStartDateBetween(request.getStartDate(), request.getEndDate());
         List<LeaveRequestResponse> responses = list.stream()
                 .map(LeaveRequestMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
         return new LeaveRequestResponseList(responses);
     }
 
@@ -176,7 +174,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         );
         List<LeaveRequestResponse> responses = list.stream()
                 .map(LeaveRequestMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
         return new LeaveRequestResponseList(responses);
     }
 
@@ -189,7 +187,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         );
         List<LeaveRequestResponse> responses = list.stream()
                 .map(LeaveRequestMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
         return new LeaveRequestResponseList(responses);
     }
 }

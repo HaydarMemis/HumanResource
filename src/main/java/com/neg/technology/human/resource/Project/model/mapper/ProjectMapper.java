@@ -7,6 +7,8 @@ import com.neg.technology.human.resource.Project.model.entity.Project;
 
 public class ProjectMapper {
 
+    private ProjectMapper() {}
+
     public static ProjectResponse toDTO(Project project) {
         if (project == null) return null;
         return new ProjectResponse(project.getId(), project.getName());

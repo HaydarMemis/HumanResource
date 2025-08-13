@@ -1,6 +1,6 @@
 package com.neg.technology.human.resource.Company.service;
 
-import com.neg.technology.human.resource.Business.BusinessLogger;
+import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.Company.model.entity.Company;
 import com.neg.technology.human.resource.Company.model.mapper.CompanyMapper;
 import com.neg.technology.human.resource.Company.model.request.CreateCompanyRequest;
@@ -20,6 +20,8 @@ public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
 
+    private String message = "Company";
+
     public CompanyServiceImpl(CompanyRepository companyRepository) {
         this.companyRepository = companyRepository;
     }
@@ -28,18 +30,18 @@ public class CompanyServiceImpl implements CompanyService {
     public CompanyResponse createCompany(CreateCompanyRequest request) {
         Company entity = CompanyMapper.toEntity(request);
         Company saved = companyRepository.save(entity);
-        BusinessLogger.logCreated(Company.class, saved.getId(), saved.getName());
+        RequestLogger.logCreated(Company.class, saved.getId(), saved.getName());
         return CompanyMapper.toDTO(saved);
     }
 
     @Override
     public CompanyResponse updateCompany(UpdateCompanyRequest request) {
         Company existing = companyRepository.findById(request.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Company", request.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException(message, request.getId()));
 
         existing.setName(request.getName());
         Company updated = companyRepository.save(existing);
-        BusinessLogger.logUpdated(Company.class, updated.getId(), updated.getName());
+        RequestLogger.logUpdated(Company.class, updated.getId(), updated.getName());
 
         return CompanyMapper.toDTO(updated);
     }
@@ -50,7 +52,7 @@ public class CompanyServiceImpl implements CompanyService {
             throw new ResourceNotFoundException("Company", request.getId());
         }
         companyRepository.deleteById(request.getId());
-        BusinessLogger.logDeleted(Company.class, request.getId());
+        RequestLogger.logDeleted(Company.class, request.getId());
     }
 
     @Override
@@ -59,7 +61,7 @@ public class CompanyServiceImpl implements CompanyService {
                 companyRepository.findAll()
                         .stream()
                         .map(CompanyMapper::toDTO)
-                        .collect(Collectors.toList())
+                        .toList()
         );
     }
 
@@ -67,14 +69,14 @@ public class CompanyServiceImpl implements CompanyService {
     public CompanyResponse getCompanyById(IdRequest request) {
         return companyRepository.findById(request.getId())
                 .map(CompanyMapper::toDTO)
-                .orElseThrow(() -> new ResourceNotFoundException("Company", request.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException(message, request.getId()));
     }
 
     @Override
     public CompanyResponse getCompanyByName(NameRequest request) {
         return companyRepository.findByName(request.getName())
                 .map(CompanyMapper::toDTO)
-                .orElseThrow(() -> new ResourceNotFoundException("Company", request.getName()));
+                .orElseThrow(() -> new ResourceNotFoundException(message, request.getName()));
     }
 
     @Override

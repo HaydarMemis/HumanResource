@@ -1,6 +1,6 @@
 package com.neg.technology.human.resource.Department.service;
 
-import com.neg.technology.human.resource.Business.BusinessLogger;
+import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.Department.model.entity.Department;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.Department.repository.DepartmentRepository;
@@ -41,7 +41,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public Department save(Department department) {
         Department saved = departmentRepository.save(department);
-        BusinessLogger.logCreated(Department.class, saved.getId(), saved.getName());
+        RequestLogger.logCreated(Department.class, saved.getId(), saved.getName());
         return saved;
     }
 
@@ -61,7 +61,7 @@ public class DepartmentServiceImpl implements DepartmentService {
             throw new ResourceNotFoundException("Department", id);
         }
         departmentRepository.deleteById(id);
-        BusinessLogger.logDeleted(Department.class, id);
+        RequestLogger.logDeleted(Department.class, id);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         existing.setLocation(department.getLocation());
 
         Department updated = departmentRepository.save(existing);
-        BusinessLogger.logUpdated(Department.class, updated.getId(), updated.getName());
+        RequestLogger.logUpdated(Department.class, updated.getId(), updated.getName());
         return updated;
     }
 

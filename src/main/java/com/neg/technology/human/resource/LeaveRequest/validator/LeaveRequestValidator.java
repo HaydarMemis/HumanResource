@@ -41,7 +41,7 @@ public class LeaveRequestValidator {
             throw new ValidationException("Requested days exceed leave balance");
         }
 
-        validateExtraRules(employee, leaveType, dto.getStartDate(), dto.getEndDate());
+        validateExtraRules(employee, leaveType, dto.getStartDate());
     }
 
     public void validateUpdateDTO(UpdateLeaveRequestRequest dto) {
@@ -56,7 +56,7 @@ public class LeaveRequestValidator {
             LeaveType leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
                     .orElseThrow(() -> new ValidationException("Leave type not found"));
 
-            validateExtraRules(employee, leaveType, dto.getStartDate(), dto.getEndDate());
+            validateExtraRules(employee, leaveType, dto.getStartDate());
         }
     }
 
@@ -77,8 +77,7 @@ public class LeaveRequestValidator {
     private void validateExtraRules(
             Employee employee,
             LeaveType leaveType,
-            LocalDate startDate,
-            LocalDate endDate) {
+            LocalDate startDate) {
         if (!Boolean.TRUE.equals(employee.getIsActive())) {
             throw new ValidationException("Inactive employees cannot request leave");
         }

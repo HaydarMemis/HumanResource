@@ -1,13 +1,14 @@
 package com.neg.technology.human.resource.LeaveRequest.model.mapper;
 
-import com.neg.technology.human.resource.LeaveRequest.model.request.CreateLeaveRequestRequest;
-import com.neg.technology.human.resource.LeaveRequest.model.response.LeaveRequestResponse;
-import com.neg.technology.human.resource.LeaveRequest.model.request.UpdateLeaveRequestRequest;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.LeaveRequest.model.entity.LeaveRequest;
+import com.neg.technology.human.resource.LeaveRequest.model.request.CreateLeaveRequestRequest;
+import com.neg.technology.human.resource.LeaveRequest.model.request.UpdateLeaveRequestRequest;
+import com.neg.technology.human.resource.LeaveRequest.model.response.LeaveRequestResponse;
 import com.neg.technology.human.resource.LeaveType.model.entity.LeaveType;
 
 public class LeaveRequestMapper {
+    private LeaveRequestMapper(){}
 
     public static LeaveRequestResponse toDTO(LeaveRequest request) {
         return LeaveRequestResponse.builder()

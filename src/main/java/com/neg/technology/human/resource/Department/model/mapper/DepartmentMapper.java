@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 
 public class DepartmentMapper {
 
+    private DepartmentMapper() {}
+
     public static DepartmentResponse toDTO(Department department) {
         if (department == null) return null;
         return new DepartmentResponse(

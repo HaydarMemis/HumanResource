@@ -1,25 +1,26 @@
 package com.neg.technology.human.resource.Department.controller;
 
-import com.neg.technology.human.resource.Utility.request.IdRequest;
-import com.neg.technology.human.resource.Utility.request.NameRequest;
-import com.neg.technology.human.resource.Department.model.request.CreateDepartmentRequest;
-import com.neg.technology.human.resource.Department.model.response.DepartmentResponse;
-import com.neg.technology.human.resource.Department.model.request.UpdateDepartmentRequest;
 import com.neg.technology.human.resource.Department.model.entity.Department;
 import com.neg.technology.human.resource.Department.model.mapper.DepartmentMapper;
+import com.neg.technology.human.resource.Department.model.request.CreateDepartmentRequest;
+import com.neg.technology.human.resource.Department.model.request.UpdateDepartmentRequest;
+import com.neg.technology.human.resource.Department.model.response.DepartmentResponse;
 import com.neg.technology.human.resource.Department.service.DepartmentService;
 import com.neg.technology.human.resource.Department.validator.DepartmentValidator;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.request.NameRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Tag(name = "Department Controller", description = "Operations related to department management")
 @RestController
@@ -42,15 +43,13 @@ public class DepartmentController {
         List<DepartmentResponse> departments = departmentService.findAll()
                 .stream()
                 .map(DepartmentMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(departments);
     }
 
     @Operation(summary = "Get department by ID", description = "Retrieve a department by its unique ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Department found"),
-            @ApiResponse(responseCode = "404", description = "Department not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Department found")
+    @ApiResponse(responseCode = "404", description = "Department not found")
     @PostMapping("/getById")
     public ResponseEntity<DepartmentResponse> getDepartmentById(
             @Parameter(description = "ID of the department to be retrieved", required = true)
@@ -62,10 +61,8 @@ public class DepartmentController {
     }
 
     @Operation(summary = "Get department by name", description = "Retrieve a department by its name")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Department found"),
-            @ApiResponse(responseCode = "404", description = "Department not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Department found")
+    @ApiResponse(responseCode = "404", description = "Department not found")
     @PostMapping("/getByName")
     public ResponseEntity<DepartmentResponse> getDepartmentByName(
             @Parameter(description = "Name of the department to be retrieved", required = true)
@@ -90,10 +87,8 @@ public class DepartmentController {
     }
 
     @Operation(summary = "Update existing department", description = "Update details of an existing department")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Department updated successfully"),
-            @ApiResponse(responseCode = "404", description = "Department not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Department updated successfully")
+    @ApiResponse(responseCode = "404", description = "Department not found")
     @PostMapping("/update")
     public ResponseEntity<DepartmentResponse> updateDepartment(
             @Valid @RequestBody UpdateDepartmentRequest request) {
@@ -110,10 +105,8 @@ public class DepartmentController {
     }
 
     @Operation(summary = "Delete department", description = "Delete a department by ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Department deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "Department not found")
-    })
+    @ApiResponse(responseCode = "204", description = "Department deleted successfully")
+    @ApiResponse(responseCode = "404", description = "Department not found")
     @PostMapping("/delete")
     public ResponseEntity<Void> deleteDepartment(
             @Parameter(description = "ID of the department to delete", required = true)
@@ -147,7 +140,7 @@ public class DepartmentController {
         List<DepartmentResponse> departments = departmentService.findByLocation(location)
                 .stream()
                 .map(DepartmentMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(departments);
     }
 
@@ -161,7 +154,7 @@ public class DepartmentController {
         List<DepartmentResponse> departments = departmentService.findByLocationContainingIgnoreCase(keyword)
                 .stream()
                 .map(DepartmentMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(departments);
     }
 }

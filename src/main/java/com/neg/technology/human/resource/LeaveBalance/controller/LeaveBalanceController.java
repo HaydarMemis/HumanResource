@@ -37,10 +37,8 @@ public class LeaveBalanceController {
     }
 
     @Operation(summary = "Get leave balance by ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Leave balance found"),
-            @ApiResponse(responseCode = "404", description = "Leave balance not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Leave balance found")
+    @ApiResponse(responseCode = "404", description = "Leave balance not found")
     @PostMapping("/getById")
     public ResponseEntity<LeaveBalanceResponse> getLeaveBalanceById(@Valid @RequestBody IdRequest request) {
         return leaveBalanceService.getById(request);

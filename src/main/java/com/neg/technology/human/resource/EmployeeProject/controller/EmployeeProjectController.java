@@ -39,10 +39,8 @@ public class EmployeeProjectController {
     }
 
     @Operation(summary = "Get employee project by ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Employee project found"),
-            @ApiResponse(responseCode = "404", description = "Employee project not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Employee project found")
+    @ApiResponse(responseCode = "404", description = "Employee project not found")
     @PostMapping("/getById")
     public ResponseEntity<EmployeeProjectResponse> getById(@Valid @RequestBody IdRequest request) {
         return employeeProjectService.getEmployeeProjectById(request)
@@ -59,10 +57,8 @@ public class EmployeeProjectController {
     }
 
     @Operation(summary = "Update existing employee project")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Employee project updated successfully"),
-            @ApiResponse(responseCode = "404", description = "Employee project not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Employee project updated successfully")
+    @ApiResponse(responseCode = "404", description = "Employee project not found")
     @PostMapping("/update")
     public ResponseEntity<EmployeeProjectResponse> update(@Valid @RequestBody UpdateEmployeeProjectRequest request) {
         employeeProjectValidator.validateUpdateDTO(request.getId(), request);

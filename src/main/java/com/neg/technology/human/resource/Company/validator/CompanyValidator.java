@@ -3,7 +3,6 @@ package com.neg.technology.human.resource.Company.validator;
 import com.neg.technology.human.resource.Company.model.request.CreateCompanyRequest;
 import com.neg.technology.human.resource.Company.model.request.UpdateCompanyRequest;
 import com.neg.technology.human.resource.Company.repository.CompanyRepository;
-import com.neg.technology.human.resource.Utility.request.NameRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 

@@ -1,6 +1,6 @@
 package com.neg.technology.human.resource.LeaveType.service;
 
-import com.neg.technology.human.resource.Business.BusinessLogger;
+import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.LeaveType.model.entity.LeaveType;
 import com.neg.technology.human.resource.LeaveType.model.mapper.LeaveTypeMapper;
@@ -42,7 +42,7 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
     public LeaveTypeResponse create(CreateLeaveTypeRequest request) {
         LeaveType entity = leaveTypeMapper.toEntity(request);
         LeaveType saved = leaveTypeRepository.save(entity);
-        BusinessLogger.logCreated(LeaveType.class, saved.getId(), saved.getName());
+        RequestLogger.logCreated(LeaveType.class, saved.getId(), saved.getName());
         return leaveTypeMapper.toResponse(saved);
     }
 
@@ -53,7 +53,7 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
 
         leaveTypeMapper.updateEntityFromRequest(request, existing);
         LeaveType updated = leaveTypeRepository.save(existing);
-        BusinessLogger.logUpdated(LeaveType.class, updated.getId(), updated.getName());
+        RequestLogger.logUpdated(LeaveType.class, updated.getId(), updated.getName());
         return leaveTypeMapper.toResponse(updated);
     }
 
@@ -63,7 +63,7 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
             throw new ResourceNotFoundException("Leave Type", request.getId());
         }
         leaveTypeRepository.deleteById(request.getId());
-        BusinessLogger.logDeleted(LeaveType.class, request.getId());
+        RequestLogger.logDeleted(LeaveType.class, request.getId());
     }
 
     @Override

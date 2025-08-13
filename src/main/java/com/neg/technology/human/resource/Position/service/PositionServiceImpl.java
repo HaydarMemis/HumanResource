@@ -1,6 +1,6 @@
 package com.neg.technology.human.resource.Position.service;
 
-import com.neg.technology.human.resource.Business.BusinessLogger;
+import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.Position.model.entity.Position;
 import com.neg.technology.human.resource.Position.model.mapper.PositionMapper;
@@ -21,6 +21,7 @@ import java.util.Optional;
 
 @Service
 public class PositionServiceImpl implements PositionService {
+    private String message= "Position";
 
     private final PositionRepository positionRepository;
     private final PositionValidator positionValidator;
@@ -62,7 +63,7 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public Position save(Position position) {
         Position saved = positionRepository.save(position);
-        BusinessLogger.logCreated(Position.class, saved.getId(), saved.getTitle());
+        RequestLogger.logCreated(Position.class, saved.getId(), saved.getTitle());
         return saved;
     }
 
@@ -79,21 +80,21 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public void deleteById(Long id) {
         if(!positionRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Position", id);
+            throw new ResourceNotFoundException(message, id);
         }
         positionRepository.deleteById(id);
-        BusinessLogger.logDeleted(Position.class, id);
+        RequestLogger.logDeleted(Position.class, id);
     }
 
     @Override
     public Position update(Long id, Position position) {
         Position existing = positionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Position", id));
+                .orElseThrow(() -> new ResourceNotFoundException(message, id));
         existing.setTitle(position.getTitle());
         existing.setBaseSalary(position.getBaseSalary());
 
         Position updated = positionRepository.save(existing);
-        BusinessLogger.logUpdated(Position.class, updated.getId(), updated.getTitle());
+        RequestLogger.logUpdated(Position.class, updated.getId(), updated.getTitle());
         return updated;
     }
 
@@ -105,7 +106,7 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public PositionResponse getPositionById(IdRequest request) {
         Position position = positionRepository.findById(request.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Position", request.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException(message, request.getId()));
         return positionMapper.toDTO(position);
     }
 
@@ -114,37 +115,37 @@ public class PositionServiceImpl implements PositionService {
         positionValidator.validateCreate(request);
         Position position = positionMapper.toEntity(request);
         Position saved = positionRepository.save(position);
-        BusinessLogger.logCreated(Position.class, saved.getId(), saved.getTitle());
+        RequestLogger.logCreated(Position.class, saved.getId(), saved.getTitle());
         return positionMapper.toDTO(saved);
     }
 
     @Override
     public PositionResponse updatePosition(UpdatePositionRequest request) {
         if (!positionRepository.existsById(request.getId())) {
-            throw new ResourceNotFoundException("Position", request.getId());
+            throw new ResourceNotFoundException(message, request.getId());
         }
         positionValidator.validateUpdate(request, request.getId());
         Position existing = positionRepository.findById(request.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Position", request.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException(message, request.getId()));
         positionMapper.updateEntity(existing, request);
         Position updated = positionRepository.save(existing);
-        BusinessLogger.logUpdated(Position.class, updated.getId(), updated.getTitle());
+        RequestLogger.logUpdated(Position.class, updated.getId(), updated.getTitle());
         return positionMapper.toDTO(updated);
     }
 
     @Override
     public void deletePosition(IdRequest request) {
         if (!positionRepository.existsById(request.getId())) {
-            throw new ResourceNotFoundException("Position", request.getId());
+            throw new ResourceNotFoundException(message, request.getId());
         }
         positionRepository.deleteById(request.getId());
-        BusinessLogger.logDeleted(Position.class, request.getId());
+        RequestLogger.logDeleted(Position.class, request.getId());
     }
 
     @Override
     public PositionResponse getPositionByTitle(TitleRequest request) {
         Position position = positionRepository.findByTitle(request.getTitle())
-                .orElseThrow(() -> new ResourceNotFoundException("Position", request.getTitle()));
+                .orElseThrow(() -> new ResourceNotFoundException(message, request.getTitle()));
         return positionMapper.toDTO(position);
     }
 

@@ -1,9 +1,11 @@
-package com.neg.technology.human.resource.Business;
+package com.neg.technology.human.resource.Utility;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BusinessLogger {
+public class RequestLogger {
+
+    private RequestLogger() {}
 
     private static final Logger logger = LoggerFactory.getLogger("com.neg.hr.human.resource.business");
 

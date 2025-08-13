@@ -1,13 +1,12 @@
 package com.neg.technology.human.resource.Person.model.mapper;
 
+import com.neg.technology.human.resource.Person.model.entity.Person;
 import com.neg.technology.human.resource.Person.model.request.CreatePersonRequest;
 import com.neg.technology.human.resource.Person.model.request.UpdatePersonRequest;
 import com.neg.technology.human.resource.Person.model.response.PersonResponse;
-import com.neg.technology.human.resource.Person.model.entity.Person;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class PersonMapper {
@@ -35,7 +34,7 @@ public class PersonMapper {
         }
         return persons.stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public Person toEntity(CreatePersonRequest dto) {

@@ -1,6 +1,6 @@
 package com.neg.technology.human.resource.LeaveBalance.service;
 
-import com.neg.technology.human.resource.Business.BusinessLogger;
+import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
@@ -24,6 +24,7 @@ import java.util.List;
 
 @Service
 public class LeaveBalanceServiceImpl implements LeaveBalanceService {
+    private String message = "LeaveBalance";
 
     private final LeaveBalanceRepository leaveBalanceRepository;
     private final EmployeeRepository employeeRepository;
@@ -63,14 +64,14 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
 
         LeaveBalance entity = leaveBalanceMapper.toEntity(request, employee, leaveType);
         LeaveBalance saved = leaveBalanceRepository.save(entity);
-        BusinessLogger.logCreated(LeaveBalance.class, saved.getId(), "LeaveBalance");
+        RequestLogger.logCreated(LeaveBalance.class, saved.getId(), message);
         return leaveBalanceMapper.toResponse(saved);
     }
 
     @Override
     public ResponseEntity<LeaveBalanceResponse> update(UpdateLeaveBalanceRequest request) {
         LeaveBalance existing = leaveBalanceRepository.findById(request.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("LeaveBalance", request.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException(message, request.getId()));
 
         Employee employee = employeeRepository.findById(request.getEmployeeId())
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()));
@@ -80,17 +81,17 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
 
         leaveBalanceMapper.updateEntity(existing, request, employee, leaveType);
         LeaveBalance updated = leaveBalanceRepository.save(existing);
-        BusinessLogger.logUpdated(LeaveBalance.class, updated.getId(), "LeaveBalance");
+        RequestLogger.logUpdated(LeaveBalance.class, updated.getId(), message);
         return ResponseEntity.ok(leaveBalanceMapper.toResponse(updated));
     }
 
     @Override
     public void delete(IdRequest request) {
         if (!leaveBalanceRepository.existsById(request.getId())) {
-            throw new ResourceNotFoundException("LeaveBalance", request.getId());
+            throw new ResourceNotFoundException(message, request.getId());
         }
         leaveBalanceRepository.deleteById(request.getId());
-        BusinessLogger.logDeleted(LeaveBalance.class, request.getId());
+        RequestLogger.logDeleted(LeaveBalance.class, request.getId());
     }
 
     @Override

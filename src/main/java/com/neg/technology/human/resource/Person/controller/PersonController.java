@@ -35,10 +35,8 @@ public class PersonController {
     }
 
     @Operation(summary = "Get person by ID", description = "Retrieve a person by its unique ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Person found"),
-            @ApiResponse(responseCode = "404", description = "Person not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Person found")
+    @ApiResponse(responseCode = "404", description = "Person not found")
     @PostMapping("/getById")
     public ResponseEntity<PersonResponse> getPersonById(
             @Parameter(description = "ID of the person to be retrieved", required = true)
@@ -56,10 +54,8 @@ public class PersonController {
     }
 
     @Operation(summary = "Update existing person", description = "Update details of an existing person")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Person updated successfully"),
-            @ApiResponse(responseCode = "404", description = "Person not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Person updated successfully")
+    @ApiResponse(responseCode = "404", description = "Person not found")
     @PostMapping("/update")
     public ResponseEntity<PersonResponse> updatePerson(
             @Parameter(description = "Person data for update", required = true)
@@ -68,10 +64,8 @@ public class PersonController {
     }
 
     @Operation(summary = "Delete person", description = "Delete a person by ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Person deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "Person not found")
-    })
+    @ApiResponse(responseCode = "204", description = "Person deleted successfully")
+    @ApiResponse(responseCode = "404", description = "Person not found")
     @PostMapping("/delete")
     public ResponseEntity<Void> deletePerson(
             @Parameter(description = "ID of the person to be deleted", required = true)
@@ -108,10 +102,8 @@ public class PersonController {
     }
 
     @Operation(summary = "Get person by national ID", description = "Retrieve a person by their national ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Person found"),
-            @ApiResponse(responseCode = "404", description = "Person not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Person found")
+    @ApiResponse(responseCode = "404", description = "Person not found")
     @PostMapping("/getByNationalId")
     public ResponseEntity<PersonResponse> getPersonByNationalId(
             @Parameter(description = "National ID of the person", required = true)
@@ -129,10 +121,8 @@ public class PersonController {
     }
 
     @Operation(summary = "Get person by email", description = "Retrieve a person by their email address")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Person found"),
-            @ApiResponse(responseCode = "404", description = "Person not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Person found")
+    @ApiResponse(responseCode = "404", description = "Person not found")
     @PostMapping("/getByEmail")
     public ResponseEntity<PersonResponse> getPersonByEmail(
             @Parameter(description = "Email of the person", required = true)

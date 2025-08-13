@@ -3,18 +3,18 @@ package com.neg.technology.human.resource.Employee.model.mapper;
 import com.neg.technology.human.resource.Company.model.entity.Company;
 import com.neg.technology.human.resource.Department.model.entity.Department;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
+import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
+import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
+import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;
 import com.neg.technology.human.resource.Person.model.entity.Person;
 import com.neg.technology.human.resource.Position.model.entity.Position;
-import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
-import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;
-import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class EmployeeMapper {
 
-    // Tekil Employee -> EmployeeResponse
+    private EmployeeMapper() {}
+
     public static EmployeeResponse toDTO(Employee employee) {
         if (employee == null) return null;
 
@@ -31,12 +31,11 @@ public class EmployeeMapper {
                 .build();
     }
 
-    // Liste Employee -> Liste EmployeeResponse
     public static List<EmployeeResponse> toDTO(List<Employee> employees) {
         if (employees == null) return List.of();
         return employees.stream()
                 .map(EmployeeMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // CreateEmployeeRequest -> Employee entity
@@ -61,7 +60,6 @@ public class EmployeeMapper {
                 .build();
     }
 
-    // UpdateEmployeeRequest ile mevcut Employee entity'sini güncelle
     public static void updateEntity(Employee employee,
                                     UpdateEmployeeRequest dto,
                                     Person person,

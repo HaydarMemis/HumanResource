@@ -1,6 +1,6 @@
 package com.neg.technology.human.resource.Project.service;
 
-import com.neg.technology.human.resource.Business.BusinessLogger;
+import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.Project.model.entity.Project;
 import com.neg.technology.human.resource.Project.model.request.CreateProjectRequest;
@@ -62,7 +62,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Project save(Project project) {
         Project saved = projectRepository.save(project);
-        BusinessLogger.logCreated(Project.class, saved.getId(), saved.getName());
+        RequestLogger.logCreated(Project.class, saved.getId(), saved.getName());
         return saved;
     }
 
@@ -92,7 +92,7 @@ public class ProjectServiceImpl implements ProjectService {
             throw new ResourceNotFoundException("Project", id);
         }
         projectRepository.deleteById(id);
-        BusinessLogger.logDeleted(Project.class, id);
+        RequestLogger.logDeleted(Project.class, id);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class ProjectServiceImpl implements ProjectService {
         // diğer alanları da burada setle
 
         Project updated = projectRepository.save(existing);
-        BusinessLogger.logUpdated(Project.class, updated.getId(), updated.getName());
+        RequestLogger.logUpdated(Project.class, updated.getId(), updated.getName());
         return updated;
     }
 

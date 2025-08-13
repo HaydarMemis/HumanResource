@@ -11,11 +11,13 @@ import com.neg.technology.human.resource.Utility.request.IntegerRequest;
 import com.neg.technology.human.resource.Utility.request.NameRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "LeaveType Controller", description = "Operations related to leave type management")
 @RestController
@@ -35,10 +37,8 @@ public class LeaveTypeController {
     }
 
     @Operation(summary = "Get leave type by ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Leave type found"),
-            @ApiResponse(responseCode = "404", description = "Leave type not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Leave type found")
+    @ApiResponse(responseCode = "404", description = "Leave type not found")
     @PostMapping("/getById")
     public ResponseEntity<LeaveTypeResponse> getLeaveTypeById(@Valid @RequestBody IdRequest request) {
         return ResponseEntity.ok(leaveTypeService.getById(request));

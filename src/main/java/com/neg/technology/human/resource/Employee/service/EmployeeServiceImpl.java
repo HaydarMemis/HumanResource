@@ -1,6 +1,6 @@
 package com.neg.technology.human.resource.Employee.service;
 
-import com.neg.technology.human.resource.Business.BusinessLogger;
+import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.Company.repository.CompanyRepository;
 import com.neg.technology.human.resource.Department.repository.DepartmentRepository;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
@@ -24,6 +24,7 @@ import java.util.Optional;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
+    private String message = "Employee";
 
     private final EmployeeRepository employeeRepository;
     private final PersonRepository personRepository;
@@ -55,14 +56,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         );
 
         Employee saved = employeeRepository.save(employee);
-        BusinessLogger.logEmployeeCreated(saved.getId(), saved.getPerson().getFirstName() + " " + saved.getPerson().getLastName());
+        RequestLogger.logEmployeeCreated(saved.getId(), saved.getPerson().getFirstName() + " " + saved.getPerson().getLastName());
         return ResponseEntity.ok(EmployeeMapper.toDTO(saved));
     }
 
     @Override
     public ResponseEntity<EmployeeResponse> updateEmployee(UpdateEmployeeRequest request) {
         Employee existing = employeeRepository.findById(request.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException(message, request.getId()));
 
         EmployeeMapper.updateEntity(
                 existing,
@@ -75,14 +76,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         );
 
         Employee updated = employeeRepository.save(existing);
-        BusinessLogger.logEmployeeUpdated(updated.getId(), updated.getPerson().getFirstName() + " " + updated.getPerson().getLastName());
+        RequestLogger.logEmployeeUpdated(updated.getId(), updated.getPerson().getFirstName() + " " + updated.getPerson().getLastName());
         return ResponseEntity.ok(EmployeeMapper.toDTO(updated));
     }
 
     @Override
     public ResponseEntity<EmployeeResponse> getEmployeeById(IdRequest request) {
         Employee employee = employeeRepository.findById(request.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException(message, request.getId()));
         return ResponseEntity.ok(EmployeeMapper.toDTO(employee));
     }
 
@@ -95,9 +96,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public ResponseEntity<Void> deleteEmployee(IdRequest request) {
         Employee employee = employeeRepository.findById(request.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException(message, request.getId()));
         employeeRepository.delete(employee);
-        BusinessLogger.logEmployeeDeleted(employee.getId());
+        RequestLogger.logEmployeeDeleted(employee.getId());
         return ResponseEntity.noContent().build();
     }
 

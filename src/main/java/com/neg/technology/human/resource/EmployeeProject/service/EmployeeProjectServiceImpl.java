@@ -1,6 +1,6 @@
 package com.neg.technology.human.resource.EmployeeProject.service;
 
-import com.neg.technology.human.resource.Business.BusinessLogger;
+import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.EmployeeProject.model.entity.EmployeeProject;
 import com.neg.technology.human.resource.EmployeeProject.model.mapper.EmployeeProjectMapper;
 import com.neg.technology.human.resource.EmployeeProject.model.request.CreateEmployeeProjectRequest;
@@ -31,7 +31,7 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
         return employeeProjectRepository.findAll()
                 .stream()
                 .map(EmployeeProjectMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -44,7 +44,7 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
     public EmployeeProjectResponse createEmployeeProject(CreateEmployeeProjectRequest dto) {
         EmployeeProject entity = mapToEntity(dto);
         EmployeeProject saved = employeeProjectRepository.save(entity);
-        BusinessLogger.logCreated(EmployeeProject.class, saved.getId(), "EmployeeProject");
+        RequestLogger.logCreated(EmployeeProject.class, saved.getId(), "EmployeeProject");
         return EmployeeProjectMapper.toDTO(saved);
     }
 
@@ -73,7 +73,7 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
                 .map(existing -> {
                     EmployeeProjectMapper.updateEntity(existing, dto, employee, project);
                     EmployeeProject updated = employeeProjectRepository.save(existing);
-                    BusinessLogger.logUpdated(EmployeeProject.class, updated.getId(), "EmployeeProject");
+                    RequestLogger.logUpdated(EmployeeProject.class, updated.getId(), "EmployeeProject");
                     return EmployeeProjectMapper.toDTO(updated);
                 });
     }
@@ -84,7 +84,7 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
             throw new ResourceNotFoundException("Employee Project", id);
         }
         employeeProjectRepository.deleteById(id);
-        BusinessLogger.logDeleted(EmployeeProject.class, id);
+        RequestLogger.logDeleted(EmployeeProject.class, id);
     }
 
     @Override
@@ -93,7 +93,7 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
             throw new ResourceNotFoundException("Employee Project", employeeId);
         }
         employeeProjectRepository.deleteByEmployee_Id(employeeId);
-        BusinessLogger.logDeleted(EmployeeProject.class, employeeId);
+        RequestLogger.logDeleted(EmployeeProject.class, employeeId);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
             throw new ResourceNotFoundException("Employee Project", projectId);
         }
         employeeProjectRepository.deleteByProject_Id(projectId);
-        BusinessLogger.logDeleted(EmployeeProject.class, projectId);
+        RequestLogger.logDeleted(EmployeeProject.class, projectId);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
         return employeeProjectRepository.findByEmployeeId(employeeId)
                 .stream()
                 .map(EmployeeProjectMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -118,7 +118,7 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
         return employeeProjectRepository.findByProjectId(projectId)
                 .stream()
                 .map(EmployeeProjectMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
