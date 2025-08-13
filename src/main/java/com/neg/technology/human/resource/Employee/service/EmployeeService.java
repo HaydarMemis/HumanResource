@@ -1,47 +1,43 @@
 package com.neg.technology.human.resource.Employee.service;
 
+import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
 import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
-import com.neg.technology.human.resource.Employee.model.entity.Employee;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.request.DateRequest;
+import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;
+import com.neg.technology.human.resource.Employee.model.response.EmployeeListResponse;
+import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 public interface EmployeeService {
-    Employee createEmployee(CreateEmployeeRequest dto);
-    Employee updateEmployee(UpdateEmployeeRequest dto);
-    boolean existsById(Long id);
 
-    Optional<Employee> findByPersonId(Long personId);
+    ResponseEntity<EmployeeResponse> createEmployee(CreateEmployeeRequest request);
 
-    List<Employee> findByManagerId(Long managerId);
+    ResponseEntity<EmployeeResponse> updateEmployee(UpdateEmployeeRequest request);
 
-    List<Employee> findByDepartmentId(Long departmentId);
+    ResponseEntity<EmployeeResponse> getEmployeeById(IdRequest request);
 
-    List<Employee> findByPositionId(Long positionId);
+    ResponseEntity<EmployeeListResponse> getAllEmployees();
 
-    List<Employee> findByCompanyId(Long companyId);
+    ResponseEntity<Void> deleteEmployee(IdRequest request);
 
-    List<Employee> findByIsActiveTrue();
+    ResponseEntity<EmployeeListResponse> getActiveEmployees();
 
-    List<Employee> findByIsActiveFalse();
+    ResponseEntity<EmployeeListResponse> getInactiveEmployees();
 
-    List<Employee> findByHireDateBefore(LocalDateTime date);
+    ResponseEntity<EmployeeListResponse> getEmployeesByDepartment(IdRequest request);
 
-    List<Employee> findByEmploymentEndDateBefore(LocalDateTime date);
+    ResponseEntity<EmployeeListResponse> getEmployeesByPosition(IdRequest request);
 
-    List<Employee> findByPersonIdIn(List<Long> personIds);
+    ResponseEntity<EmployeeListResponse> getEmployeesByCompany(IdRequest request);
 
-    boolean existsByManagerId(Long managerId);
+    ResponseEntity<EmployeeListResponse> getEmployeesHiredBefore(DateRequest request);
 
-    Employee save(Employee employee);
+    ResponseEntity<EmployeeListResponse> getEmployeesEmploymentEndedBefore(DateRequest request);
 
-    void deleteById(Long id);
+    Optional<Employee> findEntityById(Long id);
 
-    List<Employee> findAll();
-
-    Optional<Employee> findById(Long id);
-
-    Employee update(Long id, Employee employee);
+    Optional<Object> findById(Long employeeId);
 }

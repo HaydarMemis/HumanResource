@@ -1,20 +1,21 @@
 package com.neg.technology.human.resource.Employee.service;
 
 import com.neg.technology.human.resource.Business.BusinessLogger;
-import com.neg.technology.human.resource.Company.model.entity.Company;
 import com.neg.technology.human.resource.Company.repository.CompanyRepository;
-import com.neg.technology.human.resource.Department.model.entity.Department;
 import com.neg.technology.human.resource.Department.repository.DepartmentRepository;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.Employee.model.mapper.EmployeeMapper;
 import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
 import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
+import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;
+import com.neg.technology.human.resource.Employee.model.response.EmployeeListResponse;
 import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
-import com.neg.technology.human.resource.Person.model.entity.Person;
 import com.neg.technology.human.resource.Person.repository.PersonRepository;
-import com.neg.technology.human.resource.Position.model.entity.Position;
 import com.neg.technology.human.resource.Position.repository.PositionRepository;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.request.DateRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -43,169 +44,114 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee createEmployee(CreateEmployeeRequest dto) {
-        Person person = personRepository.findById(dto.getPersonId())
-                .orElseThrow(() -> new ResourceNotFoundException("Person", dto.getPersonId()));
+    public ResponseEntity<EmployeeResponse> createEmployee(CreateEmployeeRequest request) {
+        Employee employee = EmployeeMapper.toEntity(
+                request,
+                personRepository.findById(request.getPersonId()).orElseThrow(() -> new ResourceNotFoundException("Person", request.getPersonId())),
+                departmentRepository.findById(request.getDepartmentId()).orElseThrow(() -> new ResourceNotFoundException("Department", request.getDepartmentId())),
+                positionRepository.findById(request.getPositionId()).orElseThrow(() -> new ResourceNotFoundException("Position", request.getPositionId())),
+                companyRepository.findById(request.getCompanyId()).orElseThrow(() -> new ResourceNotFoundException("Company", request.getCompanyId())),
+                request.getManagerId() != null ? employeeRepository.findById(request.getManagerId()).orElse(null) : null
+        );
 
-        Department department = departmentRepository.findById(dto.getDepartmentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Department", dto.getDepartmentId()));
-
-        Position position = positionRepository.findById(dto.getPositionId())
-                .orElseThrow(() -> new ResourceNotFoundException("Position", dto.getPositionId()));
-
-        Company company = companyRepository.findById(dto.getCompanyId())
-                .orElseThrow(() -> new ResourceNotFoundException("Company", dto.getCompanyId()));
-
-        Employee manager = null;
-        if (dto.getManagerId() != null) {
-            manager = employeeRepository.findById(dto.getManagerId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Employee(manager)", dto.getManagerId()));
-        }
-
-        Employee employee = EmployeeMapper.toEntity(dto, person, department, position, company, manager);
         Employee saved = employeeRepository.save(employee);
-
-        BusinessLogger.logEmployeeCreated(saved.getId(),
-                saved.getPerson().getFirstName() + " " + saved.getPerson().getLastName());
-
-        return saved;
+        BusinessLogger.logEmployeeCreated(saved.getId(), saved.getPerson().getFirstName() + " " + saved.getPerson().getLastName());
+        return ResponseEntity.ok(EmployeeMapper.toDTO(saved));
     }
 
     @Override
-    public Employee updateEmployee(UpdateEmployeeRequest dto) {
-        if (dto.getId() == null) {
-            throw new IllegalArgumentException("Employee ID must be provided for update.");
-        }
+    public ResponseEntity<EmployeeResponse> updateEmployee(UpdateEmployeeRequest request) {
+        Employee existing = employeeRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getId()));
 
-        Employee existing = employeeRepository.findById(dto.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Employee", dto.getId()));
-
-        Person person = null;
-        if (dto.getPersonId() != null) {
-            person = personRepository.findById(dto.getPersonId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Person", dto.getPersonId()));
-        }
-
-        Department department = null;
-        if (dto.getDepartmentId() != null) {
-            department = departmentRepository.findById(dto.getDepartmentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Department", dto.getDepartmentId()));
-        }
-
-        Position position = null;
-        if (dto.getPositionId() != null) {
-            position = positionRepository.findById(dto.getPositionId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Position", dto.getPositionId()));
-        }
-
-        Company company = null;
-        if (dto.getCompanyId() != null) {
-            company = companyRepository.findById(dto.getCompanyId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Company", dto.getCompanyId()));
-        }
-
-        Employee manager = null;
-        if (dto.getManagerId() != null) {
-            manager = employeeRepository.findById(dto.getManagerId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Employee(manager)", dto.getManagerId()));
-        }
-
-        EmployeeMapper.updateEntity(existing, dto, person, department, position, company, manager);
+        EmployeeMapper.updateEntity(
+                existing,
+                request,
+                request.getPersonId() != null ? personRepository.findById(request.getPersonId()).orElse(null) : null,
+                request.getDepartmentId() != null ? departmentRepository.findById(request.getDepartmentId()).orElse(null) : null,
+                request.getPositionId() != null ? positionRepository.findById(request.getPositionId()).orElse(null) : null,
+                request.getCompanyId() != null ? companyRepository.findById(request.getCompanyId()).orElse(null) : null,
+                request.getManagerId() != null ? employeeRepository.findById(request.getManagerId()).orElse(null) : null
+        );
 
         Employee updated = employeeRepository.save(existing);
-
-        BusinessLogger.logEmployeeUpdated(updated.getId(),
-                updated.getPerson().getFirstName() + " " + updated.getPerson().getLastName());
-
-        return updated;
+        BusinessLogger.logEmployeeUpdated(updated.getId(), updated.getPerson().getFirstName() + " " + updated.getPerson().getLastName());
+        return ResponseEntity.ok(EmployeeMapper.toDTO(updated));
     }
 
     @Override
-    public void deleteById(Long id) {
-        if (!employeeRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Employee", id);
-        }
-        employeeRepository.deleteById(id);
-        BusinessLogger.logEmployeeDeleted(id);
+    public ResponseEntity<EmployeeResponse> getEmployeeById(IdRequest request) {
+        Employee employee = employeeRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getId()));
+        return ResponseEntity.ok(EmployeeMapper.toDTO(employee));
     }
 
     @Override
-    public boolean existsById(Long id) {
-        return employeeRepository.existsById(id);
+    public ResponseEntity<EmployeeListResponse> getAllEmployees() {
+        List<Employee> employees = employeeRepository.findAll();
+        return ResponseEntity.ok(new EmployeeListResponse(EmployeeMapper.toDTO(employees)));
     }
 
     @Override
-    public Optional<Employee> findByPersonId(Long personId) {
+    public ResponseEntity<Void> deleteEmployee(IdRequest request) {
+        Employee employee = employeeRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getId()));
+        employeeRepository.delete(employee);
+        BusinessLogger.logEmployeeDeleted(employee.getId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<EmployeeListResponse> getActiveEmployees() {
+        List<Employee> employees = employeeRepository.findByIsActiveTrue();
+        return ResponseEntity.ok(new EmployeeListResponse(EmployeeMapper.toDTO(employees)));
+    }
+
+    @Override
+    public ResponseEntity<EmployeeListResponse> getInactiveEmployees() {
+        List<Employee> employees = employeeRepository.findByIsActiveFalse();
+        return ResponseEntity.ok(new EmployeeListResponse(EmployeeMapper.toDTO(employees)));
+    }
+
+    @Override
+    public ResponseEntity<EmployeeListResponse> getEmployeesByDepartment(IdRequest request) {
+        List<Employee> employees = employeeRepository.findByDepartmentId(request.getId());
+        return ResponseEntity.ok(new EmployeeListResponse(EmployeeMapper.toDTO(employees)));
+    }
+
+    @Override
+    public ResponseEntity<EmployeeListResponse> getEmployeesByPosition(IdRequest request) {
+        List<Employee> employees = employeeRepository.findByPositionId(request.getId());
+        return ResponseEntity.ok(new EmployeeListResponse(EmployeeMapper.toDTO(employees)));
+    }
+
+    @Override
+    public ResponseEntity<EmployeeListResponse> getEmployeesByCompany(IdRequest request) {
+        List<Employee> employees = employeeRepository.findByCompanyId(request.getId());
+        return ResponseEntity.ok(new EmployeeListResponse(EmployeeMapper.toDTO(employees)));
+    }
+
+    @Override
+    public ResponseEntity<EmployeeListResponse> getEmployeesHiredBefore(DateRequest request) {
+        LocalDateTime date = LocalDateTime.parse(request.getDate());
+        List<Employee> employees = employeeRepository.findByHireDateBefore(date);
+        return ResponseEntity.ok(new EmployeeListResponse(EmployeeMapper.toDTO(employees)));
+    }
+
+    @Override
+    public ResponseEntity<EmployeeListResponse> getEmployeesEmploymentEndedBefore(DateRequest request) {
+        LocalDateTime date = LocalDateTime.parse(request.getDate());
+        List<Employee> employees = employeeRepository.findByEmploymentEndDateBefore(date);
+        return ResponseEntity.ok(new EmployeeListResponse(EmployeeMapper.toDTO(employees)));
+    }
+
+    @Override
+    public Optional<Employee> findEntityById(Long id) {
         return Optional.empty();
     }
 
     @Override
-    public List<Employee> findByManagerId(Long managerId) {
-        return List.of();
-    }
-
-    @Override
-    public Optional<Employee> findById(Long id) {
-        return employeeRepository.findById(id);
-    }
-
-    @Override
-    public Employee update(Long id, Employee employee) {
-        return null;
-    }
-
-    @Override
-    public List<Employee> findAll() {
-        return employeeRepository.findAll();
-    }
-
-    @Override
-    public List<Employee> findByIsActiveTrue() {
-        return employeeRepository.findByIsActiveTrue();
-    }
-
-    @Override
-    public List<Employee> findByIsActiveFalse() {
-        return employeeRepository.findByIsActiveFalse();
-    }
-
-    @Override
-    public List<Employee> findByDepartmentId(Long departmentId) {
-        return employeeRepository.findByDepartmentId(departmentId);
-    }
-
-    @Override
-    public List<Employee> findByPositionId(Long positionId) {
-        return employeeRepository.findByPositionId(positionId);
-    }
-
-    @Override
-    public List<Employee> findByCompanyId(Long companyId) {
-        return employeeRepository.findByCompanyId(companyId);
-    }
-
-    @Override
-    public List<Employee> findByHireDateBefore(LocalDateTime date) {
-        return employeeRepository.findByHireDateBefore(date);
-    }
-
-    @Override
-    public List<Employee> findByEmploymentEndDateBefore(LocalDateTime date) {
-        return employeeRepository.findByEmploymentEndDateBefore(date);
-    }
-
-    @Override
-    public List<Employee> findByPersonIdIn(List<Long> personIds) {
-        return List.of();
-    }
-
-    @Override
-    public boolean existsByManagerId(Long managerId) {
-        return false;
-    }
-
-    @Override
-    public Employee save(Employee employee) {
-        return null;
+    public Optional<Object> findById(Long employeeId) {
+        return Optional.empty();
     }
 }

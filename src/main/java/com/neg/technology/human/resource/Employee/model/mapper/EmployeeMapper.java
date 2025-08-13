@@ -9,8 +9,12 @@ import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRe
 import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;
 import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class EmployeeMapper {
 
+    // Tekil Employee -> EmployeeResponse
     public static EmployeeResponse toDTO(Employee employee) {
         if (employee == null) return null;
 
@@ -27,6 +31,15 @@ public class EmployeeMapper {
                 .build();
     }
 
+    // Liste Employee -> Liste EmployeeResponse
+    public static List<EmployeeResponse> toDTO(List<Employee> employees) {
+        if (employees == null) return List.of();
+        return employees.stream()
+                .map(EmployeeMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // CreateEmployeeRequest -> Employee entity
     public static Employee toEntity(CreateEmployeeRequest dto,
                                     Person person,
                                     Department department,
@@ -48,6 +61,7 @@ public class EmployeeMapper {
                 .build();
     }
 
+    // UpdateEmployeeRequest ile mevcut Employee entity'sini güncelle
     public static void updateEntity(Employee employee,
                                     UpdateEmployeeRequest dto,
                                     Person person,

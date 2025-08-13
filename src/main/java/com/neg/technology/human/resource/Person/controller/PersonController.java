@@ -95,7 +95,6 @@ public class PersonController {
     public ResponseEntity<List<PersonResponse>> getPersonsBornBefore(
             @Parameter(description = "Date to compare birth dates (yyyy-MM-dd)", required = true)
             @Valid @RequestBody DateRequest request) {
-        // Service’de de getPersonsBornBefore yazmalısın
         return personService.getPersonsBornBefore(request.getDate());
     }
 

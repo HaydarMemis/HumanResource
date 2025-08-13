@@ -6,14 +6,13 @@ import com.neg.technology.human.resource.Company.model.mapper.CompanyMapper;
 import com.neg.technology.human.resource.Company.model.request.CreateCompanyRequest;
 import com.neg.technology.human.resource.Company.model.request.UpdateCompanyRequest;
 import com.neg.technology.human.resource.Company.model.response.CompanyResponse;
+import com.neg.technology.human.resource.Company.model.response.CompanyResponseList;
 import com.neg.technology.human.resource.Company.repository.CompanyRepository;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
 import com.neg.technology.human.resource.Utility.request.NameRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,52 +33,52 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public Optional<CompanyResponse> updateCompany(UpdateCompanyRequest request) {
-        return companyRepository.findById(request.getId())
-                .map(existing -> {
-                    existing.setName(request.getName());
-                    Company updated = companyRepository.save(existing);
-                    BusinessLogger.logUpdated(Company.class, updated.getId(), updated.getName());
-                    return CompanyMapper.toDTO(updated);
-                });
+    public CompanyResponse updateCompany(UpdateCompanyRequest request) {
+        Company existing = companyRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Company", request.getId()));
+
+        existing.setName(request.getName());
+        Company updated = companyRepository.save(existing);
+        BusinessLogger.logUpdated(Company.class, updated.getId(), updated.getName());
+
+        return CompanyMapper.toDTO(updated);
     }
 
     @Override
-    public Optional<Company> findByName(String name) {
-        return Optional.empty();
-    }
-
-    @Override
-    public void deleteCompany(Long id) {
-        if (!companyRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Company", id);
+    public void deleteCompany(IdRequest request) {
+        if (!companyRepository.existsById(request.getId())) {
+            throw new ResourceNotFoundException("Company", request.getId());
         }
-        companyRepository.deleteById(id);
-        BusinessLogger.logDeleted(Company.class, id);
+        companyRepository.deleteById(request.getId());
+        BusinessLogger.logDeleted(Company.class, request.getId());
     }
 
     @Override
-    public List<CompanyResponse> getAllCompanies() {
-        return companyRepository.findAll()
-                .stream()
-                .map(CompanyMapper::toDTO)
-                .collect(Collectors.toList());
+    public CompanyResponseList getAllCompanies() {
+        return new CompanyResponseList(
+                companyRepository.findAll()
+                        .stream()
+                        .map(CompanyMapper::toDTO)
+                        .collect(Collectors.toList())
+        );
     }
 
     @Override
-    public Optional<CompanyResponse> getCompanyById(IdRequest request) {
+    public CompanyResponse getCompanyById(IdRequest request) {
         return companyRepository.findById(request.getId())
-                .map(CompanyMapper::toDTO);
+                .map(CompanyMapper::toDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Company", request.getId()));
     }
 
     @Override
-    public Optional<CompanyResponse> getCompanyByName(NameRequest request) {
+    public CompanyResponse getCompanyByName(NameRequest request) {
         return companyRepository.findByName(request.getName())
-                .map(CompanyMapper::toDTO);
+                .map(CompanyMapper::toDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Company", request.getName()));
     }
 
     @Override
-    public boolean existsByName(String name) {
-        return companyRepository.existsByName(name);
+    public boolean existsByName(NameRequest request) {
+        return companyRepository.existsByName(request.getName());
     }
 }

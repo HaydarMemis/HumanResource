@@ -1,26 +1,38 @@
 package com.neg.technology.human.resource.LeavePolicy.service;
 
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
+import com.neg.technology.human.resource.LeavePolicy.model.request.LeavePolicyRequest;
+import com.neg.technology.human.resource.LeavePolicy.model.response.LeavePolicyResponse;
+import com.neg.technology.human.resource.LeavePolicy.model.response.LeavePolicyResponseList;
+import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDate;
+import java.util.Optional;
 
 public interface LeavePolicyService {
 
-    int calculateAnnualLeaveDays(Employee employee);
+    ResponseEntity<LeavePolicyResponse> getAnnualLeave(LeavePolicyRequest request);
 
-    boolean isBirthdayLeaveEligible(Employee employee, LocalDate date);
+    ResponseEntity<LeavePolicyResponse> getAgeBasedLeaveBonus(LeavePolicyRequest request);
 
-    int calculateMaternityLeaveDays(Employee employee, boolean multiplePregnancy);
+    ResponseEntity<LeavePolicyResponse> checkBirthdayLeave(LeavePolicyRequest request);
 
-    int calculatePaternityLeaveDays(Employee employee);
+    ResponseEntity<LeavePolicyResponse> getMaternityLeaveDays(LeavePolicyRequest request);
 
-    int calculateBereavementLeaveDays(String relation);
+    ResponseEntity<LeavePolicyResponse> getPaternityLeaveDays(LeavePolicyRequest request);
 
-    int calculateMarriageLeaveDays(Employee employee, boolean isFirstMarriage, boolean hasMarriageCertificate);
+    ResponseEntity<LeavePolicyResponse> canBorrowLeave(LeavePolicyRequest request);
 
-    boolean isEligibleForMilitaryLeave(Employee employee);
+    ResponseEntity<LeavePolicyResponse> getBereavementLeave(LeavePolicyRequest request);
 
-    boolean canBorrowLeave(Employee employee, int requestedDays, int currentBorrowed);
+    ResponseEntity<LeavePolicyResponse> getMarriageLeave(LeavePolicyRequest request);
 
-    boolean isOfficialHoliday(LocalDate date);
+    ResponseEntity<LeavePolicyResponse> getMilitaryLeaveInfo(LeavePolicyRequest request);
+
+    ResponseEntity<LeavePolicyResponse> isHoliday(LeavePolicyRequest request);
+
+    ResponseEntity<LeavePolicyResponseList> getAllLeavePolicies();
+
+    Optional<Employee> getEmployeeEntityById(Long id);
+
+    Optional<Employee> findById(Long id);
 }
