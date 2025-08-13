@@ -9,7 +9,7 @@ import com.neg.technology.human.resource.Company.model.response.CompanyResponse;
 import com.neg.technology.human.resource.Company.model.response.CompanyResponseList;
 import com.neg.technology.human.resource.Company.repository.CompanyRepository;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
-import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.request.CompanyIdRequest;
 import com.neg.technology.human.resource.Utility.request.NameRequest;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +19,6 @@ import java.util.stream.Collectors;
 public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
-
-    private String message = "Company";
 
     public CompanyServiceImpl(CompanyRepository companyRepository) {
         this.companyRepository = companyRepository;
@@ -37,7 +35,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public CompanyResponse updateCompany(UpdateCompanyRequest request) {
         Company existing = companyRepository.findById(request.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(message, request.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Company", request.getId()));
 
         existing.setName(request.getName());
         Company updated = companyRepository.save(existing);
@@ -47,12 +45,12 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public void deleteCompany(IdRequest request) {
-        if (!companyRepository.existsById(request.getId())) {
-            throw new ResourceNotFoundException("Company", request.getId());
+    public void deleteCompany(CompanyIdRequest request) {
+        if (!companyRepository.existsById(request.getCompanyId())) {
+            throw new ResourceNotFoundException("Company", request.getCompanyId());
         }
-        companyRepository.deleteById(request.getId());
-        RequestLogger.logDeleted(Company.class, request.getId());
+        companyRepository.deleteById(request.getCompanyId());
+        RequestLogger.logDeleted(Company.class, request.getCompanyId());
     }
 
     @Override
@@ -61,22 +59,22 @@ public class CompanyServiceImpl implements CompanyService {
                 companyRepository.findAll()
                         .stream()
                         .map(CompanyMapper::toDTO)
-                        .toList()
+                        .collect(Collectors.toList())
         );
     }
 
     @Override
-    public CompanyResponse getCompanyById(IdRequest request) {
-        return companyRepository.findById(request.getId())
+    public CompanyResponse getCompanyById(CompanyIdRequest request) {
+        return companyRepository.findById(request.getCompanyId())
                 .map(CompanyMapper::toDTO)
-                .orElseThrow(() -> new ResourceNotFoundException(message, request.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Company", request.getCompanyId()));
     }
 
     @Override
     public CompanyResponse getCompanyByName(NameRequest request) {
         return companyRepository.findByName(request.getName())
                 .map(CompanyMapper::toDTO)
-                .orElseThrow(() -> new ResourceNotFoundException(message, request.getName()));
+                .orElseThrow(() -> new ResourceNotFoundException("Company", request.getName()));
     }
 
     @Override

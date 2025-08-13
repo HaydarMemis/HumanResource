@@ -1,5 +1,6 @@
 package com.neg.technology.human.resource.Company.controller;
 
+import com.neg.technology.human.resource.Utility.request.CompanyIdRequest;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
 import com.neg.technology.human.resource.Utility.request.NameRequest;
 import com.neg.technology.human.resource.Company.model.request.CreateCompanyRequest;
@@ -44,7 +45,7 @@ public class CompanyController {
     @Operation(summary = "Delete a company by ID")
     @ApiResponse(responseCode = "204", description = "Company deleted successfully")
     @PostMapping("/delete")
-    public ResponseEntity<Void> deleteCompany(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<Void> deleteCompany(@Valid @RequestBody CompanyIdRequest request) {
         companyService.deleteCompany(request);
         return ResponseEntity.noContent().build();
     }
@@ -59,7 +60,7 @@ public class CompanyController {
     @Operation(summary = "Get a company by ID")
     @ApiResponse(responseCode = "200", description = "Company found")
     @PostMapping("/getById")
-    public ResponseEntity<CompanyResponse> getCompanyById(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<CompanyResponse> getCompanyById(@Valid @RequestBody CompanyIdRequest request) {
         return ResponseEntity.ok(companyService.getCompanyById(request));
     }
 

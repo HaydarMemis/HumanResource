@@ -4,6 +4,7 @@ import com.neg.technology.human.resource.Company.model.request.CreateCompanyRequ
 import com.neg.technology.human.resource.Company.model.request.UpdateCompanyRequest;
 import com.neg.technology.human.resource.Company.model.response.CompanyResponse;
 import com.neg.technology.human.resource.Company.model.response.CompanyResponseList;
+import com.neg.technology.human.resource.Utility.request.CompanyIdRequest;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
 import com.neg.technology.human.resource.Utility.request.NameRequest;
 
@@ -13,11 +14,11 @@ public interface CompanyService {
 
     CompanyResponse updateCompany(UpdateCompanyRequest request);
 
-    void deleteCompany(IdRequest request);
+    void deleteCompany(CompanyIdRequest request);
 
     CompanyResponseList getAllCompanies();
 
-    CompanyResponse getCompanyById(IdRequest request);
+    CompanyResponse getCompanyById(CompanyIdRequest request);
 
     CompanyResponse getCompanyByName(NameRequest request);
 
