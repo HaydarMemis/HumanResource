@@ -2,6 +2,7 @@ package com.neg.technology.human.resource.Employee.service;
 
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
+import com.neg.technology.human.resource.Utility.request.DepartmentIdRequest;
 import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
 import com.neg.technology.human.resource.Utility.request.DateRequest;
@@ -27,7 +28,7 @@ public interface EmployeeService {
 
     ResponseEntity<EmployeeListResponse> getInactiveEmployees();
 
-    ResponseEntity<EmployeeListResponse> getEmployeesByDepartment(IdRequest request);
+    ResponseEntity<EmployeeListResponse> getEmployeesByDepartment(DepartmentIdRequest request);
 
     ResponseEntity<EmployeeListResponse> getEmployeesByPosition(IdRequest request);
 

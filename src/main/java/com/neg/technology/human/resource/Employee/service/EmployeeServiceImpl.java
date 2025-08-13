@@ -6,6 +6,7 @@ import com.neg.technology.human.resource.Department.repository.DepartmentReposit
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.Employee.model.mapper.EmployeeMapper;
 import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
+import com.neg.technology.human.resource.Utility.request.DepartmentIdRequest;
 import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
 import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;
 import com.neg.technology.human.resource.Employee.model.response.EmployeeListResponse;
@@ -114,8 +115,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public ResponseEntity<EmployeeListResponse> getEmployeesByDepartment(IdRequest request) {
-        List<Employee> employees = employeeRepository.findByDepartmentId(request.getId());
+    public ResponseEntity<EmployeeListResponse> getEmployeesByDepartment(DepartmentIdRequest request) {
+        List<Employee> employees = employeeRepository.findByDepartmentId(request.getDepartmentId());
         return ResponseEntity.ok(new EmployeeListResponse(EmployeeMapper.toDTO(employees)));
     }
 
