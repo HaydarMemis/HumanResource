@@ -1,27 +1,25 @@
 package com.neg.technology.human.resource.Department.service;
 
-import com.neg.technology.human.resource.Department.model.entity.Department;
-
-import java.util.List;
-import java.util.Optional;
+import com.neg.technology.human.resource.Department.model.request.CreateDepartmentRequest;
+import com.neg.technology.human.resource.Department.model.request.UpdateDepartmentRequest;
+import com.neg.technology.human.resource.Department.model.response.DepartmentResponse;
+import com.neg.technology.human.resource.Department.model.response.DepartmentResponseList;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.request.NameRequest;
 
 public interface DepartmentService {
-    Optional<Department> findByName(String name);
 
-    List<Department> findByLocation(String location);
+    DepartmentResponse createDepartment(CreateDepartmentRequest request);
 
-    List<Department> findByLocationContainingIgnoreCase(String keyword);
+    DepartmentResponse updateDepartment(UpdateDepartmentRequest request);
 
-    boolean existsByName(String name);
+    void deleteDepartment(IdRequest request);
 
-    Department save(Department department);
+    DepartmentResponse getDepartmentById(IdRequest request);
 
-    Optional<Department> findById(Long id);
+    DepartmentResponse getDepartmentByName(NameRequest request);
 
-    List<Department> findAll();
+    boolean existsByName(NameRequest request);
 
-    void deleteById(Long id);
-
-    Department update(Long id, Department department);
-    boolean existsById(Long id);
+    DepartmentResponseList getAllDepartments();
 }
