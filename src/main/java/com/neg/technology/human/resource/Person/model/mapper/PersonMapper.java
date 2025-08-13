@@ -1,13 +1,18 @@
 package com.neg.technology.human.resource.Person.model.mapper;
 
 import com.neg.technology.human.resource.Person.model.request.CreatePersonRequest;
-import com.neg.technology.human.resource.Person.model.response.PersonResponse;
 import com.neg.technology.human.resource.Person.model.request.UpdatePersonRequest;
+import com.neg.technology.human.resource.Person.model.response.PersonResponse;
 import com.neg.technology.human.resource.Person.model.entity.Person;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Component
 public class PersonMapper {
 
-    public static PersonResponse toDTO(Person person) {
+    public PersonResponse toResponse(Person person) {
         if (person == null) return null;
 
         return new PersonResponse(
@@ -24,7 +29,16 @@ public class PersonMapper {
         );
     }
 
-    public static Person toEntity(CreatePersonRequest dto) {
+    public List<PersonResponse> toResponseList(List<Person> persons) {
+        if (persons == null || persons.isEmpty()) {
+            return List.of();
+        }
+        return persons.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public Person toEntity(CreatePersonRequest dto) {
         if (dto == null) return null;
 
         return Person.builder()
@@ -40,7 +54,7 @@ public class PersonMapper {
                 .build();
     }
 
-    public static void updateEntity(Person person, UpdatePersonRequest dto) {
+    public void updateEntity(Person person, UpdatePersonRequest dto) {
         if (person == null || dto == null) return;
 
         if (dto.getFirstName() != null) person.setFirstName(dto.getFirstName());
@@ -52,5 +66,8 @@ public class PersonMapper {
         if (dto.getPhone() != null) person.setPhone(dto.getPhone());
         if (dto.getAddress() != null) person.setAddress(dto.getAddress());
         if (dto.getMaritalStatus() != null) person.setMaritalStatus(dto.getMaritalStatus());
+    }
+
+    public void updateEntityFromRequest(Person existing, UpdatePersonRequest request) {
     }
 }

@@ -20,14 +20,15 @@ public class PersonValidator {
             throw new IllegalArgumentException("First name must not be empty");
         }
 
+        // Email var ise ve zaten kayıtlı ise hata fırlat
         if (dto.getEmail() != null && personService.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
 
+        // NationalId var ise ve zaten kayıtlı ise hata fırlat
         if (dto.getNationalId() != null && personService.existsByNationalId(dto.getNationalId())) {
             throw new IllegalArgumentException("National ID already exists");
         }
-        // Add any additional validation rules here
     }
 
     public void validateUpdate(UpdatePersonRequest dto, Long personId) {
@@ -35,20 +36,24 @@ public class PersonValidator {
             throw new IllegalArgumentException("First name must not be empty");
         }
 
+        // Email varsa ve aynı kişi değilse hata fırlat
         if (dto.getEmail() != null) {
-            personService.findByEmailIgnoreCase(dto.getEmail()).ifPresent(existingPerson -> {
-                if (!existingPerson.getId().equals(personId)) {
-                    throw new IllegalArgumentException("Email already exists");
-                }
-            });
+            personService.findByEmailIgnoreCase(dto.getEmail())
+                    .ifPresent(existingPerson -> {
+                        if (!existingPerson.getId().equals(personId)) {
+                            throw new IllegalArgumentException("Email already exists");
+                        }
+                    });
         }
 
+        // NationalId varsa ve aynı kişi değilse hata fırlat
         if (dto.getNationalId() != null) {
-            personService.findByNationalId(dto.getNationalId()).ifPresent(existingPerson -> {
-                if (!existingPerson.getId().equals(personId)) {
-                    throw new IllegalArgumentException("National ID already exists");
-                }
-            });
+            personService.findByNationalId(dto.getNationalId())
+                    .ifPresent(existingPerson -> {
+                        if (!existingPerson.getId().equals(personId)) {
+                            throw new IllegalArgumentException("National ID already exists");
+                        }
+                    });
         }
     }
 }

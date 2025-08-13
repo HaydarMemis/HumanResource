@@ -1,13 +1,18 @@
 package com.neg.technology.human.resource.LeaveType.model.mapper;
 
-import com.neg.technology.human.resource.LeaveType.model.request.CreateLeaveTypeRequest;
-import com.neg.technology.human.resource.LeaveType.model.response.LeaveTypeResponse;
-import com.neg.technology.human.resource.LeaveType.model.request.UpdateLeaveTypeRequest;
 import com.neg.technology.human.resource.LeaveType.model.entity.LeaveType;
+import com.neg.technology.human.resource.LeaveType.model.request.CreateLeaveTypeRequest;
+import com.neg.technology.human.resource.LeaveType.model.request.UpdateLeaveTypeRequest;
+import com.neg.technology.human.resource.LeaveType.model.response.LeaveTypeResponse;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Component
 public class LeaveTypeMapper {
 
-    public static LeaveTypeResponse toDTO(LeaveType leaveType) {
+    public LeaveTypeResponse toDTO(LeaveType leaveType) {
         if (leaveType == null) return null;
 
         return LeaveTypeResponse.builder()
@@ -16,10 +21,32 @@ public class LeaveTypeMapper {
                 .isAnnual(leaveType.getIsAnnual())
                 .genderRequired(leaveType.getGenderRequired() != null ? leaveType.getGenderRequired().name() : null)
                 .isUnpaid(leaveType.getIsUnpaid())
+                .defaultDays(leaveType.getDefaultDays())
+                .validAfterDays(leaveType.getValidAfterDays())
+                .validUntilDays(leaveType.getValidUntilDays())
+                .borrowableLimit(leaveType.getBorrowableLimit())
+                .resetPeriod(leaveType.getResetPeriod())
                 .build();
     }
 
-    public static LeaveType toEntity(CreateLeaveTypeRequest dto) {
+    // Alias: toResponse
+    public LeaveTypeResponse toResponse(LeaveType leaveType) {
+        return toDTO(leaveType);
+    }
+
+    // Liste dönüşümü
+    public List<LeaveTypeResponse> toDTOList(List<LeaveType> leaveTypes) {
+        return leaveTypes.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Alias: toResponseList
+    public List<LeaveTypeResponse> toResponseList(List<LeaveType> leaveTypes) {
+        return toDTOList(leaveTypes);
+    }
+
+    public LeaveType toEntity(CreateLeaveTypeRequest dto) {
         if (dto == null) return null;
 
         return LeaveType.builder()
@@ -35,7 +62,7 @@ public class LeaveTypeMapper {
                 .build();
     }
 
-    public static void updateEntity(LeaveType leaveType, UpdateLeaveTypeRequest dto) {
+    public void updateEntity(LeaveType leaveType, UpdateLeaveTypeRequest dto) {
         if (leaveType == null || dto == null) return;
 
         if (dto.getName() != null) leaveType.setName(dto.getName());
@@ -47,5 +74,10 @@ public class LeaveTypeMapper {
         if (dto.getIsUnpaid() != null) leaveType.setIsUnpaid(dto.getIsUnpaid());
         if (dto.getResetPeriod() != null) leaveType.setResetPeriod(dto.getResetPeriod());
         if (dto.getBorrowableLimit() != null) leaveType.setBorrowableLimit(dto.getBorrowableLimit());
+    }
+
+    // Alias: updateEntityFromRequest (parametre sırasını senin koduna göre değiştirdim)
+    public void updateEntityFromRequest(UpdateLeaveTypeRequest dto, LeaveType leaveType) {
+        updateEntity(leaveType, dto);
     }
 }

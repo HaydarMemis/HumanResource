@@ -1,37 +1,46 @@
 package com.neg.technology.human.resource.Person.service;
 
 import com.neg.technology.human.resource.Person.model.entity.Person;
+import com.neg.technology.human.resource.Person.model.request.CreatePersonRequest;
+import com.neg.technology.human.resource.Person.model.request.UpdatePersonRequest;
+import com.neg.technology.human.resource.Person.model.response.PersonResponse;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 public interface PersonService {
-    Optional<Person> findByNationalId(String nationalId);
 
-    List<Person> findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(String firstName, String lastName);
+    ResponseEntity<List<PersonResponse>> getAllPersons();
 
-    Optional<Person> findByEmailIgnoreCase(String email);
+    ResponseEntity<PersonResponse> getPersonById(IdRequest request);
 
-    List<Person> findByGenderIgnoreCase(String gender);
+    ResponseEntity<PersonResponse> createPerson(CreatePersonRequest dto);
 
-    List<Person> findByBirthDateBefore(LocalDate birthDate);
+    ResponseEntity<PersonResponse> updatePerson(UpdatePersonRequest dto);
 
-    List<Person> findByMaritalStatusIgnoreCase(String maritalStatus);
+    ResponseEntity<Void> deletePerson(IdRequest request);
+
+    ResponseEntity<List<PersonResponse>> getPersonsByGender(String gender);
+
+    ResponseEntity<List<PersonResponse>> getPersonsBornBefore(String date);
+
+    ResponseEntity<List<PersonResponse>> getPersonsByMaritalStatus(String status);
+
+    ResponseEntity<PersonResponse> getPersonByNationalId(String nationalId);
+
+    ResponseEntity<List<PersonResponse>> searchPersonsByName(String firstName, String lastName);
+
+    ResponseEntity<PersonResponse> getPersonByEmail(String email);
 
     boolean existsByEmail(String email);
 
     boolean existsByNationalId(String nationalId);
 
-    Person save(Person person);
+    Optional<com.neg.technology.human.resource.Person.model.entity.Person> findByEmailIgnoreCase(String email);
 
-    Optional<Person> findById(Long id);
-
-    List<Person> findAll();
-
-    void deleteById(Long id);
-
-    Person update(Long id, Person leaveBalance);
+    Optional<com.neg.technology.human.resource.Person.model.entity.Person> findByNationalId(String nationalId);
 
     boolean existsById(Long id);
 

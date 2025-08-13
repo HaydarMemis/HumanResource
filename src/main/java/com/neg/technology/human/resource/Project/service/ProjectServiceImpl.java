@@ -1,9 +1,15 @@
 package com.neg.technology.human.resource.Project.service;
 
 import com.neg.technology.human.resource.Business.BusinessLogger;
-import com.neg.technology.human.resource.Project.model.entity.Project;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
+import com.neg.technology.human.resource.Project.model.entity.Project;
+import com.neg.technology.human.resource.Project.model.request.CreateProjectRequest;
+import com.neg.technology.human.resource.Project.model.request.UpdateProjectRequest;
+import com.neg.technology.human.resource.Project.model.response.ProjectResponse;
+import com.neg.technology.human.resource.Project.model.response.ProjectResponseList;
 import com.neg.technology.human.resource.Project.repository.ProjectRepository;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.request.NameRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +22,41 @@ public class ProjectServiceImpl implements ProjectService {
 
     public ProjectServiceImpl(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
+    }
+
+    @Override
+    public ProjectResponseList getAllProjects() {
+        return null;
+    }
+
+    @Override
+    public ProjectResponse getProjectById(IdRequest request) {
+        return null;
+    }
+
+    @Override
+    public ProjectResponse getProjectByName(NameRequest request) {
+        return null;
+    }
+
+    @Override
+    public ProjectResponse createProject(CreateProjectRequest request) {
+        return null;
+    }
+
+    @Override
+    public ProjectResponse updateProject(UpdateProjectRequest request) {
+        return null;
+    }
+
+    @Override
+    public void deleteProject(IdRequest request) {
+
+    }
+
+    @Override
+    public boolean existsByName(NameRequest request) {
+        return false;
     }
 
     @Override
@@ -47,7 +88,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public void deleteById(Long id) {
-        if(!projectRepository.existsById(id)) {
+        if (!projectRepository.existsById(id)) {
             throw new ResourceNotFoundException("Project", id);
         }
         projectRepository.deleteById(id);
@@ -60,6 +101,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .orElseThrow(() -> new ResourceNotFoundException("Project", id));
 
         existing.setName(project.getName());
+        // diğer alanları da burada setle
 
         Project updated = projectRepository.save(existing);
         BusinessLogger.logUpdated(Project.class, updated.getId(), updated.getName());

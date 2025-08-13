@@ -1,36 +1,35 @@
 package com.neg.technology.human.resource.LeaveType.service;
 
-import com.neg.technology.human.resource.LeaveType.model.entity.LeaveType;
-
-import java.util.List;
-import java.util.Optional;
+import com.neg.technology.human.resource.LeaveType.model.request.CreateLeaveTypeRequest;
+import com.neg.technology.human.resource.LeaveType.model.request.UpdateLeaveTypeRequest;
+import com.neg.technology.human.resource.LeaveType.model.response.LeaveTypeResponse;
+import com.neg.technology.human.resource.LeaveType.model.response.LeaveTypeResponseList;
+import com.neg.technology.human.resource.Utility.request.BooleanRequest;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.request.IntegerRequest;
+import com.neg.technology.human.resource.Utility.request.NameRequest;
 
 public interface LeaveTypeService {
-    Optional<LeaveType> findByName(String name);
 
-    List<LeaveType> findByIsAnnualTrue();
+    LeaveTypeResponseList getAll();
 
-    List<LeaveType> findByIsAnnualFalse();
+    LeaveTypeResponse getById(IdRequest request);
 
-    List<LeaveType> findByIsUnpaidTrue();
+    LeaveTypeResponse create(CreateLeaveTypeRequest request);
 
-    List<LeaveType> findByGenderRequiredTrue();
+    LeaveTypeResponse update(UpdateLeaveTypeRequest request);
 
-    List<LeaveType> findByBorrowableLimitGreaterThan(Integer limit);
+    void delete(IdRequest request);
 
-    List<LeaveType> findByValidAfterDaysGreaterThan(Integer days);
+    LeaveTypeResponse getByName(NameRequest request);
 
-    LeaveType save(LeaveType leaveType);
+    LeaveTypeResponseList getAnnual(BooleanRequest request);
 
-    Optional<LeaveType> findById(Long id);
+    LeaveTypeResponseList getUnpaid(BooleanRequest request);
 
-    List<LeaveType> findAll();
+    LeaveTypeResponseList getGenderSpecific();
 
-    void delete(Long id);
+    LeaveTypeResponseList getByBorrowableLimit(IntegerRequest request);
 
-    LeaveType update(Long id, LeaveType leaveType);
-
-    boolean existsById(Long id);
-
-    List<LeaveType> findByIsUnpaidFalse();
+    LeaveTypeResponseList getByValidAfterDays(IntegerRequest request);
 }

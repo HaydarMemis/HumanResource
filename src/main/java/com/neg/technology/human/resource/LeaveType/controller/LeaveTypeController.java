@@ -1,18 +1,15 @@
 package com.neg.technology.human.resource.LeaveType.controller;
 
 import com.neg.technology.human.resource.LeaveType.model.request.CreateLeaveTypeRequest;
-import com.neg.technology.human.resource.LeaveType.model.response.LeaveTypeResponse;
 import com.neg.technology.human.resource.LeaveType.model.request.UpdateLeaveTypeRequest;
+import com.neg.technology.human.resource.LeaveType.model.response.LeaveTypeResponse;
+import com.neg.technology.human.resource.LeaveType.model.response.LeaveTypeResponseList;
+import com.neg.technology.human.resource.LeaveType.service.LeaveTypeService;
 import com.neg.technology.human.resource.Utility.request.BooleanRequest;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
 import com.neg.technology.human.resource.Utility.request.IntegerRequest;
 import com.neg.technology.human.resource.Utility.request.NameRequest;
-import com.neg.technology.human.resource.LeaveType.model.entity.LeaveType;
-import com.neg.technology.human.resource.LeaveType.model.mapper.LeaveTypeMapper;
-import com.neg.technology.human.resource.LeaveType.service.LeaveTypeService;
-import com.neg.technology.human.resource.LeaveType.validator.LeaveTypeValidator;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,190 +17,85 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-
 @Tag(name = "LeaveType Controller", description = "Operations related to leave type management")
 @RestController
-@RequestMapping("/api/leave_types")
+@RequestMapping("/api/leave-types")
 public class LeaveTypeController {
 
     private final LeaveTypeService leaveTypeService;
-    private final LeaveTypeValidator leaveTypeValidator;
 
-    public LeaveTypeController(LeaveTypeService leaveTypeService,
-                               LeaveTypeValidator leaveTypeValidator) {
+    public LeaveTypeController(LeaveTypeService leaveTypeService) {
         this.leaveTypeService = leaveTypeService;
-        this.leaveTypeValidator = leaveTypeValidator;
     }
 
-    @Operation(summary = "Get all leave types", description = "Retrieve a list of all leave types")
-    @ApiResponse(responseCode = "200", description = "List of leave types retrieved successfully")
+    @Operation(summary = "Get all leave types")
     @PostMapping("/getAll")
-    public ResponseEntity<List<LeaveTypeResponse>> getAllLeaveTypes() {
-        List<LeaveTypeResponse> leaveTypes = leaveTypeService.findAll()
-                .stream()
-                .map(LeaveTypeMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(leaveTypes);
+    public ResponseEntity<LeaveTypeResponseList> getAllLeaveTypes() {
+        return ResponseEntity.ok(leaveTypeService.getAll());
     }
 
-    @Operation(summary = "Get leave type by ID", description = "Retrieve a leave type by its unique ID")
+    @Operation(summary = "Get leave type by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Leave type found"),
             @ApiResponse(responseCode = "404", description = "Leave type not found")
     })
     @PostMapping("/getById")
-    public ResponseEntity<LeaveTypeResponse> getLeaveTypeById(
-            @Parameter(description = "ID of the leave type to be retrieved", required = true)
-            @Valid @RequestBody IdRequest request) {
-        Optional<LeaveType> leaveTypeOpt = leaveTypeService.findById(request.getId());
-        return leaveTypeOpt
-                .map(leaveType -> ResponseEntity.ok(LeaveTypeMapper.toDTO(leaveType)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<LeaveTypeResponse> getLeaveTypeById(@Valid @RequestBody IdRequest request) {
+        return ResponseEntity.ok(leaveTypeService.getById(request));
     }
 
-    @Operation(summary = "Create new leave type", description = "Create a new leave type record")
-    @ApiResponse(responseCode = "200", description = "Leave type created successfully")
+    @Operation(summary = "Create new leave type")
     @PostMapping("/create")
-    public ResponseEntity<LeaveTypeResponse> createLeaveType(
-            @Parameter(description = "Leave type data for creation", required = true)
-            @Valid @RequestBody CreateLeaveTypeRequest dto) {
-        leaveTypeValidator.validateCreate(dto);
-        LeaveType entity = LeaveTypeMapper.toEntity(dto);
-        LeaveType saved = leaveTypeService.save(entity);
-        return ResponseEntity.ok(LeaveTypeMapper.toDTO(saved));
+    public ResponseEntity<LeaveTypeResponse> createLeaveType(@Valid @RequestBody CreateLeaveTypeRequest dto) {
+        return ResponseEntity.ok(leaveTypeService.create(dto));
     }
 
-    @Operation(summary = "Update existing leave type", description = "Update details of an existing leave type")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Leave type updated successfully"),
-            @ApiResponse(responseCode = "404", description = "Leave type not found")
-    })
+    @Operation(summary = "Update existing leave type")
     @PostMapping("/update")
-    public ResponseEntity<LeaveTypeResponse> updateLeaveType(
-            @Parameter(description = "Leave type data for update", required = true)
-            @Valid @RequestBody UpdateLeaveTypeRequest dto) {
-
-        if (!leaveTypeService.existsById(dto.getId())) {
-            return ResponseEntity.notFound().build();
-        }
-
-        leaveTypeValidator.validateUpdate(dto);
-
-        Optional<LeaveType> existingOpt = leaveTypeService.findById(dto.getId());
-        if (existingOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        LeaveType existing = existingOpt.get();
-        LeaveTypeMapper.updateEntity(existing, dto);
-        LeaveType updated = leaveTypeService.save(existing);
-
-        return ResponseEntity.ok(LeaveTypeMapper.toDTO(updated));
+    public ResponseEntity<LeaveTypeResponse> updateLeaveType(@Valid @RequestBody UpdateLeaveTypeRequest dto) {
+        return ResponseEntity.ok(leaveTypeService.update(dto));
     }
 
-    @Operation(summary = "Delete leave type", description = "Delete a leave type by ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Leave type deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "Leave type not found")
-    })
+    @Operation(summary = "Delete leave type")
     @PostMapping("/delete")
-    public ResponseEntity<Void> deleteLeaveType(
-            @Parameter(description = "ID of the leave type to be deleted", required = true)
-            @Valid @RequestBody IdRequest request) {
-        if (!leaveTypeService.existsById(request.getId())) {
-            return ResponseEntity.notFound().build();
-        }
-        leaveTypeService.delete(request.getId());
+    public ResponseEntity<Void> deleteLeaveType(@Valid @RequestBody IdRequest request) {
+        leaveTypeService.delete(request);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Get leave type by name", description = "Retrieve a leave type by its name")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Leave type found"),
-            @ApiResponse(responseCode = "404", description = "Leave type not found")
-    })
+    @Operation(summary = "Get leave type by name")
     @PostMapping("/getByName")
-    public ResponseEntity<LeaveTypeResponse> getLeaveTypeByName(
-            @Parameter(description = "Name of the leave type to be retrieved", required = true)
-            @Valid @RequestBody NameRequest request) {
-        return leaveTypeService.findByName(request.getName())
-                .map(LeaveTypeMapper::toDTO)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<LeaveTypeResponse> getLeaveTypeByName(@Valid @RequestBody NameRequest request) {
+        return ResponseEntity.ok(leaveTypeService.getByName(request));
     }
 
-    @Operation(summary = "Get annual leave types", description = "Retrieve leave types filtered by whether they are annual")
-    @ApiResponse(responseCode = "200", description = "List of leave types filtered by annual status retrieved successfully")
+    @Operation(summary = "Get annual leave types")
     @PostMapping("/getAnnual")
-    public ResponseEntity<List<LeaveTypeResponse>> getAnnualLeaveTypes(
-            @Parameter(description = "Boolean value to filter annual leave types", required = true)
-            @Valid @RequestBody BooleanRequest request) {
-        List<LeaveTypeResponse> leaveTypes = request.isValue()
-                ? leaveTypeService.findByIsAnnualTrue()
-                .stream()
-                .map(LeaveTypeMapper::toDTO)
-                .toList()
-                : leaveTypeService.findByIsAnnualFalse()
-                .stream()
-                .map(LeaveTypeMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(leaveTypes);
+    public ResponseEntity<LeaveTypeResponseList> getAnnualLeaveTypes(@Valid @RequestBody BooleanRequest request) {
+        return ResponseEntity.ok(leaveTypeService.getAnnual(request));
     }
 
-    @Operation(summary = "Get unpaid leave types", description = "Retrieve leave types filtered by whether they are unpaid")
-    @ApiResponse(responseCode = "200", description = "List of leave types filtered by unpaid status retrieved successfully")
+    @Operation(summary = "Get unpaid leave types")
     @PostMapping("/getUnpaid")
-    public ResponseEntity<List<LeaveTypeResponse>> getUnpaidLeaveTypes(
-            @Parameter(description = "Boolean value to filter unpaid leave types", required = true)
-            @Valid @RequestBody BooleanRequest request) {
-        List<LeaveTypeResponse> leaveTypes = request.isValue()
-                ? leaveTypeService.findByIsUnpaidTrue()
-                .stream()
-                .map(LeaveTypeMapper::toDTO)
-                .toList()
-                : leaveTypeService.findByIsUnpaidFalse()
-                .stream()
-                .map(LeaveTypeMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(leaveTypes);
+    public ResponseEntity<LeaveTypeResponseList> getUnpaidLeaveTypes(@Valid @RequestBody BooleanRequest request) {
+        return ResponseEntity.ok(leaveTypeService.getUnpaid(request));
     }
 
-    @Operation(summary = "Get gender specific leave types", description = "Retrieve leave types that require gender specification")
-    @ApiResponse(responseCode = "200", description = "List of gender specific leave types retrieved successfully")
+    @Operation(summary = "Get gender specific leave types")
     @PostMapping("/getGenderSpecific")
-    public ResponseEntity<List<LeaveTypeResponse>> getGenderSpecificLeaveTypes() {
-        List<LeaveTypeResponse> leaveTypes = leaveTypeService.findByGenderRequiredTrue()
-                .stream()
-                .map(LeaveTypeMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(leaveTypes);
+    public ResponseEntity<LeaveTypeResponseList> getGenderSpecificLeaveTypes() {
+        return ResponseEntity.ok(leaveTypeService.getGenderSpecific());
     }
 
-    @Operation(summary = "Get leave types by borrowable limit", description = "Retrieve leave types with borrowable limit greater than the specified value")
-    @ApiResponse(responseCode = "200", description = "List of leave types filtered by borrowable limit retrieved successfully")
+    @Operation(summary = "Get leave types by borrowable limit")
     @PostMapping("/getByBorrowableLimit")
-    public ResponseEntity<List<LeaveTypeResponse>> getLeaveTypesByBorrowableLimit(
-            @Parameter(description = "Minimum borrowable limit value", required = true)
-            @Valid @RequestBody IntegerRequest request) {
-        List<LeaveTypeResponse> leaveTypes = leaveTypeService.findByBorrowableLimitGreaterThan(request.getValue())
-                .stream()
-                .map(LeaveTypeMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(leaveTypes);
+    public ResponseEntity<LeaveTypeResponseList> getLeaveTypesByBorrowableLimit(@Valid @RequestBody IntegerRequest request) {
+        return ResponseEntity.ok(leaveTypeService.getByBorrowableLimit(request));
     }
 
-    @Operation(summary = "Get leave types by valid after days", description = "Retrieve leave types with valid after days greater than the specified value")
-    @ApiResponse(responseCode = "200", description = "List of leave types filtered by valid after days retrieved successfully")
+    @Operation(summary = "Get leave types by valid after days")
     @PostMapping("/getByValidAfterDays")
-    public ResponseEntity<List<LeaveTypeResponse>> getLeaveTypesByValidAfterDays(
-            @Parameter(description = "Minimum valid after days value", required = true)
-            @Valid @RequestBody IntegerRequest request) {
-        List<LeaveTypeResponse> leaveTypes = leaveTypeService.findByValidAfterDaysGreaterThan(request.getValue())
-                .stream()
-                .map(LeaveTypeMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(leaveTypes);
+    public ResponseEntity<LeaveTypeResponseList> getLeaveTypesByValidAfterDays(@Valid @RequestBody IntegerRequest request) {
+        return ResponseEntity.ok(leaveTypeService.getByValidAfterDays(request));
     }
 }
