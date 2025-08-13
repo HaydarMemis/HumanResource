@@ -1,6 +1,7 @@
 package com.neg.technology.human.resource.Employee.controller;
 
 import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
+import com.neg.technology.human.resource.Utility.request.DepartmentIdRequest;
 import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
 import com.neg.technology.human.resource.Utility.request.DateRequest;
@@ -44,7 +45,7 @@ public class EmployeeController {
 
     @Operation(summary = "Get all employees")
     @ApiResponse(responseCode = "200", description = "Employees list retrieved successfully")
-    @GetMapping("/getAll")
+    @PostMapping("/getAll")
     public ResponseEntity<EmployeeListResponse> getAllEmployees() {
         return employeeService.getAllEmployees();
     }
@@ -73,7 +74,7 @@ public class EmployeeController {
     @Operation(summary = "Get employees by department ID")
     @ApiResponse(responseCode = "200", description = "Employees retrieved successfully")
     @PostMapping("/getByDepartment")
-    public ResponseEntity<EmployeeListResponse> getEmployeesByDepartment(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<EmployeeListResponse> getEmployeesByDepartment(@Valid @RequestBody DepartmentIdRequest request) {
         return employeeService.getEmployeesByDepartment(request);
     }
 
