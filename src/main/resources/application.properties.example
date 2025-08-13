@@ -1,0 +1,36 @@
+# Server configuration
+server.port=8082
+
+# Datasource configuration
+spring.datasource.url=jdbc:postgresql://localhost:5432/hr_management
+spring.datasource.username=username
+spring.datasource.password=password
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# Liquibase configuration
+spring.liquibase.enabled=true
+spring.liquibase.change-log=classpath:db/changelog/db.changelog-master.yaml
+spring.liquibase.contexts=dev
+
+# Logging configuration
+spring.logging.config=classpath:logback-spring.xml
+
+# Elasticsearch configuration
+spring.elasticsearch.uris=http://localhost:9200
+spring.elasticsearch.username=elastic
+spring.elasticsearch.password=
+
+# JPA / Hibernate configuration
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.database=postgresql
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+
+# Jackson configuration
+spring.jackson.serialization.write-dates-as-timestamps=false
+spring.jackson.mapper.accept-case-insensitive-enums=true
+
+# SpringDoc / Swagger configuration
+springdoc.api-docs.enabled=true
+springdoc.swagger-ui.enabled=true
