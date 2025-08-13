@@ -1,4 +1,4 @@
-package com.neg.technology.human.resource.config;
+package config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
