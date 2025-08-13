@@ -1,11 +1,14 @@
 package com.neg.technology.human.resource.EmployeeProject.controller;
 
+import com.neg.technology.human.resource.Utility.request.EmployeeIdRequest;
+import com.neg.technology.human.resource.Utility.request.EmployeeProjectIdRequest;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
 import com.neg.technology.human.resource.EmployeeProject.model.request.CreateEmployeeProjectRequest;
 import com.neg.technology.human.resource.EmployeeProject.model.request.UpdateEmployeeProjectRequest;
 import com.neg.technology.human.resource.EmployeeProject.model.response.EmployeeProjectResponse;
 import com.neg.technology.human.resource.EmployeeProject.service.EmployeeProjectService;
 import com.neg.technology.human.resource.EmployeeProject.validator.EmployeeProjectValidator;
+import com.neg.technology.human.resource.Utility.request.ProjectIdRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -42,7 +45,7 @@ public class EmployeeProjectController {
     @ApiResponse(responseCode = "200", description = "Employee project found")
     @ApiResponse(responseCode = "404", description = "Employee project not found")
     @PostMapping("/getById")
-    public ResponseEntity<EmployeeProjectResponse> getById(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<EmployeeProjectResponse> getById(@Valid @RequestBody EmployeeProjectIdRequest request) {
         return employeeProjectService.getEmployeeProjectById(request)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -70,24 +73,24 @@ public class EmployeeProjectController {
     @Operation(summary = "Delete employee project by ID")
     @ApiResponse(responseCode = "204", description = "Employee project deleted successfully")
     @PostMapping("/delete")
-    public ResponseEntity<Void> delete(@Valid @RequestBody IdRequest request) {
-        employeeProjectService.deleteEmployeeProject(request.getId());
+    public ResponseEntity<Void> delete(@Valid @RequestBody EmployeeProjectIdRequest request) {
+        employeeProjectService.deleteEmployeeProject(request);
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Delete employee projects by employee ID")
     @ApiResponse(responseCode = "204", description = "Employee projects deleted successfully")
     @PostMapping("/deleteByEmployee")
-    public ResponseEntity<Void> deleteByEmployee(@Valid @RequestBody IdRequest request) {
-        employeeProjectService.deleteByEmployeeId(request.getId());
+    public ResponseEntity<Void> deleteByEmployee(@Valid @RequestBody EmployeeIdRequest request) {
+        employeeProjectService.deleteByEmployeeId(request);
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Delete employee projects by project ID")
     @ApiResponse(responseCode = "204", description = "Employee projects deleted successfully")
     @PostMapping("/deleteByProject")
-    public ResponseEntity<Void> deleteByProject(@Valid @RequestBody IdRequest request) {
-        employeeProjectService.deleteByProjectId(request.getId());
+    public ResponseEntity<Void> deleteByProject(@Valid @RequestBody ProjectIdRequest request) {
+        employeeProjectService.deleteByProjectId(request);
         return ResponseEntity.noContent().build();
     }
 

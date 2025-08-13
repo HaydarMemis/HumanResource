@@ -6,7 +6,7 @@ import com.neg.technology.human.resource.Department.repository.DepartmentReposit
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.Employee.model.mapper.EmployeeMapper;
 import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
-import com.neg.technology.human.resource.Utility.request.DepartmentIdRequest;
+import com.neg.technology.human.resource.Utility.request.*;
 import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
 import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;
 import com.neg.technology.human.resource.Employee.model.response.EmployeeListResponse;
@@ -14,8 +14,6 @@ import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.Person.repository.PersonRepository;
 import com.neg.technology.human.resource.Position.repository.PositionRepository;
-import com.neg.technology.human.resource.Utility.request.IdRequest;
-import com.neg.technology.human.resource.Utility.request.DateRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -122,14 +120,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public ResponseEntity<EmployeeListResponse> getEmployeesByPosition(IdRequest request) {
-        List<Employee> employees = employeeRepository.findByPositionId(request.getId());
+    public ResponseEntity<EmployeeListResponse> getEmployeesByPosition(PositionIdRequest request) {
+        List<Employee> employees = employeeRepository.findByPositionId(request.getPositionId());
         return ResponseEntity.ok(new EmployeeListResponse(EmployeeMapper.toDTO(employees)));
     }
 
     @Override
-    public ResponseEntity<EmployeeListResponse> getEmployeesByCompany(IdRequest request) {
-        List<Employee> employees = employeeRepository.findByCompanyId(request.getId());
+    public ResponseEntity<EmployeeListResponse> getEmployeesByCompany(CompanyIdRequest request) {
+        List<Employee> employees = employeeRepository.findByCompanyId(request.getCompanyId());
         return ResponseEntity.ok(new EmployeeListResponse(EmployeeMapper.toDTO(employees)));
     }
 

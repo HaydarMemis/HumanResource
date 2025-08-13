@@ -10,7 +10,10 @@ import com.neg.technology.human.resource.EmployeeProject.repository.EmployeeProj
 import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.Project.repository.ProjectRepository;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
+import com.neg.technology.human.resource.Utility.request.EmployeeIdRequest;
+import com.neg.technology.human.resource.Utility.request.EmployeeProjectIdRequest;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.request.ProjectIdRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -35,8 +38,8 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
     }
 
     @Override
-    public Optional<EmployeeProjectResponse> getEmployeeProjectById(IdRequest request) {
-        return employeeProjectRepository.findById(request.getId())
+    public Optional<EmployeeProjectResponse> getEmployeeProjectById(EmployeeProjectIdRequest request) {
+        return employeeProjectRepository.findById(request.getEmployeeProjectId())
                 .map(EmployeeProjectMapper::toDTO);
     }
 
@@ -79,7 +82,8 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
     }
 
     @Override
-    public void deleteEmployeeProject(Long id) {
+    public void deleteEmployeeProject(EmployeeProjectIdRequest request) {
+        Long id = request.getEmployeeProjectId();
         if (!employeeProjectRepository.existsById(id)) {
             throw new ResourceNotFoundException("Employee Project", id);
         }
@@ -87,8 +91,10 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
         RequestLogger.logDeleted(EmployeeProject.class, id);
     }
 
+
     @Override
-    public void deleteByEmployeeId(Long employeeId) {
+    public void deleteByEmployeeId(EmployeeIdRequest request) {
+        Long employeeId = request.getEmployeeId();
         if (!employeeProjectRepository.existsByEmployee_Id(employeeId)) {
             throw new ResourceNotFoundException("Employee Project", employeeId);
         }
@@ -97,7 +103,8 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
     }
 
     @Override
-    public void deleteByProjectId(Long projectId) {
+    public void deleteByProjectId(ProjectIdRequest request) {
+        Long projectId = request.getProjectId();
         if (!employeeProjectRepository.existsByProject_Id(projectId)) {
             throw new ResourceNotFoundException("Employee Project", projectId);
         }
