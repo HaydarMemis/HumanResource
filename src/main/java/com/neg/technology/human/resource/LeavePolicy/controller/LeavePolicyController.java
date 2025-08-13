@@ -99,7 +99,7 @@ public class LeavePolicyController {
     }
 
     @Operation(summary = "Get all leave policies")
-    @GetMapping("/all")
+    @PostMapping("/all")
     public ResponseEntity<LeavePolicyResponseList> getAllLeavePolicies() {
         return leavePolicyService.getAllLeavePolicies();
     }
