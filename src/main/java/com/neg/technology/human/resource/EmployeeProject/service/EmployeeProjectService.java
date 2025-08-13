@@ -3,15 +3,15 @@ package com.neg.technology.human.resource.EmployeeProject.service;
 import com.neg.technology.human.resource.EmployeeProject.model.request.CreateEmployeeProjectRequest;
 import com.neg.technology.human.resource.EmployeeProject.model.request.UpdateEmployeeProjectRequest;
 import com.neg.technology.human.resource.EmployeeProject.model.response.EmployeeProjectResponse;
-import com.neg.technology.human.resource.Utility.request.IdRequest;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface EmployeeProjectService {
+
     List<EmployeeProjectResponse> getAllEmployeeProjects();
 
-    Optional<EmployeeProjectResponse> getEmployeeProjectById(IdRequest request);
+    Optional<EmployeeProjectResponse> getEmployeeProjectById(Long id);
 
     EmployeeProjectResponse createEmployeeProject(CreateEmployeeProjectRequest request);
 

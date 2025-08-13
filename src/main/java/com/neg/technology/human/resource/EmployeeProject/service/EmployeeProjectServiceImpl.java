@@ -1,6 +1,5 @@
 package com.neg.technology.human.resource.EmployeeProject.service;
 
-import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.EmployeeProject.model.entity.EmployeeProject;
 import com.neg.technology.human.resource.EmployeeProject.model.mapper.EmployeeProjectMapper;
 import com.neg.technology.human.resource.EmployeeProject.model.request.CreateEmployeeProjectRequest;
@@ -10,7 +9,7 @@ import com.neg.technology.human.resource.EmployeeProject.repository.EmployeeProj
 import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.Project.repository.ProjectRepository;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
-import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.RequestLogger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,47 +30,42 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
         return employeeProjectRepository.findAll()
                 .stream()
                 .map(EmployeeProjectMapper::toDTO)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<EmployeeProjectResponse> getEmployeeProjectById(IdRequest request) {
-        return employeeProjectRepository.findById(request.getId())
+    public Optional<EmployeeProjectResponse> getEmployeeProjectById(Long id) {
+        return employeeProjectRepository.findById(id)
                 .map(EmployeeProjectMapper::toDTO);
     }
 
     @Override
-    public EmployeeProjectResponse createEmployeeProject(CreateEmployeeProjectRequest dto) {
-        EmployeeProject entity = mapToEntity(dto);
+    public EmployeeProjectResponse createEmployeeProject(CreateEmployeeProjectRequest request) {
+        EmployeeProject entity = EmployeeProjectMapper.toEntity(request,
+                employeeRepository.findById(request.getEmployeeId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId())),
+                projectRepository.findById(request.getProjectId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Project", request.getProjectId()))
+        );
+
         EmployeeProject saved = employeeProjectRepository.save(entity);
         RequestLogger.logCreated(EmployeeProject.class, saved.getId(), "EmployeeProject");
         return EmployeeProjectMapper.toDTO(saved);
     }
 
-    private EmployeeProject mapToEntity(CreateEmployeeProjectRequest dto) {
-        var employee = employeeRepository.findById(dto.getEmployeeId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"));
-        var project = projectRepository.findById(dto.getProjectId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
-
-        return EmployeeProjectMapper.toEntity(dto, employee, project);
-    }
-
     @Override
-    public Optional<EmployeeProjectResponse> updateEmployeeProject(UpdateEmployeeProjectRequest dto) {
-        var employee = dto.getEmployeeId() != null
-                ? employeeRepository.findById(dto.getEmployeeId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"))
-                : null;
-
-        var project = dto.getProjectId() != null
-                ? projectRepository.findById(dto.getProjectId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"))
-                : null;
-
-        return employeeProjectRepository.findById(dto.getId())
+    public Optional<EmployeeProjectResponse> updateEmployeeProject(UpdateEmployeeProjectRequest request) {
+        return employeeProjectRepository.findById(request.getId())
                 .map(existing -> {
-                    EmployeeProjectMapper.updateEntity(existing, dto, employee, project);
+                    EmployeeProjectMapper.updateEntity(existing, request,
+                            request.getEmployeeId() != null ? employeeRepository.findById(request.getEmployeeId())
+                                    .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()))
+                                    : null,
+                            request.getProjectId() != null ? projectRepository.findById(request.getProjectId())
+                                    .orElseThrow(() -> new ResourceNotFoundException("Project", request.getProjectId()))
+                                    : null
+                    );
+
                     EmployeeProject updated = employeeProjectRepository.save(existing);
                     RequestLogger.logUpdated(EmployeeProject.class, updated.getId(), "EmployeeProject");
                     return EmployeeProjectMapper.toDTO(updated);
@@ -110,7 +104,7 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
         return employeeProjectRepository.findByEmployeeId(employeeId)
                 .stream()
                 .map(EmployeeProjectMapper::toDTO)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -118,7 +112,7 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
         return employeeProjectRepository.findByProjectId(projectId)
                 .stream()
                 .map(EmployeeProjectMapper::toDTO)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
