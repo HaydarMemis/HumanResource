@@ -76,10 +76,10 @@ class EmployeeServiceTest {
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
 
         // Act
-        Optional<Employee> result = employeeService.findById(1L);
+        Optional<Object> result = employeeService.findById(1L);
 
         // Assert
-        Employee foundEmployee = result.orElseThrow();
+        Employee foundEmployee = (Employee) result.orElseThrow();
         assertEquals("John", foundEmployee.getPerson().getFirstName());
         assertEquals("IT", foundEmployee.getDepartment().getName());
 
