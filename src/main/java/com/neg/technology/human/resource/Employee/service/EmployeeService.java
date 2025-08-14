@@ -2,10 +2,8 @@ package com.neg.technology.human.resource.Employee.service;
 
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
-import com.neg.technology.human.resource.Utility.request.DepartmentIdRequest;
+import com.neg.technology.human.resource.Utility.request.*;
 import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
-import com.neg.technology.human.resource.Utility.request.IdRequest;
-import com.neg.technology.human.resource.Utility.request.DateRequest;
 import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;
 import com.neg.technology.human.resource.Employee.model.response.EmployeeListResponse;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +28,9 @@ public interface EmployeeService {
 
     ResponseEntity<EmployeeListResponse> getEmployeesByDepartment(DepartmentIdRequest request);
 
-    ResponseEntity<EmployeeListResponse> getEmployeesByPosition(IdRequest request);
+    ResponseEntity<EmployeeListResponse> getEmployeesByPosition(PositionIdRequest request);
 
-    ResponseEntity<EmployeeListResponse> getEmployeesByCompany(IdRequest request);
+    ResponseEntity<EmployeeListResponse> getEmployeesByCompany(CompanyIdRequest request);
 
     ResponseEntity<EmployeeListResponse> getEmployeesHiredBefore(DateRequest request);
 

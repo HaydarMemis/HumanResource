@@ -1,10 +1,8 @@
 package com.neg.technology.human.resource.Employee.controller;
 
 import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
-import com.neg.technology.human.resource.Utility.request.DepartmentIdRequest;
+import com.neg.technology.human.resource.Utility.request.*;
 import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
-import com.neg.technology.human.resource.Utility.request.IdRequest;
-import com.neg.technology.human.resource.Utility.request.DateRequest;
 import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;
 import com.neg.technology.human.resource.Employee.model.response.EmployeeListResponse;
 import com.neg.technology.human.resource.Employee.service.EmployeeService;
@@ -81,14 +79,14 @@ public class EmployeeController {
     @Operation(summary = "Get employees by position ID")
     @ApiResponse(responseCode = "200", description = "Employees retrieved successfully")
     @PostMapping("/getByPosition")
-    public ResponseEntity<EmployeeListResponse> getEmployeesByPosition(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<EmployeeListResponse> getEmployeesByPosition(@Valid @RequestBody PositionIdRequest request) {
         return employeeService.getEmployeesByPosition(request);
     }
 
     @Operation(summary = "Get employees by company ID")
     @ApiResponse(responseCode = "200", description = "Employees retrieved successfully")
     @PostMapping("/getByCompany")
-    public ResponseEntity<EmployeeListResponse> getEmployeesByCompany(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<EmployeeListResponse> getEmployeesByCompany(@Valid @RequestBody CompanyIdRequest request) {
         return employeeService.getEmployeesByCompany(request);
     }
 
