@@ -9,7 +9,7 @@ import com.neg.technology.human.resource.Company.model.response.CompanyResponse;
 import com.neg.technology.human.resource.Company.model.response.CompanyResponseList;
 import com.neg.technology.human.resource.Company.repository.CompanyRepository;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
-import com.neg.technology.human.resource.Utility.request.CompanyIdRequest;
+import com.neg.technology.human.resource.Company.model.request.CompanyIdRequest;
 import com.neg.technology.human.resource.Utility.request.NameRequest;
 import org.springframework.stereotype.Service;
 

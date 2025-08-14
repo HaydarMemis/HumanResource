@@ -1,4 +1,4 @@
-package com.neg.technology.human.resource.Utility.request;
+package com.neg.technology.human.resource.Department.model.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 
-public class EmployeeIdRequest {
+public class DepartmentIdRequest {
     @NotNull
-    private Long employeeId;
+    private Long departmentId;
 }

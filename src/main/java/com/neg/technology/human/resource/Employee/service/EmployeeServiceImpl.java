@@ -1,5 +1,8 @@
 package com.neg.technology.human.resource.Employee.service;
 
+import com.neg.technology.human.resource.Company.model.request.CompanyIdRequest;
+import com.neg.technology.human.resource.Department.model.request.DepartmentIdRequest;
+import com.neg.technology.human.resource.Position.model.request.PositionIdRequest;
 import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.Company.repository.CompanyRepository;
 import com.neg.technology.human.resource.Department.repository.DepartmentRepository;

@@ -7,7 +7,7 @@ import com.neg.technology.human.resource.Employee.model.response.EmployeeListRes
 import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;
 import com.neg.technology.human.resource.Employee.service.EmployeeService;
 import com.neg.technology.human.resource.Utility.request.DateRequest;
-import com.neg.technology.human.resource.Utility.request.DepartmentIdRequest;
+import com.neg.technology.human.resource.Department.model.request.DepartmentIdRequest;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,9 @@
 package com.neg.technology.human.resource.Employee.controller;
 
+import com.neg.technology.human.resource.Company.model.request.CompanyIdRequest;
+import com.neg.technology.human.resource.Department.model.request.DepartmentIdRequest;
 import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
+import com.neg.technology.human.resource.Position.model.request.PositionIdRequest;
 import com.neg.technology.human.resource.Utility.request.*;
 import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
 import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;

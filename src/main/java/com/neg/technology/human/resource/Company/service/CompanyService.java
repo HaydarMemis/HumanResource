@@ -4,8 +4,7 @@ import com.neg.technology.human.resource.Company.model.request.CreateCompanyRequ
 import com.neg.technology.human.resource.Company.model.request.UpdateCompanyRequest;
 import com.neg.technology.human.resource.Company.model.response.CompanyResponse;
 import com.neg.technology.human.resource.Company.model.response.CompanyResponseList;
-import com.neg.technology.human.resource.Utility.request.CompanyIdRequest;
-import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Company.model.request.CompanyIdRequest;
 import com.neg.technology.human.resource.Utility.request.NameRequest;
 
 public interface CompanyService {

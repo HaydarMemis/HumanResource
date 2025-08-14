@@ -1,4 +1,4 @@
-package com.neg.technology.human.resource.Utility.request;
+package com.neg.technology.human.resource.Project.model.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

@@ -1,7 +1,6 @@
 package com.neg.technology.human.resource.Company.controller;
 
-import com.neg.technology.human.resource.Utility.request.CompanyIdRequest;
-import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Company.model.request.CompanyIdRequest;
 import com.neg.technology.human.resource.Utility.request.NameRequest;
 import com.neg.technology.human.resource.Company.model.request.CreateCompanyRequest;
 import com.neg.technology.human.resource.Company.model.request.UpdateCompanyRequest;
