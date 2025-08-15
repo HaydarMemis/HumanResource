@@ -37,13 +37,14 @@ public class PositionServiceImpl implements PositionService {
 
 
     @Override
-    public List<PositionResponse> getAllPositions() {
+    public PositionResponseList getAllPositions() {
         List<PositionResponse> list = positionRepository.findAll()
                 .stream()
                 .map(positionMapper::toDTO)
                 .toList();
-        return (List<PositionResponse>) new PositionResponseList(list);
+        return new PositionResponseList(list);
     }
+
 
     @Override
     public Optional<Position> findByTitle(String title) {

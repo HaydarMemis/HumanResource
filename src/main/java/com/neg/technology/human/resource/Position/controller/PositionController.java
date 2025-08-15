@@ -27,7 +27,7 @@ public class PositionController {
     @ApiResponse(responseCode = "200", description = "Successfully retrieved list")
     @PostMapping("/getAll")
     public ResponseEntity<PositionResponseList> getAllPositions() {
-        return ResponseEntity.ok((PositionResponseList) positionService.getAllPositions());
+        return ResponseEntity.ok(positionService.getAllPositions());
     }
 
     @Operation(summary = "Get position by ID", description = "Retrieves the position with the specified ID.")

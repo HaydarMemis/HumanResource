@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PositionService {
-    List<PositionResponse> getAllPositions();
+    PositionResponseList getAllPositions();
 
     Optional<Position> findByTitle(String title);
 
