@@ -1,19 +1,17 @@
 package com.neg.technology.human.resource.Company.service;
 
-import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.Company.model.entity.Company;
 import com.neg.technology.human.resource.Company.model.mapper.CompanyMapper;
+import com.neg.technology.human.resource.Company.model.request.CompanyIdRequest;
 import com.neg.technology.human.resource.Company.model.request.CreateCompanyRequest;
 import com.neg.technology.human.resource.Company.model.request.UpdateCompanyRequest;
 import com.neg.technology.human.resource.Company.model.response.CompanyResponse;
 import com.neg.technology.human.resource.Company.model.response.CompanyResponseList;
 import com.neg.technology.human.resource.Company.repository.CompanyRepository;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
-import com.neg.technology.human.resource.Company.model.request.CompanyIdRequest;
+import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.Utility.request.NameRequest;
 import org.springframework.stereotype.Service;
-
-import java.util.stream.Collectors;
 
 @Service
 public class CompanyServiceImpl implements CompanyService {
@@ -59,7 +57,7 @@ public class CompanyServiceImpl implements CompanyService {
                 companyRepository.findAll()
                         .stream()
                         .map(CompanyMapper::toDTO)
-                        .collect(Collectors.toList())
+                        .toList()
         );
     }
 

@@ -1,14 +1,15 @@
 package com.neg.technology.human.resource.Project.service;
 
-import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.Exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.Project.model.entity.Project;
+import com.neg.technology.human.resource.Project.model.mapper.ProjectMapper;
 import com.neg.technology.human.resource.Project.model.request.CreateProjectRequest;
+import com.neg.technology.human.resource.Project.model.request.ProjectIdRequest;
 import com.neg.technology.human.resource.Project.model.request.UpdateProjectRequest;
 import com.neg.technology.human.resource.Project.model.response.ProjectResponse;
 import com.neg.technology.human.resource.Project.model.response.ProjectResponseList;
 import com.neg.technology.human.resource.Project.repository.ProjectRepository;
-import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.Utility.request.NameRequest;
 import org.springframework.stereotype.Service;
 
@@ -26,37 +27,59 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectResponseList getAllProjects() {
-        return null;
+        return new ProjectResponseList(
+                projectRepository.findAll()
+                        .stream()
+                        .map(ProjectMapper::toDTO)
+                        .toList()
+        );
     }
 
     @Override
-    public ProjectResponse getProjectById(IdRequest request) {
-        return null;
+    public ProjectResponse getProjectById(ProjectIdRequest request) {
+        return projectRepository.findById(request.getProjectId())
+                .map(ProjectMapper::toDTO).orElseThrow(() -> new ResourceNotFoundException("Project", request.getProjectId()));
     }
 
     @Override
     public ProjectResponse getProjectByName(NameRequest request) {
-        return null;
+        return projectRepository.findByName(request.getName())
+                .map(ProjectMapper::toDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Project", request.getName()));
     }
 
     @Override
     public ProjectResponse createProject(CreateProjectRequest request) {
-        return null;
+        Project entity = ProjectMapper.toEntity(request);
+        Project saved = projectRepository.save(entity);
+        RequestLogger.logCreated(Project.class, saved.getId(), saved.getName());
+        return ProjectMapper.toDTO(saved);
     }
 
     @Override
     public ProjectResponse updateProject(UpdateProjectRequest request) {
-        return null;
+        Project existing = projectRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Project", request.getId()));
+
+        existing.setName(request.getName());
+        Project updated = projectRepository.save(existing);
+        RequestLogger.logUpdated(Project.class, updated.getId(), updated.getName());
+
+        return ProjectMapper.toDTO(updated);
     }
 
     @Override
-    public void deleteProject(IdRequest request) {
-
+    public void deleteProject(ProjectIdRequest request) {
+        if (!projectRepository.existsById(request.getProjectId())) {
+            throw new ResourceNotFoundException("Project", request.getProjectId());
+        }
+        projectRepository.deleteById(request.getProjectId());
+        RequestLogger.logDeleted(Project.class, request.getProjectId());
     }
 
     @Override
     public boolean existsByName(NameRequest request) {
-        return false;
+        return projectRepository.existsByName(request.getName());
     }
 
     @Override
@@ -101,7 +124,6 @@ public class ProjectServiceImpl implements ProjectService {
                 .orElseThrow(() -> new ResourceNotFoundException("Project", id));
 
         existing.setName(project.getName());
-        // diğer alanları da burada setle
 
         Project updated = projectRepository.save(existing);
         RequestLogger.logUpdated(Project.class, updated.getId(), updated.getName());

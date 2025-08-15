@@ -1,19 +1,23 @@
 package com.neg.technology.human.resource.Project.controller;
 
-import com.neg.technology.human.resource.Utility.request.IdRequest;
-import com.neg.technology.human.resource.Utility.request.NameRequest;
 import com.neg.technology.human.resource.Project.model.request.CreateProjectRequest;
+import com.neg.technology.human.resource.Project.model.request.ProjectIdRequest;
 import com.neg.technology.human.resource.Project.model.request.UpdateProjectRequest;
 import com.neg.technology.human.resource.Project.model.response.ProjectResponse;
 import com.neg.technology.human.resource.Project.model.response.ProjectResponseList;
 import com.neg.technology.human.resource.Project.service.ProjectService;
 import com.neg.technology.human.resource.Project.validator.ProjectValidator;
+import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.Utility.request.NameRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -33,7 +37,7 @@ public class ProjectController {
     @Operation(summary = "Get project by ID", description = "Returns the project with the specified ID.")
     @ApiResponse(responseCode = "200", description = "Project found")
     @PostMapping("/getById")
-    public ResponseEntity<ProjectResponse> getProjectById(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<ProjectResponse> getProjectById(@Valid @RequestBody ProjectIdRequest request) {
         return ResponseEntity.ok(projectService.getProjectById(request));
     }
 
@@ -63,7 +67,7 @@ public class ProjectController {
     @Operation(summary = "Delete project", description = "Deletes the project with the specified ID.")
     @ApiResponse(responseCode = "204", description = "Project successfully deleted")
     @PostMapping("/delete")
-    public ResponseEntity<Void> deleteProject(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<Void> deleteProject(@Valid @RequestBody ProjectIdRequest request) {
         projectService.deleteProject(request);
         return ResponseEntity.noContent().build();
     }

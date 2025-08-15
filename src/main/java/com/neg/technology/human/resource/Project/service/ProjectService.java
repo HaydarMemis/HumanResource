@@ -2,6 +2,7 @@ package com.neg.technology.human.resource.Project.service;
 
 import com.neg.technology.human.resource.Project.model.entity.Project;
 import com.neg.technology.human.resource.Project.model.request.CreateProjectRequest;
+import com.neg.technology.human.resource.Project.model.request.ProjectIdRequest;
 import com.neg.technology.human.resource.Project.model.request.UpdateProjectRequest;
 import com.neg.technology.human.resource.Project.model.response.ProjectResponse;
 import com.neg.technology.human.resource.Project.model.response.ProjectResponseList;
@@ -14,7 +15,7 @@ import java.util.Optional;
 public interface ProjectService {
     ProjectResponseList getAllProjects();
 
-    ProjectResponse getProjectById(IdRequest request);
+    ProjectResponse getProjectById(ProjectIdRequest request);
 
     ProjectResponse getProjectByName(NameRequest request);
 
@@ -22,7 +23,7 @@ public interface ProjectService {
 
     ProjectResponse updateProject(UpdateProjectRequest request);
 
-    void deleteProject(IdRequest request);
+    void deleteProject(ProjectIdRequest request);
 
     boolean existsByName(NameRequest request);
 
