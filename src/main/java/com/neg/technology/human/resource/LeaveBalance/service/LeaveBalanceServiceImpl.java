@@ -1,5 +1,6 @@
 package com.neg.technology.human.resource.LeaveBalance.service;
 
+import com.neg.technology.human.resource.LeaveBalance.model.response.LeaveBalanceResponseList;
 import com.neg.technology.human.resource.Utility.RequestLogger;
 import com.neg.technology.human.resource.Employee.model.entity.Employee;
 import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
@@ -42,8 +43,8 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     }
 
     @Override
-    public List<LeaveBalanceResponse> getAll() {
-        return (List<LeaveBalanceResponse>) leaveBalanceMapper.toResponseList(leaveBalanceRepository.findAll());
+    public LeaveBalanceResponseList getAll() {
+        return leaveBalanceMapper.toResponseList(leaveBalanceRepository.findAll());
     }
 
     @Override
@@ -95,15 +96,15 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     }
 
     @Override
-    public List<LeaveBalanceResponse> getByEmployee(IdRequest request) {
-        return (List<LeaveBalanceResponse>) leaveBalanceMapper.toResponseList(
+    public LeaveBalanceResponseList getByEmployee(IdRequest request) {
+        return leaveBalanceMapper.toResponseList(
                 leaveBalanceRepository.findByEmployeeId(request.getId())
         );
     }
 
     @Override
-    public List<LeaveBalanceResponse> getByEmployeeAndYear(EmployeeYearRequest request) {
-        return (List<LeaveBalanceResponse>) leaveBalanceMapper.toResponseList(
+    public LeaveBalanceResponseList getByEmployeeAndYear(EmployeeYearRequest request) {
+        return leaveBalanceMapper.toResponseList(
                 leaveBalanceRepository.findByEmployeeIdAndDate(request.getYear(), request.getEmployeeId())
         );
     }
@@ -127,8 +128,8 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     }
 
     @Override
-    public List<LeaveBalanceResponse> getByLeaveTypeAndYear(LeaveTypeYearRequest request) {
-        return (List<LeaveBalanceResponse>) leaveBalanceMapper.toResponseList(
+    public LeaveBalanceResponseList getByLeaveTypeAndYear(LeaveTypeYearRequest request) {
+        return leaveBalanceMapper.toResponseList(
                 leaveBalanceRepository.findByLeaveTypeIdAndDate(request.getLeaveTypeId(), request.getYear())
         );
     }

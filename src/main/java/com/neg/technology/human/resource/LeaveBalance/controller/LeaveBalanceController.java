@@ -3,6 +3,7 @@ package com.neg.technology.human.resource.LeaveBalance.controller;
 import com.neg.technology.human.resource.LeaveBalance.model.request.CreateLeaveBalanceRequest;
 import com.neg.technology.human.resource.LeaveBalance.model.request.UpdateLeaveBalanceRequest;
 import com.neg.technology.human.resource.LeaveBalance.model.response.LeaveBalanceResponse;
+import com.neg.technology.human.resource.LeaveBalance.model.response.LeaveBalanceResponseList;
 import com.neg.technology.human.resource.LeaveBalance.service.LeaveBalanceService;
 import com.neg.technology.human.resource.Utility.request.IdRequest;
 import com.neg.technology.human.resource.Employee.model.request.EmployeeYearRequest;
@@ -31,7 +32,7 @@ public class LeaveBalanceController {
 
     @Operation(summary = "Get all leave balances")
     @PostMapping("/getAll")
-    public ResponseEntity<List<LeaveBalanceResponse>> getAllLeaveBalances() {
+    public ResponseEntity<LeaveBalanceResponseList> getAllLeaveBalances() {
         return ResponseEntity.ok(leaveBalanceService.getAll());
     }
 
@@ -64,13 +65,13 @@ public class LeaveBalanceController {
 
     @Operation(summary = "Get leave balances by employee ID")
     @PostMapping("/getByEmployee")
-    public ResponseEntity<List<LeaveBalanceResponse>> getLeaveBalancesByEmployee(@Valid @RequestBody IdRequest request) {
+    public ResponseEntity<LeaveBalanceResponseList> getLeaveBalancesByEmployee(@Valid @RequestBody IdRequest request) {
         return ResponseEntity.ok(leaveBalanceService.getByEmployee(request));
     }
 
     @Operation(summary = "Get leave balances by employee and year")
     @PostMapping("/getByEmployeeAndYear")
-    public ResponseEntity<List<LeaveBalanceResponse>> getLeaveBalancesByEmployeeAndYear(@Valid @RequestBody EmployeeYearRequest request) {
+    public ResponseEntity<LeaveBalanceResponseList> getLeaveBalancesByEmployeeAndYear(@Valid @RequestBody EmployeeYearRequest request) {
         return ResponseEntity.ok(leaveBalanceService.getByEmployeeAndYear(request));
     }
 
@@ -88,7 +89,7 @@ public class LeaveBalanceController {
 
     @Operation(summary = "Get leave balances by leave type and year")
     @PostMapping("/getByLeaveTypeAndYear")
-    public ResponseEntity<List<LeaveBalanceResponse>> getLeaveBalancesByLeaveTypeAndYear(@Valid @RequestBody LeaveTypeYearRequest request) {
+    public ResponseEntity<LeaveBalanceResponseList> getLeaveBalancesByLeaveTypeAndYear(@Valid @RequestBody LeaveTypeYearRequest request) {
         return ResponseEntity.ok(leaveBalanceService.getByLeaveTypeAndYear(request));
     }
 }
