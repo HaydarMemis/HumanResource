@@ -8,7 +8,7 @@ import com.neg.technology.human.resource.employee.model.request.CreateEmployeeRe
 import com.neg.technology.human.resource.employee.model.request.UpdateEmployeeRequest;
 import com.neg.technology.human.resource.employee.model.response.EmployeeResponse;
 import com.neg.technology.human.resource.person.model.entity.Person;
-import com.neg.technology.human.resource.position.model.entity.Position;
+import com.neg.technology.human.resource.company.model.entity.Position;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;

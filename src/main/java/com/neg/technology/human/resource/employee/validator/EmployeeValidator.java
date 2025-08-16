@@ -4,7 +4,7 @@ import com.neg.technology.human.resource.company.repository.CompanyRepository;
 import com.neg.technology.human.resource.department.repository.DepartmentRepository;
 import com.neg.technology.human.resource.employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.person.repository.PersonRepository;
-import com.neg.technology.human.resource.position.repository.PositionRepository;
+import com.neg.technology.human.resource.company.repository.PositionRepository;
 import com.neg.technology.human.resource.employee.model.request.CreateEmployeeRequest;
 import com.neg.technology.human.resource.employee.model.request.UpdateEmployeeRequest;
 import org.springframework.stereotype.Service;

@@ -3,7 +3,7 @@ package com.neg.technology.human.resource.employee.controller;
 import com.neg.technology.human.resource.company.model.request.CompanyIdRequest;
 import com.neg.technology.human.resource.department.model.request.DepartmentIdRequest;
 import com.neg.technology.human.resource.employee.model.request.CreateEmployeeRequest;
-import com.neg.technology.human.resource.position.model.request.PositionIdRequest;
+import com.neg.technology.human.resource.company.model.request.PositionIdRequest;
 import com.neg.technology.human.resource.utility.module.entity.request.DateRequest;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
 import com.neg.technology.human.resource.employee.model.request.UpdateEmployeeRequest;

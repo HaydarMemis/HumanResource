@@ -1,0 +1,44 @@
+package com.neg.technology.human.resource.leave.validator;
+
+import com.neg.technology.human.resource.leave.model.request.CreateLeaveBalanceRequest;
+import com.neg.technology.human.resource.leave.model.request.UpdateLeaveBalanceRequest;
+import com.neg.technology.human.resource.employee.model.entity.Employee;
+import com.neg.technology.human.resource.leave.model.entity.LeaveType;
+import com.neg.technology.human.resource.employee.repository.EmployeeRepository;
+import com.neg.technology.human.resource.leave.repository.LeaveTypeRepository;
+import org.springframework.stereotype.Service;
+
+@Service
+public class LeaveBalanceValidator {
+    private final EmployeeRepository employeeRepository;
+    private final LeaveTypeRepository leaveTypeRepository;
+
+    public LeaveBalanceValidator(EmployeeRepository employeeRepository, LeaveTypeRepository leaveTypeRepository) {
+        this.employeeRepository = employeeRepository;
+        this.leaveTypeRepository = leaveTypeRepository;
+    }
+
+    public Employee validateAndGetEmployee(Long employeeId) {
+        return employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID: " + employeeId));
+    }
+
+    public LeaveType validateAndGetLeaveType(Long leaveTypeId) {
+        return leaveTypeRepository.findById(leaveTypeId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid leave type ID: " + leaveTypeId));
+    }
+
+    public void validateCreateDTO(CreateLeaveBalanceRequest dto) {
+        validateAndGetEmployee(dto.getEmployeeId());
+        validateAndGetLeaveType(dto.getLeaveTypeId());
+    }
+
+    public void validateUpdateDTO(UpdateLeaveBalanceRequest dto) {
+        if (dto.getEmployeeId() != null) {
+            validateAndGetEmployee(dto.getEmployeeId());
+        }
+        if (dto.getLeaveTypeId() != null) {
+            validateAndGetLeaveType(dto.getLeaveTypeId());
+        }
+    }
+}

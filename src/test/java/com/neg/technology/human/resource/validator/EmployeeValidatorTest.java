@@ -7,7 +7,7 @@ import com.neg.technology.human.resource.employee.model.request.UpdateEmployeeRe
 import com.neg.technology.human.resource.employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.employee.validator.EmployeeValidator;
 import com.neg.technology.human.resource.person.repository.PersonRepository;
-import com.neg.technology.human.resource.position.repository.PositionRepository;
+import com.neg.technology.human.resource.company.repository.PositionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
