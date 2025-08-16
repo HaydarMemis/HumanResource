@@ -1,0 +1,60 @@
+package com.neg.technology.human.resource.employee.model.entity;
+
+import com.neg.technology.human.resource.company.model.entity.Company;
+import com.neg.technology.human.resource.department.model.entity.Department;
+import com.neg.technology.human.resource.person.model.entity.Person;
+import com.neg.technology.human.resource.position.model.entity.Position;
+import com.neg.technology.human.resource.utility.*;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "employee")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class Employee extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToOne
+    @JoinColumn(name="person_id", nullable=false)
+    private Person person;
+
+    @ManyToOne
+    @JoinColumn(name="department_id")
+    private Department department;
+
+    @ManyToOne
+    @JoinColumn(name="position_id")
+    private Position position;
+
+    @ManyToOne
+    @JoinColumn(name="company_id")
+    private Company company;
+
+    @ManyToOne
+    @JoinColumn(name = "manager_id")
+    private Employee manager;
+
+    @Column(name = "registration_number")
+    private String registrationNumber;
+
+    @Column(name = "hire_date", nullable = false)
+    private LocalDateTime hireDate;
+
+    @Column(name = "employment_start_date", nullable = false)
+    private LocalDateTime employmentStartDate;
+
+    @Column(name = "employment_end_date")
+    private LocalDateTime employmentEndDate;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
+}

@@ -1,13 +1,13 @@
 package com.neg.technology.human.resource.validator;
 
-import com.neg.technology.human.resource.Company.repository.CompanyRepository;
-import com.neg.technology.human.resource.Department.repository.DepartmentRepository;
-import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
-import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
-import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
-import com.neg.technology.human.resource.Employee.validator.EmployeeValidator;
-import com.neg.technology.human.resource.Person.repository.PersonRepository;
-import com.neg.technology.human.resource.Position.repository.PositionRepository;
+import com.neg.technology.human.resource.company.repository.CompanyRepository;
+import com.neg.technology.human.resource.department.repository.DepartmentRepository;
+import com.neg.technology.human.resource.employee.model.request.CreateEmployeeRequest;
+import com.neg.technology.human.resource.employee.model.request.UpdateEmployeeRequest;
+import com.neg.technology.human.resource.employee.repository.EmployeeRepository;
+import com.neg.technology.human.resource.employee.validator.EmployeeValidator;
+import com.neg.technology.human.resource.person.repository.PersonRepository;
+import com.neg.technology.human.resource.position.repository.PositionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

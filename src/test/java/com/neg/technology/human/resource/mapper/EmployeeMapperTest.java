@@ -1,14 +1,14 @@
 package com.neg.technology.human.resource.mapper;
 
-import com.neg.technology.human.resource.Company.model.entity.Company;
-import com.neg.technology.human.resource.Department.model.entity.Department;
-import com.neg.technology.human.resource.Employee.model.entity.Employee;
-import com.neg.technology.human.resource.Employee.model.mapper.EmployeeMapper;
-import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
-import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
-import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;
-import com.neg.technology.human.resource.Person.model.entity.Person;
-import com.neg.technology.human.resource.Position.model.entity.Position;
+import com.neg.technology.human.resource.company.model.entity.Company;
+import com.neg.technology.human.resource.department.model.entity.Department;
+import com.neg.technology.human.resource.employee.model.entity.Employee;
+import com.neg.technology.human.resource.employee.model.mapper.EmployeeMapper;
+import com.neg.technology.human.resource.employee.model.request.CreateEmployeeRequest;
+import com.neg.technology.human.resource.employee.model.request.UpdateEmployeeRequest;
+import com.neg.technology.human.resource.employee.model.response.EmployeeResponse;
+import com.neg.technology.human.resource.person.model.entity.Person;
+import com.neg.technology.human.resource.position.model.entity.Position;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;

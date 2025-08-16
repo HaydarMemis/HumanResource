@@ -1,14 +1,14 @@
 package com.neg.technology.human.resource.controller;
 
-import com.neg.technology.human.resource.Employee.controller.EmployeeController;
-import com.neg.technology.human.resource.Employee.model.request.CreateEmployeeRequest;
-import com.neg.technology.human.resource.Employee.model.request.UpdateEmployeeRequest;
-import com.neg.technology.human.resource.Employee.model.response.EmployeeListResponse;
-import com.neg.technology.human.resource.Employee.model.response.EmployeeResponse;
-import com.neg.technology.human.resource.Employee.service.EmployeeService;
-import com.neg.technology.human.resource.Utility.request.DateRequest;
-import com.neg.technology.human.resource.Department.model.request.DepartmentIdRequest;
-import com.neg.technology.human.resource.Utility.request.IdRequest;
+import com.neg.technology.human.resource.employee.controller.EmployeeController;
+import com.neg.technology.human.resource.employee.model.request.CreateEmployeeRequest;
+import com.neg.technology.human.resource.employee.model.request.UpdateEmployeeRequest;
+import com.neg.technology.human.resource.employee.model.response.EmployeeListResponse;
+import com.neg.technology.human.resource.employee.model.response.EmployeeResponse;
+import com.neg.technology.human.resource.employee.service.EmployeeService;
+import com.neg.technology.human.resource.utility.module.entity.request.DateRequest;
+import com.neg.technology.human.resource.department.model.request.DepartmentIdRequest;
+import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -1,12 +1,12 @@
 package com.neg.technology.human.resource.service;
 
-import com.neg.technology.human.resource.Company.model.entity.Company;
-import com.neg.technology.human.resource.Department.model.entity.Department;
-import com.neg.technology.human.resource.Employee.model.entity.Employee;
-import com.neg.technology.human.resource.Person.model.entity.Person;
-import com.neg.technology.human.resource.Position.model.entity.Position;
-import com.neg.technology.human.resource.Employee.repository.EmployeeRepository;
-import com.neg.technology.human.resource.Employee.service.EmployeeServiceImpl;
+import com.neg.technology.human.resource.company.model.entity.Company;
+import com.neg.technology.human.resource.department.model.entity.Department;
+import com.neg.technology.human.resource.employee.model.entity.Employee;
+import com.neg.technology.human.resource.person.model.entity.Person;
+import com.neg.technology.human.resource.position.model.entity.Position;
+import com.neg.technology.human.resource.employee.repository.EmployeeRepository;
+import com.neg.technology.human.resource.employee.service.EmployeeServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
