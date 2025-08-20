@@ -8,28 +8,29 @@ import com.neg.technology.human.resource.utility.module.entity.request.BooleanRe
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
 import com.neg.technology.human.resource.utility.module.entity.request.IntegerRequest;
 import com.neg.technology.human.resource.utility.module.entity.request.NameRequest;
+import reactor.core.publisher.Mono;
 
 public interface LeaveTypeService {
 
-    LeaveTypeResponseList getAll();
+    Mono<LeaveTypeResponseList> getAll();
 
-    LeaveTypeResponse getById(IdRequest request);
+    Mono<LeaveTypeResponse> getById(IdRequest request);
 
-    LeaveTypeResponse create(CreateLeaveTypeRequest request);
+    Mono<LeaveTypeResponse> create(CreateLeaveTypeRequest request);
 
-    LeaveTypeResponse update(UpdateLeaveTypeRequest request);
+    Mono<LeaveTypeResponse> update(UpdateLeaveTypeRequest request);
 
-    void delete(IdRequest request);
+    Mono<Void> delete(IdRequest request);
 
-    LeaveTypeResponse getByName(NameRequest request);
+    Mono<LeaveTypeResponse> getByName(NameRequest request);
 
-    LeaveTypeResponseList getAnnual(BooleanRequest request);
+    Mono<LeaveTypeResponseList> getAnnual(BooleanRequest request);
 
-    LeaveTypeResponseList getUnpaid(BooleanRequest request);
+    Mono<LeaveTypeResponseList> getUnpaid(BooleanRequest request);
 
-    LeaveTypeResponseList getGenderSpecific();
+    Mono<LeaveTypeResponseList> getGenderSpecific();
 
-    LeaveTypeResponseList getByBorrowableLimit(IntegerRequest request);
+    Mono<LeaveTypeResponseList> getByBorrowableLimit(IntegerRequest request);
 
-    LeaveTypeResponseList getByValidAfterDays(IntegerRequest request);
+    Mono<LeaveTypeResponseList> getByValidAfterDays(IntegerRequest request);
 }

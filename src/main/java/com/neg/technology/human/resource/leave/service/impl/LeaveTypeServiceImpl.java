@@ -16,6 +16,7 @@ import com.neg.technology.human.resource.utility.module.entity.request.IntegerRe
 import com.neg.technology.human.resource.utility.module.entity.request.NameRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -27,84 +28,106 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
     private final LeaveTypeMapper leaveTypeMapper;
 
     @Override
-    public LeaveTypeResponseList getAll() {
-        List<LeaveType> entities = leaveTypeRepository.findAll();
-        return new LeaveTypeResponseList(leaveTypeMapper.toResponseList(entities));
+    public Mono<LeaveTypeResponseList> getAll() {
+        return Mono.fromCallable(() -> {
+            List<LeaveType> entities = leaveTypeRepository.findAll();
+            return new LeaveTypeResponseList(leaveTypeMapper.toResponseList(entities));
+        });
     }
 
     @Override
-    public LeaveTypeResponse getById(IdRequest request) {
-        LeaveType entity = leaveTypeRepository.findById(request.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Type", request.getId()));
-        return leaveTypeMapper.toResponse(entity);
+    public Mono<LeaveTypeResponse> getById(IdRequest request) {
+        return Mono.fromCallable(() ->
+                leaveTypeRepository.findById(request.getId())
+                        .map(leaveTypeMapper::toResponse)
+                        .orElseThrow(() -> new ResourceNotFoundException("Leave Type", request.getId()))
+        );
     }
 
     @Override
-    public LeaveTypeResponse create(CreateLeaveTypeRequest request) {
-        LeaveType entity = leaveTypeMapper.toEntity(request);
-        LeaveType saved = leaveTypeRepository.save(entity);
-        Logger.logCreated(LeaveType.class, saved.getId(), saved.getName());
-        return leaveTypeMapper.toResponse(saved);
+    public Mono<LeaveTypeResponse> create(CreateLeaveTypeRequest request) {
+        return Mono.fromCallable(() -> {
+            LeaveType entity = leaveTypeMapper.toEntity(request);
+            LeaveType saved = leaveTypeRepository.save(entity);
+            Logger.logCreated(LeaveType.class, saved.getId(), saved.getName());
+            return leaveTypeMapper.toResponse(saved);
+        });
     }
 
     @Override
-    public LeaveTypeResponse update(UpdateLeaveTypeRequest request) {
-        LeaveType existing = leaveTypeRepository.findById(request.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Type", request.getId()));
+    public Mono<LeaveTypeResponse> update(UpdateLeaveTypeRequest request) {
+        return Mono.fromCallable(() -> {
+            LeaveType existing = leaveTypeRepository.findById(request.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Leave Type", request.getId()));
 
-        leaveTypeMapper.updateEntityFromRequest(request, existing);
-        LeaveType updated = leaveTypeRepository.save(existing);
-        Logger.logUpdated(LeaveType.class, updated.getId(), updated.getName());
-        return leaveTypeMapper.toResponse(updated);
+            leaveTypeMapper.updateEntityFromRequest(request, existing);
+            LeaveType updated = leaveTypeRepository.save(existing);
+            Logger.logUpdated(LeaveType.class, updated.getId(), updated.getName());
+            return leaveTypeMapper.toResponse(updated);
+        });
     }
 
     @Override
-    public void delete(IdRequest request) {
-        if (!leaveTypeRepository.existsById(request.getId())) {
-            throw new ResourceNotFoundException("Leave Type", request.getId());
-        }
-        leaveTypeRepository.deleteById(request.getId());
-        Logger.logDeleted(LeaveType.class, request.getId());
+    public Mono<Void> delete(IdRequest request) {
+        return Mono.fromRunnable(() -> {
+            if (!leaveTypeRepository.existsById(request.getId())) {
+                throw new ResourceNotFoundException("Leave Type", request.getId());
+            }
+            leaveTypeRepository.deleteById(request.getId());
+            Logger.logDeleted(LeaveType.class, request.getId());
+        });
     }
 
     @Override
-    public LeaveTypeResponse getByName(NameRequest request) {
-        LeaveType entity = leaveTypeRepository.findByName(request.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Type with name", request.getName()));
-        return leaveTypeMapper.toResponse(entity);
+    public Mono<LeaveTypeResponse> getByName(NameRequest request) {
+        return Mono.fromCallable(() ->
+                leaveTypeRepository.findByName(request.getName())
+                        .map(leaveTypeMapper::toResponse)
+                        .orElseThrow(() -> new ResourceNotFoundException("Leave Type with name", request.getName()))
+        );
     }
 
     @Override
-    public LeaveTypeResponseList getAnnual(BooleanRequest request) {
-        List<LeaveType> entities = request.isValue()
-                ? leaveTypeRepository.findByIsAnnualTrue()
-                : leaveTypeRepository.findByIsAnnualFalse();
-        return new LeaveTypeResponseList(leaveTypeMapper.toResponseList(entities));
+    public Mono<LeaveTypeResponseList> getAnnual(BooleanRequest request) {
+        return Mono.fromCallable(() -> {
+            List<LeaveType> entities = request.isValue()
+                    ? leaveTypeRepository.findByIsAnnualTrue()
+                    : leaveTypeRepository.findByIsAnnualFalse();
+            return new LeaveTypeResponseList(leaveTypeMapper.toResponseList(entities));
+        });
     }
 
     @Override
-    public LeaveTypeResponseList getUnpaid(BooleanRequest request) {
-        List<LeaveType> entities = request.isValue()
-                ? leaveTypeRepository.findByIsUnpaidTrue()
-                : leaveTypeRepository.findByIsUnpaidFalse();
-        return new LeaveTypeResponseList(leaveTypeMapper.toResponseList(entities));
+    public Mono<LeaveTypeResponseList> getUnpaid(BooleanRequest request) {
+        return Mono.fromCallable(() -> {
+            List<LeaveType> entities = request.isValue()
+                    ? leaveTypeRepository.findByIsUnpaidTrue()
+                    : leaveTypeRepository.findByIsUnpaidFalse();
+            return new LeaveTypeResponseList(leaveTypeMapper.toResponseList(entities));
+        });
     }
 
     @Override
-    public LeaveTypeResponseList getGenderSpecific() {
-        List<LeaveType> entities = leaveTypeRepository.findByGenderRequiredIsNotNull();
-        return new LeaveTypeResponseList(leaveTypeMapper.toResponseList(entities));
+    public Mono<LeaveTypeResponseList> getGenderSpecific() {
+        return Mono.fromCallable(() -> {
+            List<LeaveType> entities = leaveTypeRepository.findByGenderRequiredIsNotNull();
+            return new LeaveTypeResponseList(leaveTypeMapper.toResponseList(entities));
+        });
     }
 
     @Override
-    public LeaveTypeResponseList getByBorrowableLimit(IntegerRequest request) {
-        List<LeaveType> entities = leaveTypeRepository.findByBorrowableLimitGreaterThan(request.getValue());
-        return new LeaveTypeResponseList(leaveTypeMapper.toResponseList(entities));
+    public Mono<LeaveTypeResponseList> getByBorrowableLimit(IntegerRequest request) {
+        return Mono.fromCallable(() -> {
+            List<LeaveType> entities = leaveTypeRepository.findByBorrowableLimitGreaterThan(request.getValue());
+            return new LeaveTypeResponseList(leaveTypeMapper.toResponseList(entities));
+        });
     }
 
     @Override
-    public LeaveTypeResponseList getByValidAfterDays(IntegerRequest request) {
-        List<LeaveType> entities = leaveTypeRepository.findByValidAfterDaysGreaterThan(request.getValue());
-        return new LeaveTypeResponseList(leaveTypeMapper.toResponseList(entities));
+    public Mono<LeaveTypeResponseList> getByValidAfterDays(IntegerRequest request) {
+        return Mono.fromCallable(() -> {
+            List<LeaveType> entities = leaveTypeRepository.findByValidAfterDaysGreaterThan(request.getValue());
+            return new LeaveTypeResponseList(leaveTypeMapper.toResponseList(entities));
+        });
     }
 }
