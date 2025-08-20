@@ -5,44 +5,43 @@ import com.neg.technology.human.resource.person.model.request.CreatePersonReques
 import com.neg.technology.human.resource.person.model.request.UpdatePersonRequest;
 import com.neg.technology.human.resource.person.model.response.PersonResponse;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
-import org.springframework.http.ResponseEntity;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface PersonService {
 
-    ResponseEntity<List<PersonResponse>> getAllPersons();
+    Mono<List<PersonResponse>> getAllPersons();
 
-    ResponseEntity<PersonResponse> getPersonById(IdRequest request);
+    Mono<PersonResponse> getPersonById(IdRequest request);
 
-    ResponseEntity<PersonResponse> createPerson(CreatePersonRequest dto);
+    Mono<PersonResponse> createPerson(CreatePersonRequest dto);
 
-    ResponseEntity<PersonResponse> updatePerson(UpdatePersonRequest dto);
+    Mono<PersonResponse> updatePerson(UpdatePersonRequest dto);
 
-    ResponseEntity<Void> deletePerson(IdRequest request);
+    Mono<Void> deletePerson(IdRequest request);
 
-    ResponseEntity<List<PersonResponse>> getPersonsByGender(String gender);
+    Mono<List<PersonResponse>> getPersonsByGender(String gender);
 
-    ResponseEntity<List<PersonResponse>> getPersonsBornBefore(String date);
+    Mono<List<PersonResponse>> getPersonsBornBefore(String date);
 
-    ResponseEntity<List<PersonResponse>> getPersonsByMaritalStatus(String status);
+    Mono<List<PersonResponse>> getPersonsByMaritalStatus(String status);
 
-    ResponseEntity<PersonResponse> getPersonByNationalId(String nationalId);
+    Mono<PersonResponse> getPersonByNationalId(String nationalId);
 
-    ResponseEntity<List<PersonResponse>> searchPersonsByName(String firstName, String lastName);
+    Mono<List<PersonResponse>> searchPersonsByName(String firstName, String lastName);
 
-    ResponseEntity<PersonResponse> getPersonByEmail(String email);
+    Mono<PersonResponse> getPersonByEmail(String email);
 
-    boolean existsByEmail(String email);
+    Mono<Boolean> existsByEmail(String email);
 
-    boolean existsByNationalId(String nationalId);
+    Mono<Boolean> existsByNationalId(String nationalId);
 
-    Optional<com.neg.technology.human.resource.person.model.entity.Person> findByEmailIgnoreCase(String email);
+    Mono<Person> findByEmailIgnoreCase(String email);
 
-    Optional<com.neg.technology.human.resource.person.model.entity.Person> findByNationalId(String nationalId);
+    Mono<Person> findByNationalId(String nationalId);
 
-    boolean existsById(Long id);
+    Mono<Boolean> existsById(Long id);
 
-    List<Person> searchByOptionalNames(String firstName, String lastName);
+    Mono<List<Person>> searchByOptionalNames(String firstName, String lastName);
 }

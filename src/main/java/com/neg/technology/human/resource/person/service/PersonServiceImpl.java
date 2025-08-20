@@ -1,5 +1,6 @@
 package com.neg.technology.human.resource.person.service;
 
+import com.neg.technology.human.resource.exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.person.model.entity.Person;
 import com.neg.technology.human.resource.person.model.mapper.PersonMapper;
 import com.neg.technology.human.resource.person.model.request.CreatePersonRequest;
@@ -7,146 +8,171 @@ import com.neg.technology.human.resource.person.model.request.UpdatePersonReques
 import com.neg.technology.human.resource.person.model.response.PersonResponse;
 import com.neg.technology.human.resource.person.repository.PersonRepository;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class PersonServiceImpl implements PersonService {
 
     private final PersonRepository personRepository;
     private final PersonMapper personMapper;
 
-    public PersonServiceImpl(PersonRepository personRepository, PersonMapper personMapper) {
-        this.personRepository = personRepository;
-        this.personMapper = personMapper;
+    @Override
+    public Mono<List<PersonResponse>> getAllPersons() {
+        return Mono.fromCallable(() -> {
+            List<Person> persons = personRepository.findAll();
+            return personMapper.toResponseList(persons);
+        });
     }
 
     @Override
-    public ResponseEntity<List<PersonResponse>> getAllPersons() {
-        List<Person> persons = personRepository.findAll();
-        return ResponseEntity.ok(personMapper.toResponseList(persons));
-    }
-
-    @Override
-    public ResponseEntity<PersonResponse> getPersonById(IdRequest request) {
-        Optional<Person> personOpt = personRepository.findById(request.getId());
-        return personOpt
-                .map(person -> ResponseEntity.ok(personMapper.toResponse(person)))
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @Override
-    public ResponseEntity<PersonResponse> createPerson(CreatePersonRequest dto) {
-        Person entity = personMapper.toEntity(dto);
-        Person saved = personRepository.save(entity);
-        return ResponseEntity.ok(personMapper.toResponse(saved));
-    }
-
-    @Override
-    public ResponseEntity<PersonResponse> updatePerson(UpdatePersonRequest dto) {
-        Optional<Person> existingOpt = personRepository.findById(dto.getId());
-        if (existingOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        Person existing = existingOpt.get();
-        personMapper.updateEntity(existing, dto);
-        Person updated = personRepository.save(existing);
-        return ResponseEntity.ok(personMapper.toResponse(updated));
-    }
-
-    @Override
-    public ResponseEntity<Void> deletePerson(IdRequest request) {
-        if (!personRepository.existsById(request.getId())) {
-            return ResponseEntity.notFound().build();
-        }
-        personRepository.deleteById(request.getId());
-        return ResponseEntity.noContent().build();
-    }
-
-    @Override
-    public ResponseEntity<List<PersonResponse>> getPersonsByGender(String gender) {
-        List<Person> persons = personRepository.findByGenderIgnoreCase(gender);
-        return ResponseEntity.ok(personMapper.toResponseList(persons));
-    }
-
-    @Override
-    public ResponseEntity<List<PersonResponse>> getPersonsBornBefore(String date) {
-        LocalDate birthDate = LocalDate.parse(date);
-        List<Person> persons = personRepository.findByBirthDateBefore(birthDate);
-        return ResponseEntity.ok(personMapper.toResponseList(persons));
-    }
-
-    @Override
-    public ResponseEntity<List<PersonResponse>> getPersonsByMaritalStatus(String status) {
-        List<Person> persons = personRepository.findByMaritalStatusIgnoreCase(status);
-        return ResponseEntity.ok(personMapper.toResponseList(persons));
-    }
-
-    @Override
-    public ResponseEntity<PersonResponse> getPersonByNationalId(String nationalId) {
-        Optional<Person> personOpt = personRepository.findByNationalId(nationalId);
-        return personOpt
-                .map(person -> ResponseEntity.ok(personMapper.toResponse(person)))
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @Override
-    public ResponseEntity<List<PersonResponse>> searchPersonsByName(String firstName, String lastName) {
-        List<Person> persons = personRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(
-                firstName != null ? firstName : "",
-                lastName != null ? lastName : ""
+    public Mono<PersonResponse> getPersonById(IdRequest request) {
+        return Mono.fromCallable(() ->
+                personRepository.findById(request.getId())
+                        .map(personMapper::toResponse)
+                        .orElseThrow(() -> new RuntimeException("Person not found with ID: " + request.getId()))
         );
-        return ResponseEntity.ok(personMapper.toResponseList(persons));
     }
 
     @Override
-    public ResponseEntity<PersonResponse> getPersonByEmail(String email) {
-        Optional<Person> personOpt = personRepository.findByEmailIgnoreCase(email);
-        return personOpt
-                .map(person -> ResponseEntity.ok(personMapper.toResponse(person)))
-                .orElse(ResponseEntity.notFound().build());
+    public Mono<PersonResponse> createPerson(CreatePersonRequest dto) {
+        return Mono.fromCallable(() -> {
+            Person entity = personMapper.toEntity(dto);
+            Person saved = personRepository.save(entity);
+            return personMapper.toResponse(saved);
+        });
     }
 
     @Override
-    public boolean existsByEmail(String email) {
-        return false;
+    public Mono<PersonResponse> updatePerson(UpdatePersonRequest dto) {
+        return Mono.fromCallable(() -> {
+            Person existing = personRepository.findById(dto.getId())
+                    .orElseThrow(() -> new RuntimeException("Person not found with ID: " + dto.getId()));
+
+            personMapper.updateEntity(existing, dto);
+            Person updated = personRepository.save(existing);
+            return personMapper.toResponse(updated);
+        });
     }
 
     @Override
-    public boolean existsByNationalId(String nationalId) {
-        return false;
+    public Mono<Void> deletePerson(IdRequest request) {
+        return Mono.fromRunnable(() -> {
+            if (!personRepository.existsById(request.getId())) {
+                throw new ResourceNotFoundException(request.getClass().getName(),request.getId());
+            }
+            personRepository.deleteById(request.getId());
+        });
     }
 
     @Override
-    public Optional<Person> findByEmailIgnoreCase(String email) {
-        return Optional.empty();
+    public Mono<List<PersonResponse>> getPersonsByGender(String gender) {
+        return Mono.fromCallable(() -> {
+            List<Person> persons = personRepository.findByGenderIgnoreCase(gender);
+            return personMapper.toResponseList(persons);
+        });
     }
 
     @Override
-    public Optional<Person> findByNationalId(String nationalId) {
-        return Optional.empty();
+    public Mono<List<PersonResponse>> getPersonsBornBefore(String date) {
+        return Mono.fromCallable(() -> {
+            LocalDate birthDate = LocalDate.parse(date);
+            List<Person> persons = personRepository.findByBirthDateBefore(birthDate);
+            return personMapper.toResponseList(persons);
+        });
     }
 
     @Override
-    public boolean existsById(Long id) {
-        return false;
+    public Mono<List<PersonResponse>> getPersonsByMaritalStatus(String status) {
+        return Mono.fromCallable(() -> {
+            List<Person> persons = personRepository.findByMaritalStatusIgnoreCase(status);
+            return personMapper.toResponseList(persons);
+        });
     }
 
     @Override
-    public List<Person> searchByOptionalNames(String firstName, String lastName) {
-        if ((firstName == null || firstName.isBlank()) && (lastName == null || lastName.isBlank())) {
-            return personRepository.findAll();
-        } else if (firstName != null && !firstName.isBlank() && (lastName == null || lastName.isBlank())) {
-            return personRepository.findByFirstNameContainingIgnoreCase(firstName);
-        } else if ((firstName == null || firstName.isBlank()) && lastName != null && !lastName.isBlank()) {
-            return personRepository.findByLastNameContainingIgnoreCase(lastName);
-        } else {
-            return personRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstName, lastName);
-        }
+    public Mono<PersonResponse> getPersonByNationalId(String nationalId) {
+        return Mono.fromCallable(() ->
+                personRepository.findByNationalId(nationalId)
+                        .map(personMapper::toResponse)
+                        .orElseThrow(() -> new RuntimeException("Person not found with national ID: " + nationalId))
+        );
     }
 
+    @Override
+    public Mono<List<PersonResponse>> searchPersonsByName(String firstName, String lastName) {
+        return Mono.fromCallable(() -> {
+            List<Person> persons = personRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(
+                    firstName != null ? firstName : "",
+                    lastName != null ? lastName : ""
+            );
+            return personMapper.toResponseList(persons);
+        });
+    }
+
+    @Override
+    public Mono<PersonResponse> getPersonByEmail(String email) {
+        return Mono.fromCallable(() ->
+                personRepository.findByEmailIgnoreCase(email)
+                        .map(personMapper::toResponse)
+                        .orElseThrow(() -> new RuntimeException("Person not found with email: " + email))
+        );
+    }
+
+    @Override
+    public Mono<Boolean> existsByEmail(String email) {
+        return Mono.fromCallable(() ->
+                personRepository.existsByEmail(email)
+        );
+    }
+
+    @Override
+    public Mono<Boolean> existsByNationalId(String nationalId) {
+        return Mono.fromCallable(() ->
+                personRepository.existsByNationalId(nationalId)
+        );
+    }
+
+    @Override
+    public Mono<Person> findByEmailIgnoreCase(String email) {
+        return Mono.fromCallable(() ->
+                personRepository.findByEmailIgnoreCase(email)
+                        .orElseThrow(() -> new RuntimeException("Person not found with email: " + email))
+        );
+    }
+
+    @Override
+    public Mono<Person> findByNationalId(String nationalId) {
+        return Mono.fromCallable(() ->
+                personRepository.findByNationalId(nationalId)
+                        .orElseThrow(() -> new RuntimeException("Person not found with national ID: " + nationalId))
+        );
+    }
+
+    @Override
+    public Mono<Boolean> existsById(Long id) {
+        return Mono.fromCallable(() ->
+                personRepository.existsById(id)
+        );
+    }
+
+    @Override
+    public Mono<List<Person>> searchByOptionalNames(String firstName, String lastName) {
+        return Mono.fromCallable(() -> {
+            if ((firstName == null || firstName.isBlank()) && (lastName == null || lastName.isBlank())) {
+                return personRepository.findAll();
+            } else if (firstName != null && !firstName.isBlank() && (lastName == null || lastName.isBlank())) {
+                return personRepository.findByFirstNameContainingIgnoreCase(firstName);
+            } else if ((firstName == null || firstName.isBlank()) && lastName != null && !lastName.isBlank()) {
+                return personRepository.findByLastNameContainingIgnoreCase(lastName);
+            } else {
+                return personRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstName, lastName);
+            }
+        });
+    }
 }

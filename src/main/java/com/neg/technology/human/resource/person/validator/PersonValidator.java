@@ -5,6 +5,7 @@ import com.neg.technology.human.resource.person.model.request.UpdatePersonReques
 import com.neg.technology.human.resource.person.service.PersonService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Mono;
 
 @Service
 public class PersonValidator {
@@ -15,41 +16,81 @@ public class PersonValidator {
         this.personService = personService;
     }
 
-    public void validateCreate(CreatePersonRequest dto) {
-        if (!StringUtils.hasText(dto.getFirstName())) {
-            throw new IllegalArgumentException("First name must not be empty");
-        }
-
-        if (dto.getEmail() != null && personService.existsByEmail(dto.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
-        }
-
-        if (dto.getNationalId() != null && personService.existsByNationalId(dto.getNationalId())) {
-            throw new IllegalArgumentException("National ID already exists");
-        }
+    public Mono<Void> validateCreate(CreatePersonRequest dto) {
+        return Mono.fromCallable(() -> {
+                    if (!StringUtils.hasText(dto.getFirstName())) {
+                        throw new IllegalArgumentException("First name must not be empty");
+                    }
+                    return dto;
+                })
+                .then(Mono.defer(() -> {
+                    if (dto.getEmail() != null) {
+                        return personService.existsByEmail(dto.getEmail())
+                                .flatMap(exists -> exists ?
+                                        Mono.error(new IllegalArgumentException("Email already exists")) :
+                                        Mono.empty());
+                    }
+                    return Mono.empty();
+                }))
+                .then(Mono.defer(() -> {
+                    if (dto.getNationalId() != null) {
+                        return personService.existsByNationalId(dto.getNationalId())
+                                .flatMap(exists -> exists ?
+                                        Mono.error(new IllegalArgumentException("National ID already exists")) :
+                                        Mono.empty());
+                    }
+                    return Mono.empty();
+                }))
+                .then();
+    }
+    public Mono<Void> validateUpdate(UpdatePersonRequest dto, Long personId) {
+        return validateFirstName(dto)
+                .then(validateEmailUniqueness(dto, personId))
+                .then(validateNationalIdUniqueness(dto, personId));
     }
 
-    public void validateUpdate(UpdatePersonRequest dto, Long personId) {
-        if (!StringUtils.hasText(dto.getFirstName())) {
-            throw new IllegalArgumentException("First name must not be empty");
+    private Mono<Void> validateFirstName(UpdatePersonRequest dto) {
+        return Mono.fromCallable(() -> {
+            if (!StringUtils.hasText(dto.getFirstName())) {
+                throw new IllegalArgumentException("First name must not be empty");
+            }
+            return null;
+        });
+    }
+    private Mono<Void> validateEmailUniqueness(UpdatePersonRequest dto, Long personId) {
+        if (dto.getEmail() == null) {
+            return Mono.empty().then();
         }
 
-        if (dto.getEmail() != null) {
-            personService.findByEmailIgnoreCase(dto.getEmail())
-                    .ifPresent(existingPerson -> {
-                        if (!existingPerson.getId().equals(personId)) {
-                            throw new IllegalArgumentException("Email already exists");
-                        }
-                    });
+        return personService.findByEmailIgnoreCase(dto.getEmail())
+                .flatMap(existingPerson -> {
+                    if (!existingPerson.getId().equals(personId)) {
+                        return Mono.<Void>error(new IllegalArgumentException("Email already exists"));
+                    }
+                    return Mono.<Void>empty();
+                })
+                .onErrorResume(this::handleNotFoundError);
+    }
+
+    private Mono<Void> validateNationalIdUniqueness(UpdatePersonRequest dto, Long personId) {
+        if (dto.getNationalId() == null) {
+            return Mono.empty().then();
         }
-        
-        if (dto.getNationalId() != null) {
-            personService.findByNationalId(dto.getNationalId())
-                    .ifPresent(existingPerson -> {
-                        if (!existingPerson.getId().equals(personId)) {
-                            throw new IllegalArgumentException("National ID already exists");
-                        }
-                    });
+
+        return personService.findByNationalId(dto.getNationalId())
+                .flatMap(existingPerson -> {
+                    if (!existingPerson.getId().equals(personId)) {
+                        return Mono.<Void>error(new IllegalArgumentException("National ID already exists"));
+                    }
+                    return Mono.<Void>empty();
+                })
+                .onErrorResume(this::handleNotFoundError);
+    }
+
+    private Mono<Void> handleNotFoundError(Throwable e) {
+        if (e.getMessage() != null && e.getMessage().contains("not found")) {
+            return Mono.empty().then();
         }
+        return Mono.<Void>error(e);
     }
 }
