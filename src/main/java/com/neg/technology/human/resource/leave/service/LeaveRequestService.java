@@ -9,31 +9,32 @@ import com.neg.technology.human.resource.leave.model.response.LeaveRequestRespon
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponseList;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
 import com.neg.technology.human.resource.utility.module.entity.request.StatusRequest;
+import reactor.core.publisher.Mono;
 
 public interface LeaveRequestService {
-    LeaveRequestResponseList getAll();
+    Mono<LeaveRequestResponseList> getAll();
 
-    LeaveRequestResponse getById(IdRequest request);
+    Mono<LeaveRequestResponse> getById(IdRequest request);
 
-    LeaveRequestResponse create(CreateLeaveRequestRequest dto);
+    Mono<LeaveRequestResponse> create(CreateLeaveRequestRequest dto);
 
-    LeaveRequestResponse update(UpdateLeaveRequestRequest dto);
+    Mono<LeaveRequestResponse> update(UpdateLeaveRequestRequest dto);
 
-    void delete(IdRequest request);
+    Mono<Void> delete(IdRequest request);
 
-    LeaveRequestResponseList getByEmployee(IdRequest request);
+    Mono<LeaveRequestResponseList> getByEmployee(IdRequest request);
 
-    LeaveRequestResponseList getByStatus(StatusRequest request);
+    Mono<LeaveRequestResponseList> getByStatus(StatusRequest request);
 
-    LeaveRequestResponseList getCancelled();
+    Mono<LeaveRequestResponseList> getCancelled();
 
-    LeaveRequestResponseList getByApprover(IdRequest request);
+    Mono<LeaveRequestResponseList> getByApprover(IdRequest request);
 
-    LeaveRequestResponseList getByEmployeeAndStatus(EmployeeStatusRequest request);
+    Mono<LeaveRequestResponseList> getByEmployeeAndStatus(EmployeeStatusRequest request);
 
-    LeaveRequestResponseList getByDateRange(EmployeeDateRangeRequest request);
+    Mono<LeaveRequestResponseList> getByDateRange(EmployeeDateRangeRequest request);
 
-    LeaveRequestResponseList getByEmployeeLeaveTypeAndDateRange(EmployeeLeaveTypeDateRangeRequest request);
+    Mono<LeaveRequestResponseList> getByEmployeeLeaveTypeAndDateRange(EmployeeLeaveTypeDateRangeRequest request);
 
-    LeaveRequestResponseList getOverlapping(EmployeeDateRangeRequest request);
+    Mono<LeaveRequestResponseList> getOverlapping(EmployeeDateRangeRequest request);
 }

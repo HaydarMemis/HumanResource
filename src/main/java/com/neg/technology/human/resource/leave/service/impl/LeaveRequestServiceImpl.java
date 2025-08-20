@@ -21,6 +21,7 @@ import com.neg.technology.human.resource.utility.module.entity.request.IdRequest
 import com.neg.technology.human.resource.utility.module.entity.request.StatusRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -33,162 +34,188 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     private final LeaveTypeRepository leaveTypeRepository;
 
     @Override
-    public LeaveRequestResponseList getAll() {
-        List<LeaveRequest> entities = leaveRequestRepository.findAll();
-        List<LeaveRequestResponse> responses = entities.stream()
-                .map(LeaveRequestMapper::toDTO)
-                .toList();
-        return new LeaveRequestResponseList(responses);
+    public Mono<LeaveRequestResponseList> getAll() {
+        return Mono.fromCallable(() -> {
+            List<LeaveRequest> entities = leaveRequestRepository.findAll();
+            List<LeaveRequestResponse> responses = entities.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
+        });
     }
 
     @Override
-    public LeaveRequestResponse getById(IdRequest request) {
-        LeaveRequest entity = leaveRequestRepository.findById(request.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Request", request.getId()));
-        return LeaveRequestMapper.toDTO(entity);
+    public Mono<LeaveRequestResponse> getById(IdRequest request) {
+        return Mono.fromCallable(() ->
+                leaveRequestRepository.findById(request.getId())
+                        .map(LeaveRequestMapper::toDTO)
+                        .orElseThrow(() -> new ResourceNotFoundException("Leave Request", request.getId()))
+        );
     }
 
     @Override
-    public LeaveRequestResponse create(CreateLeaveRequestRequest dto) {
-        Employee employee = employeeRepository.findById(dto.getEmployeeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Employee", dto.getEmployeeId()));
-
-        LeaveType leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Type", dto.getLeaveTypeId()));
-
-        Employee approver = null;
-        if(dto.getApprovedById() != null){
-            approver = employeeRepository.findById(dto.getApprovedById())
-                    .orElseThrow(() -> new ResourceNotFoundException("Approver Employee", dto.getApprovedById()));
-        }
-
-        LeaveRequest entity = LeaveRequestMapper.toEntity(dto, employee, leaveType, approver);
-        LeaveRequest saved = leaveRequestRepository.save(entity);
-
-        Logger.logCreated(LeaveRequest.class, saved.getId(), "LeaveRequest");
-
-        return LeaveRequestMapper.toDTO(saved);
-    }
-
-    @Override
-    public LeaveRequestResponse update(UpdateLeaveRequestRequest dto) {
-        LeaveRequest existing = leaveRequestRepository.findById(dto.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Request", dto.getId()));
-
-        Employee employee = null;
-        if (dto.getEmployeeId() != null) {
-            employee = employeeRepository.findById(dto.getEmployeeId())
+    public Mono<LeaveRequestResponse> create(CreateLeaveRequestRequest dto) {
+        return Mono.fromCallable(() -> {
+            Employee employee = employeeRepository.findById(dto.getEmployeeId())
                     .orElseThrow(() -> new ResourceNotFoundException("Employee", dto.getEmployeeId()));
-        }
 
-        LeaveType leaveType = null;
-        if (dto.getLeaveTypeId() != null) {
-            leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
+            LeaveType leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
                     .orElseThrow(() -> new ResourceNotFoundException("Leave Type", dto.getLeaveTypeId()));
-        }
 
-        Employee approver = null;
-        if (dto.getApprovedById() != null) {
-            approver = employeeRepository.findById(dto.getApprovedById())
-                    .orElseThrow(() -> new ResourceNotFoundException("Approver Employee", dto.getApprovedById()));
-        }
+            Employee approver = null;
+            if(dto.getApprovedById() != null){
+                approver = employeeRepository.findById(dto.getApprovedById())
+                        .orElseThrow(() -> new ResourceNotFoundException("Approver Employee", dto.getApprovedById()));
+            }
 
-        LeaveRequestMapper.updateEntity(existing, dto, employee, leaveType, approver);
+            LeaveRequest entity = LeaveRequestMapper.toEntity(dto, employee, leaveType, approver);
+            LeaveRequest saved = leaveRequestRepository.save(entity);
 
-        LeaveRequest updated = leaveRequestRepository.save(existing);
+            Logger.logCreated(LeaveRequest.class, saved.getId(), "LeaveRequest");
 
-        Logger.logUpdated(LeaveRequest.class, updated.getId(), "LeaveRequest");
-
-        return LeaveRequestMapper.toDTO(updated);
+            return LeaveRequestMapper.toDTO(saved);
+        });
     }
 
     @Override
-    public void delete(IdRequest request) {
-        if (!leaveRequestRepository.existsById(request.getId())) {
-            throw new ResourceNotFoundException("Leave Request", request.getId());
-        }
-        leaveRequestRepository.deleteById(request.getId());
-        Logger.logDeleted(LeaveRequest.class, request.getId());
+    public Mono<LeaveRequestResponse> update(UpdateLeaveRequestRequest dto) {
+        return Mono.fromCallable(() -> {
+            LeaveRequest existing = leaveRequestRepository.findById(dto.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Leave Request", dto.getId()));
+
+            Employee employee = null;
+            if (dto.getEmployeeId() != null) {
+                employee = employeeRepository.findById(dto.getEmployeeId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Employee", dto.getEmployeeId()));
+            }
+
+            LeaveType leaveType = null;
+            if (dto.getLeaveTypeId() != null) {
+                leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Leave Type", dto.getLeaveTypeId()));
+            }
+
+            Employee approver = null;
+            if (dto.getApprovedById() != null) {
+                approver = employeeRepository.findById(dto.getApprovedById())
+                        .orElseThrow(() -> new ResourceNotFoundException("Approver Employee", dto.getApprovedById()));
+            }
+
+            LeaveRequestMapper.updateEntity(existing, dto, employee, leaveType, approver);
+
+            LeaveRequest updated = leaveRequestRepository.save(existing);
+
+            Logger.logUpdated(LeaveRequest.class, updated.getId(), "LeaveRequest");
+
+            return LeaveRequestMapper.toDTO(updated);
+        });
     }
 
     @Override
-    public LeaveRequestResponseList getByEmployee(IdRequest request) {
-        List<LeaveRequest> list = leaveRequestRepository.findByEmployeeId(request.getId());
-        List<LeaveRequestResponse> responses = list.stream()
-                .map(LeaveRequestMapper::toDTO)
-                .toList();
-        return new LeaveRequestResponseList(responses);
+    public Mono<Void> delete(IdRequest request) {
+        return Mono.fromRunnable(() -> {
+            if (!leaveRequestRepository.existsById(request.getId())) {
+                throw new ResourceNotFoundException("Leave Request", request.getId());
+            }
+            leaveRequestRepository.deleteById(request.getId());
+            Logger.logDeleted(LeaveRequest.class, request.getId());
+        });
     }
 
     @Override
-    public LeaveRequestResponseList getByStatus(StatusRequest request) {
-        List<LeaveRequest> list = leaveRequestRepository.findByStatus(request.getStatus());
-        List<LeaveRequestResponse> responses = list.stream()
-                .map(LeaveRequestMapper::toDTO)
-                .toList();
-        return new LeaveRequestResponseList(responses);
+    public Mono<LeaveRequestResponseList> getByEmployee(IdRequest request) {
+        return Mono.fromCallable(() -> {
+            List<LeaveRequest> list = leaveRequestRepository.findByEmployeeId(request.getId());
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
+        });
     }
 
     @Override
-    public LeaveRequestResponseList getCancelled() {
-        List<LeaveRequest> list = leaveRequestRepository.findByIsCancelledTrue();
-        List<LeaveRequestResponse> responses = list.stream()
-                .map(LeaveRequestMapper::toDTO)
-                .toList();
-        return new LeaveRequestResponseList(responses);
+    public Mono<LeaveRequestResponseList> getByStatus(StatusRequest request) {
+        return Mono.fromCallable(() -> {
+            List<LeaveRequest> list = leaveRequestRepository.findByStatus(request.getStatus());
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
+        });
     }
 
     @Override
-    public LeaveRequestResponseList getByApprover(IdRequest request) {
-        List<LeaveRequest> list = leaveRequestRepository.findByApprovedById(request.getId());
-        List<LeaveRequestResponse> responses = list.stream()
-                .map(LeaveRequestMapper::toDTO)
-                .toList();
-        return new LeaveRequestResponseList(responses);
+    public Mono<LeaveRequestResponseList> getCancelled() {
+        return Mono.fromCallable(() -> {
+            List<LeaveRequest> list = leaveRequestRepository.findByIsCancelledTrue();
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
+        });
     }
 
     @Override
-    public LeaveRequestResponseList getByEmployeeAndStatus(EmployeeStatusRequest request) {
-        List<LeaveRequest> list = leaveRequestRepository.findByEmployeeIdAndStatus(request.getEmployeeId(), request.getStatus());
-        List<LeaveRequestResponse> responses = list.stream()
-                .map(LeaveRequestMapper::toDTO)
-                .toList();
-        return new LeaveRequestResponseList(responses);
+    public Mono<LeaveRequestResponseList> getByApprover(IdRequest request) {
+        return Mono.fromCallable(() -> {
+            List<LeaveRequest> list = leaveRequestRepository.findByApprovedById(request.getId());
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
+        });
     }
 
     @Override
-    public LeaveRequestResponseList getByDateRange(EmployeeDateRangeRequest request) {
-        List<LeaveRequest> list = leaveRequestRepository.findByStartDateBetween(request.getStartDate(), request.getEndDate());
-        List<LeaveRequestResponse> responses = list.stream()
-                .map(LeaveRequestMapper::toDTO)
-                .toList();
-        return new LeaveRequestResponseList(responses);
+    public Mono<LeaveRequestResponseList> getByEmployeeAndStatus(EmployeeStatusRequest request) {
+        return Mono.fromCallable(() -> {
+            List<LeaveRequest> list = leaveRequestRepository.findByEmployeeIdAndStatus(request.getEmployeeId(), request.getStatus());
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
+        });
     }
 
     @Override
-    public LeaveRequestResponseList getByEmployeeLeaveTypeAndDateRange(EmployeeLeaveTypeDateRangeRequest request) {
-        List<LeaveRequest> list = leaveRequestRepository.findByEmployeeIdAndLeaveTypeIdAndStartDateBetween(
-                request.getEmployeeId(),
-                request.getLeaveTypeId(),
-                request.getStartDate(),
-                request.getEndDate()
-        );
-        List<LeaveRequestResponse> responses = list.stream()
-                .map(LeaveRequestMapper::toDTO)
-                .toList();
-        return new LeaveRequestResponseList(responses);
+    public Mono<LeaveRequestResponseList> getByDateRange(EmployeeDateRangeRequest request) {
+        return Mono.fromCallable(() -> {
+            List<LeaveRequest> list = leaveRequestRepository.findByStartDateBetween(request.getStartDate(), request.getEndDate());
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
+        });
     }
 
     @Override
-    public LeaveRequestResponseList getOverlapping(EmployeeDateRangeRequest request) {
-        List<LeaveRequest> list = leaveRequestRepository.findOverlappingRequests(
-                request.getEmployeeId(),
-                request.getStartDate(),
-                request.getEndDate()
-        );
-        List<LeaveRequestResponse> responses = list.stream()
-                .map(LeaveRequestMapper::toDTO)
-                .toList();
-        return new LeaveRequestResponseList(responses);
+    public Mono<LeaveRequestResponseList> getByEmployeeLeaveTypeAndDateRange(EmployeeLeaveTypeDateRangeRequest request) {
+        return Mono.fromCallable(() -> {
+            List<LeaveRequest> list = leaveRequestRepository.findByEmployeeIdAndLeaveTypeIdAndStartDateBetween(
+                    request.getEmployeeId(),
+                    request.getLeaveTypeId(),
+                    request.getStartDate(),
+                    request.getEndDate()
+            );
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
+        });
+    }
+
+    @Override
+    public Mono<LeaveRequestResponseList> getOverlapping(EmployeeDateRangeRequest request) {
+        return Mono.fromCallable(() -> {
+            List<LeaveRequest> list = leaveRequestRepository.findOverlappingRequests(
+                    request.getEmployeeId(),
+                    request.getStartDate(),
+                    request.getEndDate()
+            );
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
+        });
     }
 }
