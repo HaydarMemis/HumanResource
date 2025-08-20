@@ -9,43 +9,45 @@ import com.neg.technology.human.resource.utility.module.entity.request.IdRequest
 import com.neg.technology.human.resource.utility.module.entity.request.SalaryRequest;
 import com.neg.technology.human.resource.utility.module.entity.request.TitleRequest;
 import jakarta.validation.Valid;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
 
 public interface PositionService {
-    PositionResponseList getAllPositions();
 
-    Optional<Position> findByTitle(String title);
+    Mono<PositionResponseList> getAllPositions();
 
-    boolean existsByTitle(String title);
+    Mono<PositionResponse> getPositionById(IdRequest request);
 
-    List<Position> findByBaseSalaryGreaterThanEqual(java.math.BigDecimal salary);
+    Mono<PositionResponse> createPosition(CreatePositionRequest request);
 
-    Position save(Position position);
+    Mono<PositionResponse> updatePosition(UpdatePositionRequest request);
 
-    Optional<Position> findById(Long id);
+    Mono<Void> deletePosition(@Valid IdRequest request);
 
-    List<Position> findAll();
+    Mono<PositionResponse> getPositionByTitle(TitleRequest request);
 
-    void deleteById(Long id);
+    Mono<Boolean> existsByTitle(TitleRequest request);
 
-    Position update(Long id, Position position);
+    Mono<PositionResponseList> getPositionsByBaseSalary(SalaryRequest request);
 
-    boolean existsById(Long id);
+    // Utility-level methods
+    Mono<Position> save(Position position);
 
-    PositionResponse getPositionById(IdRequest request);
+    Mono<Position> findById(Long id);
 
-    PositionResponse createPosition(CreatePositionRequest request);
+    Flux<Position> findAll();
 
-    PositionResponse updatePosition(UpdatePositionRequest request);
+    Mono<Void> deleteById(Long id);
 
-    void deletePosition(@Valid IdRequest request);
+    Mono<Position> update(Long id, Position position);
 
-    PositionResponse getPositionByTitle(TitleRequest request);
+    Mono<Boolean> existsById(Long id);
 
-    boolean existsByTitle(TitleRequest request);
+    Mono<Boolean> existsByTitle(String title);
 
-    PositionResponseList getPositionsByBaseSalary(SalaryRequest request);
+    Flux<Position> findByBaseSalaryGreaterThanEqual(BigDecimal salary);
 
+    Mono<Position> findByTitle(String title);
 }

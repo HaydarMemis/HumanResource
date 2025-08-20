@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/companies")
@@ -28,52 +29,58 @@ public class CompanyController {
     @Operation(summary = "Create a new company")
     @ApiResponse(responseCode = "200", description = "Company created successfully")
     @PostMapping("/create")
-    public ResponseEntity<CompanyResponse> createCompany(@Valid @RequestBody CreateCompanyRequest request) {
+    public Mono<ResponseEntity<CompanyResponse>> createCompany(@Valid @RequestBody CreateCompanyRequest request) {
         companyValidator.validateCreate(request);
-        return ResponseEntity.ok(companyService.createCompany(request));
+        return companyService.createCompany(request)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Update an existing company")
     @ApiResponse(responseCode = "200", description = "Company updated successfully")
     @PostMapping("/update")
-    public ResponseEntity<CompanyResponse> updateCompany(@Valid @RequestBody UpdateCompanyRequest request) {
+    public Mono<ResponseEntity<CompanyResponse>> updateCompany(@Valid @RequestBody UpdateCompanyRequest request) {
         companyValidator.validateUpdate(request);
-        return ResponseEntity.ok(companyService.updateCompany(request));
+        return companyService.updateCompany(request)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Delete a company by ID")
     @ApiResponse(responseCode = "204", description = "Company deleted successfully")
     @PostMapping("/delete")
-    public ResponseEntity<Void> deleteCompany(@Valid @RequestBody CompanyIdRequest request) {
-        companyService.deleteCompany(request);
-        return ResponseEntity.noContent().build();
+    public Mono<ResponseEntity<Void>> deleteCompany(@Valid @RequestBody CompanyIdRequest request) {
+        return companyService.deleteCompany(request)
+                .then(Mono.just(ResponseEntity.noContent().build()));
     }
 
     @Operation(summary = "Get all companies")
     @ApiResponse(responseCode = "200", description = "List of companies retrieved successfully")
     @PostMapping("/getAll")
-    public ResponseEntity<CompanyResponseList> getAllCompanies() {
-        return ResponseEntity.ok(companyService.getAllCompanies());
+    public Mono<ResponseEntity<CompanyResponseList>> getAllCompanies() {
+        return companyService.getAllCompanies()
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Get a company by ID")
     @ApiResponse(responseCode = "200", description = "Company found")
     @PostMapping("/getById")
-    public ResponseEntity<CompanyResponse> getCompanyById(@Valid @RequestBody CompanyIdRequest request) {
-        return ResponseEntity.ok(companyService.getCompanyById(request));
+    public Mono<ResponseEntity<CompanyResponse>> getCompanyById(@Valid @RequestBody CompanyIdRequest request) {
+        return companyService.getCompanyById(request)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Get a company by name")
     @ApiResponse(responseCode = "200", description = "Company found")
     @PostMapping("/getByName")
-    public ResponseEntity<CompanyResponse> getCompanyByName(@Valid @RequestBody NameRequest request) {
-        return ResponseEntity.ok(companyService.getCompanyByName(request));
+    public Mono<ResponseEntity<CompanyResponse>> getCompanyByName(@Valid @RequestBody NameRequest request) {
+        return companyService.getCompanyByName(request)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Check if a company exists by name")
     @ApiResponse(responseCode = "200", description = "Existence check completed")
     @PostMapping("/existsByName")
-    public ResponseEntity<Boolean> existsByName(@Valid @RequestBody NameRequest request) {
-        return ResponseEntity.ok(companyService.existsByName(request));
+    public Mono<ResponseEntity<Boolean>> existsByName(@Valid @RequestBody NameRequest request) {
+        return companyService.existsByName(request)
+                .map(ResponseEntity::ok);
     }
 }
