@@ -1,18 +1,17 @@
 package com.neg.technology.human.resource.exception;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.server.MissingRequestValueException;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.ServerErrorException;
+import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -23,24 +22,24 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiErrorResponse> handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND, request.getRequestURI());
+    public ResponseEntity<ApiErrorResponse> handleResourceNotFound(ResourceNotFoundException ex, ServerWebExchange exchange) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND, exchange.getRequest().getPath().value());
     }
 
     @ExceptionHandler(InvalidLeaveRequestException.class)
-    public ResponseEntity<ApiErrorResponse> handleInvalidLeaveRequest(InvalidLeaveRequestException ex, HttpServletRequest request) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request.getRequestURI());
+    public ResponseEntity<ApiErrorResponse> handleInvalidLeaveRequest(InvalidLeaveRequestException ex, ServerWebExchange exchange) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, exchange.getRequest().getPath().value());
     }
 
     @ExceptionHandler(DuplicateEmployeeException.class)
-    public ResponseEntity<ApiErrorResponse> handleDuplicateEmployee(DuplicateEmployeeException ex, HttpServletRequest request) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT, request.getRequestURI());
+    public ResponseEntity<ApiErrorResponse> handleDuplicateEmployee(DuplicateEmployeeException ex, ServerWebExchange exchange) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT, exchange.getRequest().getPath().value());
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    @ExceptionHandler(WebExchangeBindException.class)
+    public ResponseEntity<Object> handleValidationErrors(WebExchangeBindException ex, ServerWebExchange exchange) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
+        ex.getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
         );
 
@@ -49,49 +48,46 @@ public class GlobalExceptionHandler {
         body.put("status", HttpStatus.BAD_REQUEST.value());
         body.put("error", "Validation Failed");
         body.put("details", errors);
-        body.put("path", request.getRequestURI());
+        body.put("path", exchange.getRequest().getPath().value());
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest request) {
-        return buildErrorResponse("Invalid parameter: " + ex.getMessage(), HttpStatus.BAD_REQUEST, request.getRequestURI());
-    }
-
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ApiErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
-        String message = "Parameter type mismatch: '" + ex.getName() +
-                "' could not be converted to '" + ex.getRequiredType().getSimpleName() + "'.";
-        return buildErrorResponse(message, HttpStatus.BAD_REQUEST, request.getRequestURI());
-    }
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ApiErrorResponse> handleJpaEntityNotFound(EntityNotFoundException ex, HttpServletRequest request) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND, request.getRequestURI());
+    public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex, ServerWebExchange exchange) {
+        return buildErrorResponse("Invalid parameter: " + ex.getMessage(), HttpStatus.BAD_REQUEST, exchange.getRequest().getPath().value());
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex, HttpServletRequest request) {
-        return buildErrorResponse("Database constraint violation: " + ex.getRootCause().getMessage(), HttpStatus.CONFLICT, request.getRequestURI());
+    public ResponseEntity<ApiErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex, ServerWebExchange exchange) {
+        return buildErrorResponse("Database constraint violation: " + ex.getMostSpecificCause().getMessage(),
+                HttpStatus.CONFLICT, exchange.getRequest().getPath().value());
     }
 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ApiErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
-        String message = "HTTP method not supported: " + ex.getMethod();
-        return buildErrorResponse(message, HttpStatus.METHOD_NOT_ALLOWED, request.getRequestURI());
+    @ExceptionHandler(MissingRequestValueException.class)
+    public ResponseEntity<ApiErrorResponse> handleMissingRequestParam(MissingRequestValueException ex, ServerWebExchange exchange) {
+        String message = "Missing request parameter or body value: " + ex.getReason();
+        return buildErrorResponse(message, HttpStatus.BAD_REQUEST, exchange.getRequest().getPath().value());
     }
 
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ApiErrorResponse> handleMissingRequestParam(MissingServletRequestParameterException ex, HttpServletRequest request) {
-        String message = "Missing request parameter: " + ex.getParameterName();
-        return buildErrorResponse(message, HttpStatus.BAD_REQUEST, request.getRequestURI());
+    @ExceptionHandler(UnsupportedMediaTypeStatusException.class)
+    public ResponseEntity<ApiErrorResponse> handleUnsupportedMediaType(UnsupportedMediaTypeStatusException ex, ServerWebExchange exchange) {
+        return buildErrorResponse("Unsupported media type: " + ex.getMessage(),
+                HttpStatus.UNSUPPORTED_MEDIA_TYPE, exchange.getRequest().getPath().value());
+    }
+
+    @ExceptionHandler(ServerErrorException.class)
+    public ResponseEntity<ApiErrorResponse> handleServerError(ServerErrorException ex, ServerWebExchange exchange) {
+        log.error("Server error occurred", ex);
+        return buildErrorResponse("Server error: " + ex.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR, exchange.getRequest().getPath().value());
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiErrorResponse> handleGeneric(Exception ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleGeneric(Exception ex, ServerWebExchange exchange) {
         log.error("Unexpected error occurred", ex);
-        return buildErrorResponse("An unexpected error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, request.getRequestURI());
+        return buildErrorResponse("An unexpected error occurred: " + ex.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR, exchange.getRequest().getPath().value());
     }
 
     private ResponseEntity<ApiErrorResponse> buildErrorResponse(String message, HttpStatus status, String path) {
