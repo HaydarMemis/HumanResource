@@ -6,20 +6,21 @@ import com.neg.technology.human.resource.department.model.response.DepartmentRes
 import com.neg.technology.human.resource.department.model.response.DepartmentResponseList;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
 import com.neg.technology.human.resource.utility.module.entity.request.NameRequest;
+import reactor.core.publisher.Mono;
 
 public interface DepartmentService {
 
-    DepartmentResponse createDepartment(CreateDepartmentRequest request);
+    Mono<DepartmentResponse> createDepartment(CreateDepartmentRequest request);
 
-    DepartmentResponse updateDepartment(UpdateDepartmentRequest request);
+    Mono<DepartmentResponse> updateDepartment(UpdateDepartmentRequest request);
 
-    void deleteDepartment(IdRequest request);
+    Mono<Void> deleteDepartment(IdRequest request);
 
-    DepartmentResponse getDepartmentById(IdRequest request);
+    Mono<DepartmentResponse> getDepartmentById(IdRequest request);
 
-    DepartmentResponse getDepartmentByName(NameRequest request);
+    Mono<DepartmentResponse> getDepartmentByName(NameRequest request);
 
-    boolean existsByName(NameRequest request);
+    Mono<Boolean> existsByName(NameRequest request);
 
-    DepartmentResponseList getAllDepartments();
+    Mono<DepartmentResponseList> getAllDepartments();
 }

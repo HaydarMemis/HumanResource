@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/departments")
@@ -28,52 +29,63 @@ public class DepartmentController {
     @Operation(summary = "Create a new department")
     @ApiResponse(responseCode = "200", description = "Department created successfully")
     @PostMapping("/create")
-    public ResponseEntity<DepartmentResponse> createDepartment(@Valid @RequestBody CreateDepartmentRequest request) {
+    public Mono<ResponseEntity<DepartmentResponse>> createDepartment(
+            @Valid @RequestBody CreateDepartmentRequest request) {
         departmentValidator.validateCreate(request);
-        return ResponseEntity.ok(departmentService.createDepartment(request));
+        return departmentService.createDepartment(request)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Update an existing department")
     @ApiResponse(responseCode = "200", description = "Department updated successfully")
     @PostMapping("/update")
-    public ResponseEntity<DepartmentResponse> updateDepartment(@Valid @RequestBody UpdateDepartmentRequest request) {
+    public Mono<ResponseEntity<DepartmentResponse>> updateDepartment(
+            @Valid @RequestBody UpdateDepartmentRequest request) {
         departmentValidator.validateUpdate(request);
-        return ResponseEntity.ok(departmentService.updateDepartment(request));
+        return departmentService.updateDepartment(request)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Delete a department by ID")
     @ApiResponse(responseCode = "204", description = "Department deleted successfully")
     @PostMapping("/delete")
-    public ResponseEntity<Void> deleteDepartment(@Valid @RequestBody IdRequest request) {
-        departmentService.deleteDepartment(request);
-        return ResponseEntity.noContent().build();
+    public Mono<ResponseEntity<Void>> deleteDepartment(@Valid @RequestBody IdRequest request) {
+        return departmentService.deleteDepartment(request)
+                .thenReturn(ResponseEntity.noContent().build());
     }
 
     @Operation(summary = "Get all departments")
     @ApiResponse(responseCode = "200", description = "List of departments retrieved successfully")
     @PostMapping("/getAll")
-    public ResponseEntity<DepartmentResponseList> getAllDepartments() {
-        return ResponseEntity.ok(departmentService.getAllDepartments());
+    public Mono<ResponseEntity<DepartmentResponseList>> getAllDepartments() {
+        return departmentService.getAllDepartments()
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Get a department by ID")
     @ApiResponse(responseCode = "200", description = "Department found")
     @PostMapping("/getById")
-    public ResponseEntity<DepartmentResponse> getDepartmentById(@Valid @RequestBody IdRequest request) {
-        return ResponseEntity.ok(departmentService.getDepartmentById(request));
+    public Mono<ResponseEntity<DepartmentResponse>> getDepartmentById(
+            @Valid @RequestBody IdRequest request) {
+        return departmentService.getDepartmentById(request)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Get a department by name")
     @ApiResponse(responseCode = "200", description = "Department found")
     @PostMapping("/getByName")
-    public ResponseEntity<DepartmentResponse> getDepartmentByName(@Valid @RequestBody NameRequest request) {
-        return ResponseEntity.ok(departmentService.getDepartmentByName(request));
+    public Mono<ResponseEntity<DepartmentResponse>> getDepartmentByName(
+            @Valid @RequestBody NameRequest request) {
+        return departmentService.getDepartmentByName(request)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Check if a department exists by name")
     @ApiResponse(responseCode = "200", description = "Existence check completed")
     @PostMapping("/existsByName")
-    public ResponseEntity<Boolean> existsByName(@Valid @RequestBody NameRequest request) {
-        return ResponseEntity.ok(departmentService.existsByName(request));
+    public Mono<ResponseEntity<Boolean>> existsByName(
+            @Valid @RequestBody NameRequest request) {
+        return departmentService.existsByName(request)
+                .map(ResponseEntity::ok);
     }
 }
