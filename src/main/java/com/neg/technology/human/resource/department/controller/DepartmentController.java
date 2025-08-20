@@ -31,8 +31,8 @@ public class DepartmentController {
     @PostMapping("/create")
     public Mono<ResponseEntity<DepartmentResponse>> createDepartment(
             @Valid @RequestBody CreateDepartmentRequest request) {
-        departmentValidator.validateCreate(request);
-        return departmentService.createDepartment(request)
+        return departmentValidator.validateCreate(request)
+                .then(departmentService.createDepartment(request))
                 .map(ResponseEntity::ok);
     }
 
@@ -41,8 +41,8 @@ public class DepartmentController {
     @PostMapping("/update")
     public Mono<ResponseEntity<DepartmentResponse>> updateDepartment(
             @Valid @RequestBody UpdateDepartmentRequest request) {
-        departmentValidator.validateUpdate(request);
-        return departmentService.updateDepartment(request)
+        return departmentValidator.validateUpdate(request)
+                .then(departmentService.updateDepartment(request))
                 .map(ResponseEntity::ok);
     }
 
@@ -51,7 +51,7 @@ public class DepartmentController {
     @PostMapping("/delete")
     public Mono<ResponseEntity<Void>> deleteDepartment(@Valid @RequestBody IdRequest request) {
         return departmentService.deleteDepartment(request)
-                .thenReturn(ResponseEntity.noContent().build());
+                .then(Mono.just(ResponseEntity.noContent().build()));
     }
 
     @Operation(summary = "Get all departments")

@@ -27,35 +27,39 @@ public class PositionController {
     @ApiResponse(responseCode = "200", description = "Successfully retrieved list")
     @PostMapping("/getAll")
     public Mono<ResponseEntity<PositionResponseList>> getAllPositions() {
-        return Mono.fromCallable(() -> ResponseEntity.ok(positionService.getAllPositions()));
+        return positionService.getAllPositions()
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Get position by ID", description = "Retrieves the position with the specified ID.")
     @ApiResponse(responseCode = "200", description = "Position found")
     @PostMapping("/getById")
     public Mono<ResponseEntity<PositionResponse>> getPositionById(@Valid @RequestBody IdRequest request) {
-        return Mono.fromCallable(() -> ResponseEntity.ok(positionService.getPositionById(request)));
+        return positionService.getPositionById(request)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Create new position", description = "Creates a new position record.")
     @ApiResponse(responseCode = "200", description = "Position successfully created")
     @PostMapping("/create")
     public Mono<ResponseEntity<PositionResponse>> createPosition(@Valid @RequestBody CreatePositionRequest request) {
-        return Mono.fromCallable(() -> ResponseEntity.ok(positionService.createPosition(request)));
+        return positionService.createPosition(request)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Update position", description = "Updates an existing position.")
     @ApiResponse(responseCode = "200", description = "Position successfully updated")
     @PostMapping("/update")
     public Mono<ResponseEntity<PositionResponse>> updatePosition(@Valid @RequestBody UpdatePositionRequest request) {
-        return Mono.fromCallable(() -> ResponseEntity.ok(positionService.updatePosition(request)));
+        return positionService.updatePosition(request)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Delete position", description = "Deletes the position with the specified ID.")
     @ApiResponse(responseCode = "204", description = "Position successfully deleted")
     @PostMapping("/delete")
     public Mono<ResponseEntity<Void>> deletePosition(@Valid @RequestBody IdRequest request) {
-        return Mono.fromRunnable(() -> positionService.deletePosition(request))
+        return positionService.deletePosition(request)
                 .then(Mono.just(ResponseEntity.noContent().build()));
     }
 
@@ -63,20 +67,23 @@ public class PositionController {
     @ApiResponse(responseCode = "200", description = "Position found")
     @PostMapping("/getByTitle")
     public Mono<ResponseEntity<PositionResponse>> getPositionByTitle(@Valid @RequestBody TitleRequest request) {
-        return Mono.fromCallable(() -> ResponseEntity.ok(positionService.getPositionByTitle(request)));
+        return positionService.getPositionByTitle(request)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Check if position exists by title", description = "Checks whether a position with the given title exists.")
     @ApiResponse(responseCode = "200", description = "Boolean result indicating existence")
     @PostMapping("/existsByTitle")
     public Mono<ResponseEntity<Boolean>> existsByTitle(@Valid @RequestBody TitleRequest request) {
-        return Mono.fromCallable(() -> ResponseEntity.ok(positionService.existsByTitle(request)));
+        return positionService.existsByTitle(request)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Get positions by base salary", description = "Retrieves all positions with a base salary greater than or equal to the specified amount.")
     @ApiResponse(responseCode = "200", description = "List of matching positions")
     @PostMapping("/getByBaseSalary")
     public Mono<ResponseEntity<PositionResponseList>> getPositionsByBaseSalary(@Valid @RequestBody SalaryRequest request) {
-        return Mono.fromCallable(() -> ResponseEntity.ok(positionService.getPositionsByBaseSalary(request)));
+        return positionService.getPositionsByBaseSalary(request)
+                .map(ResponseEntity::ok);
     }
 }

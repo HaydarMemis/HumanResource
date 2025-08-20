@@ -2,44 +2,54 @@ package com.neg.technology.human.resource.department.validator;
 
 import com.neg.technology.human.resource.department.model.request.CreateDepartmentRequest;
 import com.neg.technology.human.resource.department.model.request.UpdateDepartmentRequest;
-import com.neg.technology.human.resource.department.service.DepartmentService;
-import com.neg.technology.human.resource.utility.module.entity.request.NameRequest;
+import com.neg.technology.human.resource.department.repository.DepartmentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Mono;
 
 @Service
 public class DepartmentValidator {
 
-    private final DepartmentService departmentService;
+    private final DepartmentRepository departmentRepository;
 
-    public DepartmentValidator(DepartmentService departmentService) {
-        this.departmentService = departmentService;
+    public DepartmentValidator(DepartmentRepository departmentRepository) {
+        this.departmentRepository = departmentRepository;
     }
 
-    public void validateCreate(CreateDepartmentRequest dto) {
-        if (!StringUtils.hasText(dto.getName())) {
-            throw new IllegalArgumentException("Department name must not be empty");
-        }
-        NameRequest nameRequest = new NameRequest();
-        nameRequest.setName(dto.getName());
-        if (departmentService.existsByName(nameRequest)) {
-            throw new IllegalArgumentException("Department name already exists");
-        }
+    public Mono<Void> validateCreate(CreateDepartmentRequest dto) {
+        return Mono.fromCallable(() -> {
+                    if (!StringUtils.hasText(dto.getName())) {
+                        throw new IllegalArgumentException("Department name must not be empty");
+                    }
+                    return dto;
+                })
+                .then(Mono.defer(() -> {
+                    boolean exists = departmentRepository.existsByName(dto.getName());
+                    if (exists) {
+                        return Mono.error(new IllegalArgumentException("Department name already exists"));
+                    }
+                    return Mono.empty();
+                }))
+                .then();
     }
 
-    public void validateUpdate(UpdateDepartmentRequest dto) {
-        if (!StringUtils.hasText(dto.getName())) {
-            throw new IllegalArgumentException("Department name must not be empty");
-        }
-        NameRequest nameRequest = new NameRequest();
-        nameRequest.setName(dto.getName());
-
-        if (departmentService.existsByName(nameRequest)) {
-            // Servis getDepartmentByName ile mevcut department'ı çekiyoruz
-            var existing = departmentService.getDepartmentByName(nameRequest);
-            if (!existing.getId().equals(dto.getId())) {
-                throw new IllegalArgumentException("Department name already exists");
-            }
-        }
+    public Mono<Void> validateUpdate(UpdateDepartmentRequest dto) {
+        return Mono.fromCallable(() -> {
+                    if (!StringUtils.hasText(dto.getName())) {
+                        throw new IllegalArgumentException("Department name must not be empty");
+                    }
+                    return dto;
+                })
+                .then(Mono.defer(() -> {
+                    return departmentRepository.findByName(dto.getName())
+                            .map(existing -> {
+                                if (!existing.getId().equals(dto.getId())) {
+                                    throw new IllegalArgumentException("Department name already exists");
+                                }
+                                return Mono.<Void>empty();
+                            })
+                            .orElse(Mono.empty());
+                }))
+                .then();
     }
 }
