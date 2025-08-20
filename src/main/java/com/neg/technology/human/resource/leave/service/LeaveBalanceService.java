@@ -9,27 +9,27 @@ import com.neg.technology.human.resource.employee.model.request.EmployeeLeaveTyp
 import com.neg.technology.human.resource.employee.model.request.EmployeeLeaveTypeYearRequest;
 import com.neg.technology.human.resource.leave.model.request.LeaveTypeYearRequest;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
-import org.springframework.http.ResponseEntity;
+import reactor.core.publisher.Mono;
 
 public interface LeaveBalanceService {
 
-    LeaveBalanceResponseList getAll();
+    Mono<LeaveBalanceResponseList> getAll();
 
-    ResponseEntity<LeaveBalanceResponse> getById(IdRequest request);
+    Mono<LeaveBalanceResponse> getById(IdRequest request);
 
-    LeaveBalanceResponse create(CreateLeaveBalanceRequest request);
+    Mono<LeaveBalanceResponse> create(CreateLeaveBalanceRequest request);
 
-    ResponseEntity<LeaveBalanceResponse> update(UpdateLeaveBalanceRequest request);
+    Mono<LeaveBalanceResponse> update(UpdateLeaveBalanceRequest request);
 
-    void delete(IdRequest request);
+    Mono<Void> delete(IdRequest request);
 
-    LeaveBalanceResponseList getByEmployee(IdRequest request);
+    Mono<LeaveBalanceResponseList> getByEmployee(IdRequest request);
 
-    LeaveBalanceResponseList getByEmployeeAndYear(EmployeeYearRequest request);
+    Mono<LeaveBalanceResponseList> getByEmployeeAndYear(EmployeeYearRequest request);
 
-    ResponseEntity<LeaveBalanceResponse> getByEmployeeAndLeaveType(EmployeeLeaveTypeRequest request);
+    Mono<LeaveBalanceResponse> getByEmployeeAndLeaveType(EmployeeLeaveTypeRequest request);
 
-    ResponseEntity<LeaveBalanceResponse> getByEmployeeLeaveTypeAndYear(EmployeeLeaveTypeYearRequest request);
+    Mono<LeaveBalanceResponse> getByEmployeeLeaveTypeAndYear(EmployeeLeaveTypeYearRequest request);
 
-    LeaveBalanceResponseList getByLeaveTypeAndYear(LeaveTypeYearRequest request);
+    Mono<LeaveBalanceResponseList> getByLeaveTypeAndYear(LeaveTypeYearRequest request);
 }
