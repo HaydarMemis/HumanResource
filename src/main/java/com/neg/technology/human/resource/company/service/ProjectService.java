@@ -1,44 +1,30 @@
 package com.neg.technology.human.resource.company.service;
-
 import com.neg.technology.human.resource.company.model.entity.Project;
-import com.neg.technology.human.resource.company.model.request.CreateProjectRequest;
-import com.neg.technology.human.resource.company.model.request.ProjectIdRequest;
-import com.neg.technology.human.resource.company.model.request.UpdateProjectRequest;
-import com.neg.technology.human.resource.company.model.response.ProjectResponse;
-import com.neg.technology.human.resource.company.model.response.ProjectResponseList;
+import com.neg.technology.human.resource.company.model.request.*;
+import com.neg.technology.human.resource.company.model.response.*;
 import com.neg.technology.human.resource.utility.module.entity.request.NameRequest;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ProjectService {
-    ProjectResponseList getAllProjects();
 
-    ProjectResponse getProjectById(ProjectIdRequest request);
+    Mono<ProjectResponseList> getAllProjects();
 
-    ProjectResponse getProjectByName(NameRequest request);
+    Mono<ProjectResponse> getProjectById(ProjectIdRequest request);
 
-    ProjectResponse createProject(CreateProjectRequest request);
+    Mono<ProjectResponse> getProjectByName(NameRequest request);
 
-    ProjectResponse updateProject(UpdateProjectRequest request);
+    Mono<ProjectResponse> createProject(CreateProjectRequest request);
 
-    void deleteProject(ProjectIdRequest request);
+    Mono<ProjectResponse> updateProject(UpdateProjectRequest request);
 
-    boolean existsByName(NameRequest request);
+    Mono<Void> deleteProject(ProjectIdRequest request);
 
+    Mono<Boolean> existsByName(NameRequest request);
+
+    // helper methods, still return plain types for internal use if needed
     Project save(Project project);
 
-    Optional<Project> findById(Long id);
-
-    Optional<Project> findByName(String name);
-
     List<Project> findAll();
-
-    boolean existsByName(String name);
-
-    void deleteById(Long id);
-
-    Project update(Long id, Project project);
-
-    boolean existsById(Long id);
 }
