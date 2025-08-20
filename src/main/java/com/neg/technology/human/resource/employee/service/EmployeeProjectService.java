@@ -3,29 +3,29 @@ package com.neg.technology.human.resource.employee.service;
 import com.neg.technology.human.resource.employee.model.request.CreateEmployeeProjectRequest;
 import com.neg.technology.human.resource.employee.model.request.UpdateEmployeeProjectRequest;
 import com.neg.technology.human.resource.employee.model.response.EmployeeProjectResponse;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface EmployeeProjectService {
 
-    List<EmployeeProjectResponse> getAllEmployeeProjects();
+    Mono<List<EmployeeProjectResponse>> getAllEmployeeProjects();
 
-    Optional<EmployeeProjectResponse> getEmployeeProjectById(Long id);
+    Mono<EmployeeProjectResponse> getEmployeeProjectById(Long id);
 
-    EmployeeProjectResponse createEmployeeProject(CreateEmployeeProjectRequest request);
+    Mono<EmployeeProjectResponse> createEmployeeProject(CreateEmployeeProjectRequest request);
 
-    Optional<EmployeeProjectResponse> updateEmployeeProject(UpdateEmployeeProjectRequest request);
+    Mono<EmployeeProjectResponse> updateEmployeeProject(UpdateEmployeeProjectRequest request);
 
-    void deleteEmployeeProject(Long id);
+    Mono<Void> deleteEmployeeProject(Long id);
 
-    void deleteByEmployeeId(Long employeeId);
+    Mono<Void> deleteByEmployeeId(Long employeeId);
 
-    void deleteByProjectId(Long projectId);
+    Mono<Void> deleteByProjectId(Long projectId);
 
-    List<EmployeeProjectResponse> getByEmployeeId(Long employeeId);
+    Mono<List<EmployeeProjectResponse>> getByEmployeeId(Long employeeId);
 
-    List<EmployeeProjectResponse> getByProjectId(Long projectId);
+    Mono<List<EmployeeProjectResponse>> getByProjectId(Long projectId);
 
-    boolean existsByEmployeeIdAndProjectId(Long employeeId, Long projectId);
+    Mono<Boolean> existsByEmployeeIdAndProjectId(Long employeeId, Long projectId);
 }

@@ -14,8 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/employee-projects")
@@ -29,66 +28,86 @@ public class EmployeeProjectController {
     @Operation(summary = "Create a new employee project")
     @ApiResponse(responseCode = "200", description = "Employee project created successfully")
     @PostMapping("/create")
-    public ResponseEntity<EmployeeProjectResponse> create(@Valid @RequestBody CreateEmployeeProjectRequest request) {
+    public Mono<ResponseEntity<EmployeeProjectResponse>> create(@Valid @RequestBody CreateEmployeeProjectRequest request) {
         employeeProjectValidator.validateCreateDTO(request);
-        return ResponseEntity.ok(employeeProjectService.createEmployeeProject(request));
+        return employeeProjectService.createEmployeeProject(request)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Update an existing employee project")
     @ApiResponse(responseCode = "200", description = "Employee project updated successfully")
     @PostMapping("/update")
-    public ResponseEntity<EmployeeProjectResponse> update(@Valid @RequestBody UpdateEmployeeProjectRequest request) {
+    public Mono<ResponseEntity<EmployeeProjectResponse>> update(@Valid @RequestBody UpdateEmployeeProjectRequest request) {
+        employeeProjectValidator.validateUpdateDTO(request.getId(), request);
         return employeeProjectService.updateEmployeeProject(request)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Delete employee project by ID")
     @ApiResponse(responseCode = "204", description = "Employee project deleted successfully")
     @PostMapping("/delete")
-    public ResponseEntity<Void> delete(@Valid @RequestBody IdRequest request) {
-        employeeProjectService.deleteEmployeeProject(request.getId());
-        return ResponseEntity.noContent().build();
+    public Mono<ResponseEntity<Void>> delete(@Valid @RequestBody IdRequest request) {
+        return employeeProjectService.deleteEmployeeProject(request.getId())
+                .then(Mono.just(ResponseEntity.noContent().build()));
     }
 
     @Operation(summary = "Get all employee projects")
     @ApiResponse(responseCode = "200", description = "List of employee projects retrieved successfully")
     @PostMapping("/getAll")
-    public ResponseEntity<EmployeeProjectResponseList> getAll() {
-        List<EmployeeProjectResponse> list = employeeProjectService.getAllEmployeeProjects();
-        return ResponseEntity.ok(new EmployeeProjectResponseList(list));
+    public Mono<ResponseEntity<EmployeeProjectResponseList>> getAll() {
+        return employeeProjectService.getAllEmployeeProjects()
+                .map(EmployeeProjectResponseList::new)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Get employee project by ID")
     @ApiResponse(responseCode = "200", description = "Employee project found")
     @PostMapping("/getById")
-    public ResponseEntity<EmployeeProjectResponse> getById(@Valid @RequestBody IdRequest request) {
+    public Mono<ResponseEntity<EmployeeProjectResponse>> getById(@Valid @RequestBody IdRequest request) {
         return employeeProjectService.getEmployeeProjectById(request.getId())
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Get employee projects by employee ID")
     @ApiResponse(responseCode = "200", description = "List of employee projects retrieved successfully")
     @PostMapping("/getByEmployee")
-    public ResponseEntity<EmployeeProjectResponseList> getByEmployee(@Valid @RequestBody IdRequest request) {
-        List<EmployeeProjectResponse> list = employeeProjectService.getByEmployeeId(request.getId());
-        return ResponseEntity.ok(new EmployeeProjectResponseList(list));
+    public Mono<ResponseEntity<EmployeeProjectResponseList>> getByEmployee(@Valid @RequestBody IdRequest request) {
+        return employeeProjectService.getByEmployeeId(request.getId())
+                .map(EmployeeProjectResponseList::new)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Get employee projects by project ID")
     @ApiResponse(responseCode = "200", description = "List of employee projects retrieved successfully")
     @PostMapping("/getByProject")
-    public ResponseEntity<EmployeeProjectResponseList> getByProject(@Valid @RequestBody IdRequest request) {
-        List<EmployeeProjectResponse> list = employeeProjectService.getByProjectId(request.getId());
-        return ResponseEntity.ok(new EmployeeProjectResponseList(list));
+    public Mono<ResponseEntity<EmployeeProjectResponseList>> getByProject(@Valid @RequestBody IdRequest request) {
+        return employeeProjectService.getByProjectId(request.getId())
+                .map(EmployeeProjectResponseList::new)
+                .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Check if an employee is assigned to a project")
     @ApiResponse(responseCode = "200", description = "Existence check completed")
     @PostMapping("/existsByEmployeeAndProject")
-    public ResponseEntity<Boolean> existsByEmployeeAndProject(@RequestParam Long employeeId,
-                                                              @RequestParam Long projectId) {
-        return ResponseEntity.ok(employeeProjectService.existsByEmployeeIdAndProjectId(employeeId, projectId));
+    public Mono<ResponseEntity<Boolean>> existsByEmployeeAndProject(@RequestParam Long employeeId,
+                                                                    @RequestParam Long projectId) {
+        return employeeProjectService.existsByEmployeeIdAndProjectId(employeeId, projectId)
+                .map(ResponseEntity::ok);
+    }
+
+    @Operation(summary = "Delete employee projects by employee ID")
+    @ApiResponse(responseCode = "204", description = "Employee projects deleted successfully")
+    @PostMapping("/deleteByEmployee")
+    public Mono<ResponseEntity<Void>> deleteByEmployee(@Valid @RequestBody IdRequest request) {
+        return employeeProjectService.deleteByEmployeeId(request.getId())
+                .then(Mono.just(ResponseEntity.noContent().build()));
+    }
+
+    @Operation(summary = "Delete employee projects by project ID")
+    @ApiResponse(responseCode = "204", description = "Employee projects deleted successfully")
+    @PostMapping("/deleteByProject")
+    public Mono<ResponseEntity<Void>> deleteByProject(@Valid @RequestBody IdRequest request) {
+        return employeeProjectService.deleteByProjectId(request.getId())
+                .then(Mono.just(ResponseEntity.noContent().build()));
     }
 }
