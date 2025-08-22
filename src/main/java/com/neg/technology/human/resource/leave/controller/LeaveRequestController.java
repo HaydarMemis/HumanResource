@@ -2,6 +2,7 @@ package com.neg.technology.human.resource.leave.controller;
 
 import com.neg.technology.human.resource.leave.model.request.CreateLeaveRequestRequest;
 import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequestRequest;
+import com.neg.technology.human.resource.leave.model.response.ApprovedLeaveDatesResponseList;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponse;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponseList;
 import com.neg.technology.human.resource.leave.service.LeaveRequestService;
@@ -129,4 +130,13 @@ public class LeaveRequestController {
         return leaveRequestService.getOverlapping(request)
                 .map(ResponseEntity::ok);
     }
+
+    @Operation(summary = "Get approved leave dates by employee ID")
+    @PostMapping("/getApprovedByEmployee")
+    public Mono<ResponseEntity<ApprovedLeaveDatesResponseList>> getApprovedLeaveRequestsByEmployee(
+            @Valid @RequestBody IdRequest request) {
+        return leaveRequestService.getApprovedByEmployee(request)
+                .map(ResponseEntity::ok);
+    }
+
 }

@@ -11,6 +11,8 @@ import com.neg.technology.human.resource.leave.model.entity.LeaveType;
 import com.neg.technology.human.resource.leave.model.mapper.LeaveRequestMapper;
 import com.neg.technology.human.resource.leave.model.request.CreateLeaveRequestRequest;
 import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequestRequest;
+import com.neg.technology.human.resource.leave.model.response.ApprovedLeaveDatesResponse;
+import com.neg.technology.human.resource.leave.model.response.ApprovedLeaveDatesResponseList;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponse;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponseList;
 import com.neg.technology.human.resource.leave.repository.LeaveRequestRepository;
@@ -218,4 +220,16 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
             return new LeaveRequestResponseList(responses);
         });
     }
+
+    @Override
+    public Mono<ApprovedLeaveDatesResponseList> getApprovedByEmployee(IdRequest request) {
+        return Mono.fromCallable(() -> {
+            List<LeaveRequest> list = leaveRequestRepository.findByEmployeeIdAndStatus(request.getId(), "APPROVED");
+            List<ApprovedLeaveDatesResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toApprovedDatesDTO)
+                    .toList();
+            return new ApprovedLeaveDatesResponseList(responses);
+        });
+    }
+
 }

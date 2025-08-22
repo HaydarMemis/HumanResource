@@ -5,6 +5,7 @@ import com.neg.technology.human.resource.employee.model.request.EmployeeLeaveTyp
 import com.neg.technology.human.resource.employee.model.request.EmployeeStatusRequest;
 import com.neg.technology.human.resource.leave.model.request.CreateLeaveRequestRequest;
 import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequestRequest;
+import com.neg.technology.human.resource.leave.model.response.ApprovedLeaveDatesResponseList;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponse;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponseList;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
@@ -37,4 +38,6 @@ public interface LeaveRequestService {
     Mono<LeaveRequestResponseList> getByEmployeeLeaveTypeAndDateRange(EmployeeLeaveTypeDateRangeRequest request);
 
     Mono<LeaveRequestResponseList> getOverlapping(EmployeeDateRangeRequest request);
+
+    Mono<ApprovedLeaveDatesResponseList> getApprovedByEmployee(IdRequest request);
 }

@@ -4,6 +4,7 @@ import com.neg.technology.human.resource.employee.model.entity.Employee;
 import com.neg.technology.human.resource.leave.model.entity.LeaveRequest;
 import com.neg.technology.human.resource.leave.model.request.CreateLeaveRequestRequest;
 import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequestRequest;
+import com.neg.technology.human.resource.leave.model.response.ApprovedLeaveDatesResponse;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponse;
 import com.neg.technology.human.resource.leave.model.entity.LeaveType;
 
@@ -59,4 +60,13 @@ public class LeaveRequestMapper {
         if (dto.getCancelledAt() != null) entity.setCancelledAt(dto.getCancelledAt());
         if (dto.getCancellationReason() != null) entity.setCancellationReason(dto.getCancellationReason());
     }
+
+    public static ApprovedLeaveDatesResponse toApprovedDatesDTO(LeaveRequest request) {
+        return ApprovedLeaveDatesResponse.builder()
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .leaveTypeName(request.getLeaveType().getName())
+                .build();
+    }
+
 }
