@@ -62,10 +62,18 @@ public class LeaveRequestMapper {
     }
 
     public static ApprovedLeaveDatesResponse toApprovedDatesDTO(LeaveRequest request) {
+        if (request == null) return null;
+
         return ApprovedLeaveDatesResponse.builder()
+                .id(request.getId())
+                .employeeFirstName(request.getEmployee() != null ? request.getEmployee().getPerson().getFirstName() : null)
+                .employeeLastName(request.getEmployee() != null ? request.getEmployee().getPerson().getLastName() : null)
+                .leaveTypeName(request.getLeaveType() != null ? request.getLeaveType().getName() : null)
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
-                .leaveTypeName(request.getLeaveType().getName())
+                .requestedDays(request.getRequestedDays() != null ? request.getRequestedDays().intValue() : null)
+                .status(request.getStatus())
+                .reason(request.getReason())
                 .build();
     }
 

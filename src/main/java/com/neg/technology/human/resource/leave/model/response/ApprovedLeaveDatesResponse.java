@@ -9,7 +9,13 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 public class ApprovedLeaveDatesResponse {
+    private Long id;
+    private String employeeFirstName;
+    private String employeeLastName;
+    private String leaveTypeName;
     private LocalDate startDate;
     private LocalDate endDate;
-    private String leaveTypeName; // optional
+    private Integer requestedDays;
+    private String status;
+    private String reason;
 }
