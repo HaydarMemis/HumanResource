@@ -23,6 +23,12 @@
 
 	<dependencies>
 
+		<!-- WebFlux (Reactive) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
 		<!-- JPA ve Validation -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -53,13 +59,7 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- WebFlux -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webflux</artifactId>
-		</dependency>
-
-		<!-- Springdoc OpenAPI WebFlux UI -->
+		<!-- Springdoc OpenAPI (Swagger UI for WebFlux) -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
