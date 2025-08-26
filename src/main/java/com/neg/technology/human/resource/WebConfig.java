@@ -1,4 +1,4 @@
-package com.neg.technology.human.resource.config;
+package com.neg.technology.human.resource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.config.CorsRegistry;
