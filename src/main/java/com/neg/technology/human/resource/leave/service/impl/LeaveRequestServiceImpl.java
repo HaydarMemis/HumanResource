@@ -9,18 +9,17 @@ import com.neg.technology.human.resource.exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.leave.model.entity.LeaveRequest;
 import com.neg.technology.human.resource.leave.model.entity.LeaveType;
 import com.neg.technology.human.resource.leave.model.mapper.LeaveRequestMapper;
+import com.neg.technology.human.resource.leave.model.request.ChangeLeaveRequestStatusRequest;
 import com.neg.technology.human.resource.leave.model.request.CreateLeaveRequestRequest;
 import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequestRequest;
-import com.neg.technology.human.resource.leave.model.response.ApprovedLeaveDatesResponse;
-import com.neg.technology.human.resource.leave.model.response.ApprovedLeaveDatesResponseList;
-import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponse;
-import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponseList;
+import com.neg.technology.human.resource.leave.model.response.*;
 import com.neg.technology.human.resource.leave.repository.LeaveRequestRepository;
 import com.neg.technology.human.resource.leave.repository.LeaveTypeRepository;
 import com.neg.technology.human.resource.leave.service.LeaveRequestService;
 import com.neg.technology.human.resource.utility.Logger;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
 import com.neg.technology.human.resource.utility.module.entity.request.StatusRequest;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -232,4 +231,25 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         });
     }
 
+    @Override
+    public Mono<ChangeLeaveRequestStatusResponseList> changeStatus(ChangeLeaveRequestStatusRequest request) {
+        return Mono.fromCallable(() -> {
+            // blocking JPA call
+            return leaveRequestRepository.findById(request.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Leave request not found with id " + request.getId()));
+        }).map(entity -> {
+            String oldStatus = entity.getStatus();
+
+            entity.setStatus(request.getStatus());
+
+            LeaveRequest saved = leaveRequestRepository.save(entity);
+
+            ChangeLeaveRequestStatusResponse response = LeaveRequestMapper.toChangeStatusDTO(saved, oldStatus);
+
+            // Wrap inside list
+            return ChangeLeaveRequestStatusResponseList.builder()
+                    .responses(List.of(response))
+                    .build();
+        });
+    }
 }

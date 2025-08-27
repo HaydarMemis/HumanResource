@@ -5,8 +5,11 @@ import com.neg.technology.human.resource.leave.model.entity.LeaveRequest;
 import com.neg.technology.human.resource.leave.model.request.CreateLeaveRequestRequest;
 import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequestRequest;
 import com.neg.technology.human.resource.leave.model.response.ApprovedLeaveDatesResponse;
+import com.neg.technology.human.resource.leave.model.response.ChangeLeaveRequestStatusResponse;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponse;
 import com.neg.technology.human.resource.leave.model.entity.LeaveType;
+
+import java.time.LocalDateTime;
 
 public class LeaveRequestMapper {
     private LeaveRequestMapper(){}
@@ -74,6 +77,19 @@ public class LeaveRequestMapper {
                 .requestedDays(request.getRequestedDays() != null ? request.getRequestedDays().intValue() : null)
                 .status(request.getStatus())
                 .reason(request.getReason())
+                .build();
+    }
+
+    public static ChangeLeaveRequestStatusResponse toChangeStatusDTO(LeaveRequest entity, String oldStatus) {
+        return ChangeLeaveRequestStatusResponse.builder()
+                .id(entity.getId())
+                .employeeFirstName(entity.getEmployee().getPerson().getFirstName())
+                .employeeLastName(entity.getEmployee().getPerson().getLastName())
+                .leaveTypeName(entity.getLeaveType().getName())
+                .oldStatus(oldStatus)
+                .newStatus(entity.getStatus())
+                .approvalNote(entity.getApprovalNote())
+                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
