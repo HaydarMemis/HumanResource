@@ -11,6 +11,7 @@ public class EmployeeResponse {
     private Long id;
     private String firstName;
     private String lastName;
+    private String email;
     private String phone;
     private String departmentName;
     private String positionTitle;

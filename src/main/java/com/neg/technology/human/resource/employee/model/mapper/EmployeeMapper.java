@@ -22,6 +22,7 @@ public class EmployeeMapper {
                 .id(employee.getId())
                 .firstName(employee.getPerson() != null ? employee.getPerson().getFirstName() : null)
                 .lastName(employee.getPerson() != null ? employee.getPerson().getLastName() : null)
+                .email(employee.getPerson() != null ? employee.getPerson().getEmail() : null)
                 .phone(employee.getPerson() != null ? employee.getPerson().getPhone() : null)
                 .departmentName(employee.getDepartment() != null ? employee.getDepartment().getName() : null)
                 .positionTitle(employee.getPosition() != null ? employee.getPosition().getTitle() : null)
