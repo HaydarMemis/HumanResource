@@ -9,26 +9,21 @@ import com.neg.technology.human.resource.exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.leave.model.entity.LeaveRequest;
 import com.neg.technology.human.resource.leave.model.entity.LeaveType;
 import com.neg.technology.human.resource.leave.model.mapper.LeaveRequestMapper;
+import com.neg.technology.human.resource.leave.model.request.ChangeLeaveRequestStatusRequest;
 import com.neg.technology.human.resource.leave.model.request.CreateLeaveRequestRequest;
 import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequestRequest;
-import com.neg.technology.human.resource.leave.model.response.ApprovedLeaveDatesResponse;
-import com.neg.technology.human.resource.leave.model.response.ApprovedLeaveDatesResponseList;
-import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponse;
-import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponseList;
+import com.neg.technology.human.resource.leave.model.response.*;
 import com.neg.technology.human.resource.leave.repository.LeaveRequestRepository;
 import com.neg.technology.human.resource.leave.repository.LeaveTypeRepository;
-import com.neg.technology.human.resource.leave.repository.LeaveBalanceRepository;
-import com.neg.technology.human.resource.leave.model.entity.LeaveBalance;
 import com.neg.technology.human.resource.leave.service.LeaveRequestService;
 import com.neg.technology.human.resource.utility.Logger;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
 import com.neg.technology.human.resource.utility.module.entity.request.StatusRequest;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -38,7 +33,6 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     private final LeaveRequestRepository leaveRequestRepository;
     private final EmployeeRepository employeeRepository;
     private final LeaveTypeRepository leaveTypeRepository;
-    private final LeaveBalanceRepository leaveBalanceRepository;
 
     @Override
     public Mono<LeaveRequestResponseList> getAll() {
@@ -69,32 +63,6 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
             LeaveType leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
                     .orElseThrow(() -> new ResourceNotFoundException("Leave Type", dto.getLeaveTypeId()));
 
-            // Çalışanın izin bakiyelerini al ve en eski yıldan başla
-            List<LeaveBalance> balances = leaveBalanceRepository.findByEmployeeId(employee.getId())
-                    .stream()
-                    .filter(lb -> lb.getLeaveType().getId().equals(leaveType.getId()))
-                    .sorted(Comparator.comparing(LeaveBalance::getDate)) // eski yıldan başla
-                    .toList();
-
-            BigDecimal requestedDays = dto.getRequestedDays();
-            for (LeaveBalance balance : balances) {
-                BigDecimal available = balance.getAmount();
-                if (requestedDays.compareTo(available) <= 0) {
-                    balance.setAmount(available.subtract(requestedDays));
-                    leaveBalanceRepository.save(balance);
-                    requestedDays = BigDecimal.ZERO;
-                    break;
-                } else {
-                    requestedDays = requestedDays.subtract(available);
-                    balance.setAmount(BigDecimal.ZERO);
-                    leaveBalanceRepository.save(balance);
-                }
-            }
-
-            if (requestedDays.compareTo(BigDecimal.ZERO) > 0) {
-                throw new RuntimeException("Yeterli izin bakiyesi yok");
-            }
-
             Employee approver = null;
             if(dto.getApprovedById() != null){
                 approver = employeeRepository.findById(dto.getApprovedById())
@@ -103,6 +71,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
 
             LeaveRequest entity = LeaveRequestMapper.toEntity(dto, employee, leaveType, approver);
             LeaveRequest saved = leaveRequestRepository.save(entity);
+
             Logger.logCreated(LeaveRequest.class, saved.getId(), "LeaveRequest");
 
             return LeaveRequestMapper.toDTO(saved);
@@ -134,7 +103,9 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
             }
 
             LeaveRequestMapper.updateEntity(existing, dto, employee, leaveType, approver);
+
             LeaveRequest updated = leaveRequestRepository.save(existing);
+
             Logger.logUpdated(LeaveRequest.class, updated.getId(), "LeaveRequest");
 
             return LeaveRequestMapper.toDTO(updated);
@@ -156,7 +127,10 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     public Mono<LeaveRequestResponseList> getByEmployee(IdRequest request) {
         return Mono.fromCallable(() -> {
             List<LeaveRequest> list = leaveRequestRepository.findByEmployeeId(request.getId());
-            return new LeaveRequestResponseList(list.stream().map(LeaveRequestMapper::toDTO).toList());
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
         });
     }
 
@@ -164,7 +138,10 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     public Mono<LeaveRequestResponseList> getByStatus(StatusRequest request) {
         return Mono.fromCallable(() -> {
             List<LeaveRequest> list = leaveRequestRepository.findByStatus(request.getStatus());
-            return new LeaveRequestResponseList(list.stream().map(LeaveRequestMapper::toDTO).toList());
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
         });
     }
 
@@ -172,7 +149,10 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     public Mono<LeaveRequestResponseList> getCancelled() {
         return Mono.fromCallable(() -> {
             List<LeaveRequest> list = leaveRequestRepository.findByIsCancelledTrue();
-            return new LeaveRequestResponseList(list.stream().map(LeaveRequestMapper::toDTO).toList());
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
         });
     }
 
@@ -180,7 +160,10 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     public Mono<LeaveRequestResponseList> getByApprover(IdRequest request) {
         return Mono.fromCallable(() -> {
             List<LeaveRequest> list = leaveRequestRepository.findByApprovedById(request.getId());
-            return new LeaveRequestResponseList(list.stream().map(LeaveRequestMapper::toDTO).toList());
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
         });
     }
 
@@ -188,7 +171,10 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     public Mono<LeaveRequestResponseList> getByEmployeeAndStatus(EmployeeStatusRequest request) {
         return Mono.fromCallable(() -> {
             List<LeaveRequest> list = leaveRequestRepository.findByEmployeeIdAndStatus(request.getEmployeeId(), request.getStatus());
-            return new LeaveRequestResponseList(list.stream().map(LeaveRequestMapper::toDTO).toList());
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
         });
     }
 
@@ -196,7 +182,10 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     public Mono<LeaveRequestResponseList> getByDateRange(EmployeeDateRangeRequest request) {
         return Mono.fromCallable(() -> {
             List<LeaveRequest> list = leaveRequestRepository.findByStartDateBetween(request.getStartDate(), request.getEndDate());
-            return new LeaveRequestResponseList(list.stream().map(LeaveRequestMapper::toDTO).toList());
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
         });
     }
 
@@ -209,7 +198,10 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
                     request.getStartDate(),
                     request.getEndDate()
             );
-            return new LeaveRequestResponseList(list.stream().map(LeaveRequestMapper::toDTO).toList());
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
         });
     }
 
@@ -221,7 +213,10 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
                     request.getStartDate(),
                     request.getEndDate()
             );
-            return new LeaveRequestResponseList(list.stream().map(LeaveRequestMapper::toDTO).toList());
+            List<LeaveRequestResponse> responses = list.stream()
+                    .map(LeaveRequestMapper::toDTO)
+                    .toList();
+            return new LeaveRequestResponseList(responses);
         });
     }
 
@@ -236,4 +231,25 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         });
     }
 
+    @Override
+    public Mono<ChangeLeaveRequestStatusResponseList> changeStatus(ChangeLeaveRequestStatusRequest request) {
+        return Mono.fromCallable(() -> {
+            // blocking JPA call
+            return leaveRequestRepository.findById(request.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Leave request not found with id " + request.getId()));
+        }).map(entity -> {
+            String oldStatus = entity.getStatus();
+
+            entity.setStatus(request.getStatus());
+
+            LeaveRequest saved = leaveRequestRepository.save(entity);
+
+            ChangeLeaveRequestStatusResponse response = LeaveRequestMapper.toChangeStatusDTO(saved, oldStatus);
+
+            // Wrap inside list
+            return ChangeLeaveRequestStatusResponseList.builder()
+                    .responses(List.of(response))
+                    .build();
+        });
+    }
 }
