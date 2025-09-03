@@ -19,10 +19,6 @@ public class CreateLeaveBalanceRequest {
     private Long leaveTypeId;
 
     @NotNull
-    @Min(1900)
-    private Integer date;
-
-    @NotNull
     @Min(0)
     private BigDecimal amount;
 }

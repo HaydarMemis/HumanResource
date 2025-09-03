@@ -25,11 +25,5 @@ public interface LeaveBalanceService {
 
     Mono<LeaveBalanceResponseList> getByEmployee(IdRequest request);
 
-    Mono<LeaveBalanceResponseList> getByEmployeeAndYear(EmployeeYearRequest request);
-
     Mono<LeaveBalanceResponse> getByEmployeeAndLeaveType(EmployeeLeaveTypeRequest request);
-
-    Mono<LeaveBalanceResponse> getByEmployeeLeaveTypeAndYear(EmployeeLeaveTypeYearRequest request);
-
-    Mono<LeaveBalanceResponseList> getByLeaveTypeAndYear(LeaveTypeYearRequest request);
 }

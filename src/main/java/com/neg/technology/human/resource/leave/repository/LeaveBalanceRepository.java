@@ -6,20 +6,17 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+
 @Repository
 public interface LeaveBalanceRepository extends JpaRepository<LeaveBalance, Long> {
 
     List<LeaveBalance> findByEmployeeId(Long employeeId);
 
-    List<LeaveBalance> findByEmployeeIdAndDate(Integer year, Long employeeId);
-
     Optional<LeaveBalance> findByEmployeeIdAndLeaveTypeId(Long employeeId, Long leaveTypeId);
 
-    Optional<LeaveBalance> findByEmployeeIdAndLeaveTypeIdAndDate(Long employeeId, Long leaveTypeId, Integer year);
+    List<LeaveBalance> findByLeaveTypeId(Long leaveTypeId);
 
-    List<LeaveBalance> findByLeaveTypeIdAndDate(Long leaveTypeId, Integer year);
-
-    boolean existsByEmployeeIdAndLeaveTypeIdAndDate(Long employeeId, Long leaveTypeId, Integer year);
+    boolean existsByEmployeeIdAndLeaveTypeId(Long employeeId, Long leaveTypeId);
 
     void deleteById(Long id);
 }
