@@ -28,8 +28,12 @@ public class LeaveBalance extends AuditableEntity {
     @JoinColumn(name = "leave_type_id", nullable = false)
     private LeaveType leaveType;
 
-    private Integer date; // year
+    private Integer date;
+
+    @Column(name = "used_days")  // DB’deki sütun adı ile eşleşir
+    private Integer usedDays = 0;
+
 
     @Column(nullable = false)
-    private BigDecimal amount; // total entitled leave
+    private BigDecimal amount;
 }

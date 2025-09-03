@@ -81,11 +81,12 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
     @Override
     public Mono<LeaveTypeResponse> getByName(NameRequest request) {
         return Mono.fromCallable(() ->
-                leaveTypeRepository.findByName(request.getName())
+                leaveTypeRepository.findByNameIgnoreCase(request.getName())
                         .map(leaveTypeMapper::toResponse)
                         .orElseThrow(() -> new ResourceNotFoundException("Leave Type with name", request.getName()))
         );
     }
+
 
     @Override
     public Mono<LeaveTypeResponseList> getAnnual(BooleanRequest request) {

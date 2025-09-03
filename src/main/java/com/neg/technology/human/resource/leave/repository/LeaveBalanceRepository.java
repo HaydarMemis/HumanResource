@@ -22,4 +22,5 @@ public interface LeaveBalanceRepository extends JpaRepository<LeaveBalance, Long
     boolean existsByEmployeeIdAndLeaveTypeIdAndDate(Long employeeId, Long leaveTypeId, Integer year);
 
     void deleteById(Long id);
+
 }

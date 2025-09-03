@@ -169,7 +169,10 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     @Override
     public Mono<LeaveRequestResponseList> getByEmployeeAndStatus(EmployeeStatusRequest request) {
         return Mono.fromCallable(() -> {
-            List<LeaveRequest> list = leaveRequestRepository.findByEmployeeIdAndStatus(request.getEmployeeId(), request.getStatus());
+            List<LeaveRequest> list = leaveRequestRepository.findByEmployeeIdAndStatus(
+                    request.getEmployeeId(),
+                    request.getStatus()
+            );
             List<LeaveRequestResponse> responses = list.stream()
                     .map(LeaveRequestMapper::toDTO)
                     .toList();
@@ -180,7 +183,10 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     @Override
     public Mono<LeaveRequestResponseList> getByDateRange(EmployeeDateRangeRequest request) {
         return Mono.fromCallable(() -> {
-            List<LeaveRequest> list = leaveRequestRepository.findByStartDateBetween(request.getStartDate(), request.getEndDate());
+            List<LeaveRequest> list = leaveRequestRepository.findByStartDateBetween(
+                    request.getStartDate(),
+                    request.getEndDate()
+            );
             List<LeaveRequestResponse> responses = list.stream()
                     .map(LeaveRequestMapper::toDTO)
                     .toList();

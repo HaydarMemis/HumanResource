@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface LeaveTypeRepository extends JpaRepository<LeaveType, Long> {
 
-    Optional<LeaveType> findByName(String name);
+    Optional<LeaveType> findByNameIgnoreCase(String name);
 
     List<LeaveType> findByIsAnnualTrue();
 
@@ -25,4 +25,5 @@ public interface LeaveTypeRepository extends JpaRepository<LeaveType, Long> {
     List<LeaveType> findByValidAfterDaysGreaterThan(Integer days);
 
     List<LeaveType> findByIsUnpaidFalse();
+
 }
