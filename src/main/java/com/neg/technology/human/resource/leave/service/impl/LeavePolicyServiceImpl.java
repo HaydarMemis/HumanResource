@@ -33,12 +33,7 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     private Mono<Employee> getEmployee(Long employeeId) {
         return employeeService.findById(employeeId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Employee not found")))
-                .map(obj -> {
-                    if (obj instanceof Employee) {
-                        return (Employee) obj;
-                    }
-                    throw new RuntimeException("Found object is not an Employee");
-                });
+                .cast(Employee.class);
     }
 
     private LocalDate getEmploymentStartDate(Employee employee) {
@@ -63,6 +58,8 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
         LocalDate birthDate = getBirthDate(employee);
         return calculateYearsBetween(birthDate, LocalDate.now());
     }
+
+    // --- Leave Policies ---
 
     @Override
     public Mono<LeavePolicyResponse> getAnnualLeave(LeavePolicyRequest request) {
@@ -106,7 +103,7 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
                             getBirthDate(employee).getDayOfMonth() == date.getDayOfMonth();
                     return LeavePolicyResponse.builder()
                             .eligible(eligible)
-                            .days(null)
+                            .days(eligible ? 1 : 0)
                             .build();
                 });
     }
@@ -114,13 +111,18 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     @Override
     public Mono<LeavePolicyResponse> getMaternityLeaveDays(LeavePolicyRequest request) {
         return getEmployee(request.getEmployeeId())
-                .map(employee -> {
-                    boolean multiplePregnancy = request.getMultiplePregnancy() != null && request.getMultiplePregnancy();
-                    int days = "female".equalsIgnoreCase(getGender(employee)) ? (multiplePregnancy ? 140 : 112) : 0;
-                    return LeavePolicyResponse.builder()
-                            .days(days)
-                            .eligible(days > 0)
-                            .build();
+                .flatMap(employee -> {
+                    if (!"female".equalsIgnoreCase(getGender(employee))) {
+                        return Mono.error(new RuntimeException("Maternity leave only applies to female employees"));
+                    }
+                    boolean multiplePregnancy = Boolean.TRUE.equals(request.getMultiplePregnancy());
+                    int days = multiplePregnancy ? 140 : 112;
+                    return Mono.just(
+                            LeavePolicyResponse.builder()
+                                    .days(days)
+                                    .eligible(true)
+                                    .build()
+                    );
                 });
     }
 
@@ -128,13 +130,27 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     public Mono<LeavePolicyResponse> getPaternityLeaveDays(LeavePolicyRequest request) {
         return getEmployee(request.getEmployeeId())
                 .map(employee -> {
-                    int days = "male".equalsIgnoreCase(getGender(employee)) ? 5 : 0;
+
+                    if (!"male".equalsIgnoreCase(getGender(employee))) {
+                        return LeavePolicyResponse.builder()
+                                .days(0)
+                                .eligible(false)
+                                .build();
+                    }
+
+                    int maxDays = 5;
+                    int requested = request.getRequestedDays() != null ? request.getRequestedDays() : maxDays;
+
+                    int approvedDays = Math.min(requested, maxDays);
+
                     return LeavePolicyResponse.builder()
-                            .days(days)
-                            .eligible(days > 0)
+                            .days(approvedDays)
+                            .eligible(approvedDays > 0)
                             .build();
                 });
     }
+
+
 
     @Override
     public Mono<LeavePolicyResponse> canBorrowLeave(LeavePolicyRequest request) {
@@ -146,14 +162,17 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
                     boolean allowed = false;
                     if (requestedDays != null && currentBorrowed != null) {
                         LocalDate startDate = getEmploymentStartDate(employee);
-                        int monthsWorked = Period.between(startDate, LocalDate.now()).getMonths() +
-                                Period.between(startDate, LocalDate.now()).getYears() * 12;
-                        allowed = monthsWorked >= 3 && requestedDays <= 5 && currentBorrowed + requestedDays <= 10;
+                        int monthsWorked = Period.between(startDate, LocalDate.now()).getYears() * 12 +
+                                Period.between(startDate, LocalDate.now()).getMonths();
+
+                        allowed = monthsWorked >= 3 &&
+                                requestedDays <= 5 &&
+                                currentBorrowed + requestedDays <= 10;
                     }
 
                     return LeavePolicyResponse.builder()
                             .eligible(allowed)
-                            .days(null)
+                            .days(allowed ? request.getRequestedDays() : 0)
                             .build();
                 });
     }
@@ -176,14 +195,16 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     @Override
     public Mono<LeavePolicyResponse> getMarriageLeave(LeavePolicyRequest request) {
         return getEmployee(request.getEmployeeId())
-                .map(employee -> {
-                    boolean firstMarriage = request.getFirstMarriage() != null && request.getFirstMarriage();
-                    boolean hasMarriageCertificate = request.getIsSpouseWorking() != null && request.getIsSpouseWorking();
+                .flatMap(employee -> {
+                    boolean firstMarriage = Boolean.TRUE.equals(request.getFirstMarriage());
+                    boolean hasMarriageCertificate = Boolean.TRUE.equals(request.getIsSpouseWorking());
                     int days = (firstMarriage && hasMarriageCertificate) ? 3 : 0;
-                    return LeavePolicyResponse.builder()
-                            .days(days)
-                            .eligible(days > 0)
-                            .build();
+                    return Mono.just(
+                            LeavePolicyResponse.builder()
+                                    .days(days)
+                                    .eligible(days > 0)
+                                    .build()
+                    );
                 });
     }
 
@@ -205,7 +226,7 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
                     date.getDayOfWeek() == DayOfWeek.SUNDAY;
             return LeavePolicyResponse.builder()
                     .eligible(holiday)
-                    .days(null)
+                    .days(holiday ? 1 : 0)
                     .build();
         });
     }
@@ -216,7 +237,8 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
             LeavePolicyResponseList list = new LeavePolicyResponseList();
             list.setLeavePolicies(List.of(
                     LeavePolicyResponse.builder().days(14).eligible(true).build(),
-                    LeavePolicyResponse.builder().days(5).eligible(true).build()
+                    LeavePolicyResponse.builder().days(5).eligible(true).build(),
+                    LeavePolicyResponse.builder().days(112).eligible(true).build()
             ));
             return list;
         });

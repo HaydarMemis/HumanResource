@@ -12,4 +12,6 @@ public class LeavePolicyResponse {
     private Boolean eligible;
 
     private Integer days;
+
+    private String message;
 }

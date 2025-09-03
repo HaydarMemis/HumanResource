@@ -58,6 +58,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
             LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
                     .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId()));
 
+
             LeaveBalance entity = leaveBalanceMapper.toEntity(request, employee, leaveType);
             LeaveBalance saved = leaveBalanceRepository.save(entity);
             Logger.logCreated(LeaveBalance.class, saved.getId(), MESSAGE);
