@@ -32,4 +32,6 @@ public interface LeaveBalanceService {
     Mono<LeaveBalanceResponse> getByEmployeeLeaveTypeAndYear(EmployeeLeaveTypeYearRequest request);
 
     Mono<LeaveBalanceResponseList> getByLeaveTypeAndYear(LeaveTypeYearRequest request);
+
+
 }

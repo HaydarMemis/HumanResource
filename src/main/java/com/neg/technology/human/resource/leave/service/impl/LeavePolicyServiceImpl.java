@@ -181,7 +181,6 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
                         return Mono.error(new RuntimeException("No remaining paternity leave days."));
                     }
 
-                    // Request edilen gün sayısını kontrol et
                     int requested = request.getRequestedDays() != null ? request.getRequestedDays() : remainingDays;
                     int approvedDays = Math.min(requested, remainingDays);
 

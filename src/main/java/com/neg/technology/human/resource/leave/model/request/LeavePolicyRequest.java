@@ -28,4 +28,6 @@ public class LeavePolicyRequest {
     private Integer requestedDays;
 
     private Integer currentBorrowed;
+
+    private Long leaveTypeId;
 }

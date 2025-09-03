@@ -25,4 +25,8 @@ public class CreateLeaveBalanceRequest {
     @NotNull
     @Min(0)
     private BigDecimal amount;
+
+    @NotNull
+    private Boolean multiplePregnancy;
+
 }

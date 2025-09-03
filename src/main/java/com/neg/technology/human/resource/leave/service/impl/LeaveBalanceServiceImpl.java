@@ -6,13 +6,12 @@ import com.neg.technology.human.resource.exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.leave.model.entity.LeaveBalance;
 import com.neg.technology.human.resource.leave.model.entity.LeaveType;
 import com.neg.technology.human.resource.leave.model.mapper.LeaveBalanceMapper;
-import com.neg.technology.human.resource.leave.model.request.CreateLeaveBalanceRequest;
-import com.neg.technology.human.resource.leave.model.request.UpdateLeaveBalanceRequest;
-import com.neg.technology.human.resource.leave.model.response.LeaveBalanceResponse;
-import com.neg.technology.human.resource.leave.model.response.LeaveBalanceResponseList;
+import com.neg.technology.human.resource.leave.model.request.*;
+import com.neg.technology.human.resource.leave.model.response.*;
 import com.neg.technology.human.resource.leave.repository.LeaveBalanceRepository;
 import com.neg.technology.human.resource.leave.repository.LeaveTypeRepository;
 import com.neg.technology.human.resource.leave.service.LeaveBalanceService;
+import com.neg.technology.human.resource.leave.service.LeavePolicyService;
 import com.neg.technology.human.resource.utility.Logger;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
 import com.neg.technology.human.resource.employee.model.request.EmployeeYearRequest;
@@ -22,6 +21,8 @@ import com.neg.technology.human.resource.leave.model.request.LeaveTypeYearReques
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +34,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     private final EmployeeRepository employeeRepository;
     private final LeaveTypeRepository leaveTypeRepository;
     private final LeaveBalanceMapper leaveBalanceMapper;
+    private final LeavePolicyService leavePolicyService;
 
     @Override
     public Mono<LeaveBalanceResponseList> getAll() {
@@ -44,8 +46,9 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     @Override
     public Mono<LeaveBalanceResponse> getById(IdRequest request) {
         if (request == null || request.getId() == null) {
-            return Mono.error(new IllegalArgumentException("Id cannot be null"));
+            return Mono.error(new IllegalArgumentException("Id is required"));
         }
+
         return Mono.fromCallable(() ->
                 leaveBalanceRepository.findById(request.getId())
                         .map(leaveBalanceMapper::toResponse)
@@ -59,20 +62,121 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
             return Mono.error(new IllegalArgumentException("EmployeeId and LeaveTypeId are required"));
         }
 
-        return Mono.fromCallable(() -> {
-            Employee employee = employeeRepository.findById(request.getEmployeeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()));
+        Mono<Employee> employeeMono = Mono.fromCallable(() ->
+                employeeRepository.findById(request.getEmployeeId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()))
+        );
 
-            LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId()));
+        Mono<LeaveType> leaveTypeMono = Mono.fromCallable(() ->
+                leaveTypeRepository.findById(request.getLeaveTypeId())
+                        .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId()))
+        );
 
-            LeaveBalance entity = leaveBalanceMapper.toEntity(request, employee, leaveType);
-            LeaveBalance saved = leaveBalanceRepository.save(entity);
+        return Mono.zip(employeeMono, leaveTypeMono)
+                .flatMap(tuple -> {
+                    Employee employee = tuple.getT1();
+                    LeaveType leaveType = tuple.getT2();
 
-            Logger.logCreated(LeaveBalance.class, saved.getId(), MESSAGE);
-            return leaveBalanceMapper.toResponse(saved);
-        });
+                    String gender = employee.getPerson() != null ? employee.getPerson().getGender() : null;
+                    int requestedDays = request.getAmount() != null ? request.getAmount().intValue() : 0;
+
+                    // Sadece "Maternity Leave" üzerinden akış
+                    if (!"maternity leave".equalsIgnoreCase(leaveType.getName())) {
+                        // İstersen burada farklı izinleri de policy'den yönetebilirsin.
+                        // Şimdilik güvenli olması için engelliyoruz:
+                        return Mono.error(new RuntimeException("Only 'Maternity Leave' is supported for now"));
+                    }
+
+                    if (gender == null) {
+                        return Mono.error(new RuntimeException("Employee gender is unknown"));
+                    }
+
+                    // KADIN: max gün policy’den
+                    if ("female".equalsIgnoreCase(gender)) {
+                        return leavePolicyService.getMaternityLeaveDays(
+                                        LeavePolicyRequest.builder()
+                                                .employeeId(employee.getId())
+                                                // .date(LocalDate.of(request.getDate(), 1, 1)) // GEREKİRSE böyle ver
+                                                .multiplePregnancy(request.getMultiplePregnancy()) // varsa
+                                                .build()
+                                )
+                                .flatMap(policy -> {
+                                    Integer maxDays = policy.getDays(); // 112 / 140 vb.
+                                    if (maxDays == null) {
+                                        return Mono.error(new RuntimeException("Policy did not return max days"));
+                                    }
+                                    if (requestedDays > maxDays) {
+                                        return Mono.error(new RuntimeException(
+                                                "Requested leave exceeds maximum allowed days (" + maxDays + ")"
+                                        ));
+                                    }
+                                    // kayıt
+                                    LeaveBalance entity = LeaveBalance.builder()
+                                            .employee(employee)
+                                            .leaveType(leaveType)
+                                            .date(request.getDate()) // request.getDate() muhtemelen Integer (yıl)
+                                            .amount(BigDecimal.valueOf(requestedDays))
+                                            .usedDays(0)
+                                            .build();
+
+                                    LeaveBalance saved = leaveBalanceRepository.save(entity);
+                                    Logger.logCreated(LeaveBalance.class, saved.getId(), MESSAGE);
+
+                                    LeaveBalanceResponse response = LeaveBalanceResponse.builder()
+                                            .id(saved.getId())
+                                            .employeeFirstName(saved.getEmployee().getPerson().getFirstName())
+                                            .employeeLastName(saved.getEmployee().getPerson().getLastName())
+                                            .leaveTypeName(saved.getLeaveType().getName())
+                                            .leaveTypeBorrowableLimit(saved.getLeaveType().getBorrowableLimit())
+                                            .leaveTypeIsUnpaid(saved.getLeaveType().getIsUnpaid())
+                                            .date(saved.getDate())
+                                            .amount(saved.getAmount())
+                                            .build();
+
+                                    return Mono.just(response);
+                                });
+                    }
+
+                    // ERKEK: max 5 gün (policy’e bağlamak istemezsen sabit)
+                    if ("male".equalsIgnoreCase(gender)) {
+                        int maxDays = 5;
+                        if (requestedDays > maxDays) {
+                            return Mono.error(new RuntimeException(
+                                    "Requested leave exceeds maximum allowed days (" + maxDays + ")"
+                            ));
+                        }
+
+                        LeaveBalance entity = LeaveBalance.builder()
+                                .employee(employee)
+                                .leaveType(leaveType)
+                                .date(request.getDate()) // Integer yıl
+                                .amount(BigDecimal.valueOf(requestedDays))
+                                .usedDays(0)
+                                .build();
+
+                        LeaveBalance saved = leaveBalanceRepository.save(entity);
+                        Logger.logCreated(LeaveBalance.class, saved.getId(), MESSAGE);
+
+                        LeaveBalanceResponse response = LeaveBalanceResponse.builder()
+                                .id(saved.getId())
+                                .employeeFirstName(saved.getEmployee().getPerson().getFirstName())
+                                .employeeLastName(saved.getEmployee().getPerson().getLastName())
+                                .leaveTypeName(saved.getLeaveType().getName())
+                                .leaveTypeBorrowableLimit(saved.getLeaveType().getBorrowableLimit())
+                                .leaveTypeIsUnpaid(saved.getLeaveType().getIsUnpaid())
+                                .date(saved.getDate())
+                                .amount(saved.getAmount())
+                                .build();
+
+                        return Mono.just(response);
+                    }
+
+                    // Diğer durumlar (non-binary vs.) – şimdilik engelle
+                    return Mono.error(new RuntimeException("Unsupported gender for Maternity Leave"));
+                });
     }
+
+
 
     @Override
     public Mono<LeaveBalanceResponse> update(UpdateLeaveBalanceRequest request) {
@@ -186,5 +290,4 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                 )
         );
     }
-
 }
