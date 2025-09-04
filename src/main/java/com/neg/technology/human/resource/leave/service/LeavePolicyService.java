@@ -7,6 +7,8 @@ import reactor.core.publisher.Mono;
 
 public interface LeavePolicyService {
 
+    Mono<Integer> getMaxAllowedDaysForEmployeeAndType(LeavePolicyRequest request);
+
     Mono<LeavePolicyResponse> getAnnualLeave(LeavePolicyRequest request);
 
     Mono<LeavePolicyResponse> getAgeBasedLeaveBonus(LeavePolicyRequest request);

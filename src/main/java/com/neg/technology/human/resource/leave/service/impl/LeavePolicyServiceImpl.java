@@ -2,6 +2,7 @@ package com.neg.technology.human.resource.leave.service.impl;
 
 import com.neg.technology.human.resource.employee.model.entity.Employee;
 import com.neg.technology.human.resource.employee.service.EmployeeService;
+import com.neg.technology.human.resource.leave.model.entity.LeaveBalance;
 import com.neg.technology.human.resource.leave.model.entity.LeaveType;
 import com.neg.technology.human.resource.leave.model.request.LeavePolicyRequest;
 import com.neg.technology.human.resource.leave.model.response.LeavePolicyResponse;
@@ -12,14 +13,12 @@ import com.neg.technology.human.resource.leave.service.LeavePolicyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import com.neg.technology.human.resource.leave.model.entity.LeaveBalance;
-
 
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-
 
 @Service
 @RequiredArgsConstructor
@@ -40,11 +39,9 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     );
 
     private Mono<Employee> getEmployee(Long employeeId) {
-        if (employeeId == null) {
-            return Mono.error(new IllegalArgumentException("EmployeeId cannot be null"));
-        }
+        if (employeeId == null) return Mono.error(new IllegalArgumentException("EmployeeId cannot be null"));
         return employeeService.findById(employeeId)
-                .switchIfEmpty(Mono.error(new RuntimeException("Employee not found")))
+                .switchIfEmpty(Mono.error(new RuntimeException("Employee not found with id: " + employeeId)))
                 .cast(Employee.class);
     }
 
@@ -72,27 +69,77 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
         return calculateYearsBetween(birthDate, LocalDate.now());
     }
 
-    // --- Leave Policies ---
+    // --- Genel max gün kontrolü ---
+    @Override
+    public Mono<Integer> getMaxAllowedDaysForEmployeeAndType(LeavePolicyRequest request) {
+        if (request == null || request.getEmployeeId() == null || request.getLeaveTypeId() == null) {
+            return Mono.error(new IllegalArgumentException("employeeId and leaveTypeId are required"));
+        }
 
+        return getEmployee(request.getEmployeeId())
+                .flatMap(employee -> {
+                    LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
+                            .orElseThrow(() -> new RuntimeException("LeaveType not found: " + request.getLeaveTypeId()));
+
+                    String name = leaveType.getName().trim().toLowerCase();
+
+                    // Maternity Leave
+                    if ("maternity leave".equalsIgnoreCase(name)) {
+                        if (!"female".equalsIgnoreCase(employee.getPerson().getGender())) {
+                            return Mono.error(new RuntimeException("Maternity leave only for female employees"));
+                        }
+                        boolean multiplePregnancy = Boolean.TRUE.equals(request.getMultiplePregnancy());
+                        int max = multiplePregnancy ? 140 : 112;
+                        return Mono.just(max);
+                    }
+
+                    // Paternity Leave
+                    if ("paternity leave".equalsIgnoreCase(name)) {
+                        if (!"male".equalsIgnoreCase(employee.getPerson().getGender())) {
+                            return Mono.error(new RuntimeException("Paternity leave only for male employees"));
+                        }
+                        Integer max = leaveType.getMaxDays() != null ? leaveType.getMaxDays() : 5;
+                        return Mono.just(max);
+                    }
+
+                    // Annual Leave
+                    if ("annual leave".equalsIgnoreCase(name)) {
+                        int yearsWorked = 0;
+                        if (employee.getEmploymentStartDate() != null) {
+                            yearsWorked = (int) employee.getEmploymentStartDate()
+                                    .until(java.time.LocalDateTime.now(), java.time.temporal.ChronoUnit.YEARS);
+                        }
+                        int max;
+                        if (yearsWorked < 1) max = 0;
+                        else if (yearsWorked < 5) max = 14;
+                        else if (yearsWorked < 15) max = 20;
+                        else max = 26;
+                        return Mono.just(max);
+                    }
+
+                    // Diğer izin tipleri (Bereavement, Marriage, Birthday, Military vb.)
+                    if (leaveType.getMaxDays() != null) {
+                        return Mono.just(leaveType.getMaxDays());
+                    }
+
+                    // Default: sınırsız izin
+                    return Mono.just(Integer.MAX_VALUE);
+                });
+    }
+
+
+    // --- Leave kuralları ---
     @Override
     public Mono<LeavePolicyResponse> getAnnualLeave(LeavePolicyRequest request) {
         return getEmployee(request.getEmployeeId())
                 .map(employee -> {
                     LocalDate startDate = getEmploymentStartDate(employee);
                     if (startDate == null) return LeavePolicyResponse.builder().days(0).eligible(false).build();
-
                     int yearsWorked = calculateYearsBetween(startDate, LocalDate.now());
-                    int days;
-
-                    if (yearsWorked < 1) days = 0;
-                    else if (yearsWorked < 5) days = calculateAge(employee) >= 50 ? 20 : 14;
-                    else if (yearsWorked < 15) days = 20;
-                    else days = 26;
-
-                    return LeavePolicyResponse.builder()
-                            .days(days)
-                            .eligible(days > 0)
-                            .build();
+                    int days = yearsWorked < 1 ? 0 :
+                            yearsWorked < 5 ? (calculateAge(employee) >= 50 ? 20 : 14) :
+                                    yearsWorked < 15 ? 20 : 26;
+                    return LeavePolicyResponse.builder().days(days).eligible(days > 0).build();
                 });
     }
 
@@ -100,125 +147,51 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     public Mono<LeavePolicyResponse> getAgeBasedLeaveBonus(LeavePolicyRequest request) {
         return getEmployee(request.getEmployeeId())
                 .map(employee -> {
-                    int age = calculateAge(employee);
-                    int bonus = age >= 50 ? 2 : 0;
-                    return LeavePolicyResponse.builder()
-                            .days(bonus)
-                            .eligible(bonus > 0)
-                            .build();
+                    int bonus = calculateAge(employee) >= 50 ? 2 : 0;
+                    return LeavePolicyResponse.builder().days(bonus).eligible(bonus > 0).build();
                 });
     }
 
     @Override
     public Mono<LeavePolicyResponse> checkBirthdayLeave(LeavePolicyRequest request) {
-        if (request.getDate() == null) {
-            return Mono.error(new IllegalArgumentException("Date cannot be null"));
-        }
-
+        if (request.getDate() == null) return Mono.error(new IllegalArgumentException("Date cannot be null"));
         return getEmployee(request.getEmployeeId())
                 .map(employee -> {
                     LocalDate birthDate = getBirthDate(employee);
                     boolean eligible = birthDate != null &&
                             birthDate.getMonth() == request.getDate().getMonth() &&
                             birthDate.getDayOfMonth() == request.getDate().getDayOfMonth();
-                    return LeavePolicyResponse.builder()
-                            .eligible(eligible)
-                            .days(eligible ? 1 : 0)
-                            .build();
+                    return LeavePolicyResponse.builder().eligible(eligible).days(eligible ? 1 : 0).build();
                 });
     }
 
     @Override
     public Mono<LeavePolicyResponse> getMaternityLeaveDays(LeavePolicyRequest request) {
-        return getEmployee(request.getEmployeeId())
-                .flatMap(employee -> {
-                    String gender = getGender(employee);
-                    if (!"female".equalsIgnoreCase(gender)) {
-                        return Mono.error(new RuntimeException("Maternity leave only applies to female employees"));
-                    }
-                    boolean multiplePregnancy = Boolean.TRUE.equals(request.getMultiplePregnancy());
-                    int days = multiplePregnancy ? 140 : 112;
-                    return Mono.just(LeavePolicyResponse.builder()
-                            .days(days)
-                            .eligible(true)
-                            .build());
-                });
+        return getMaxAllowedDaysForEmployeeAndType(request)
+                .map(days -> LeavePolicyResponse.builder().days(days).eligible(true).build());
     }
 
     @Override
     public Mono<LeavePolicyResponse> getPaternityLeaveDays(LeavePolicyRequest request) {
-        return getEmployee(request.getEmployeeId())
-                .flatMap(employee -> {
-                    // Sadece erkek çalışanlar için geçerli
-                    if (!"male".equalsIgnoreCase(getGender(employee))) {
-                        return Mono.error(new RuntimeException("Paternity leave only applies to male employees"));
-                    }
-
-                    // Paternity leave tipi bulunuyor
-                    LeaveType paternityLeaveType = leaveTypeRepository.findByNameIgnoreCase("Paternity Leave")
-                            .orElseThrow(() -> new RuntimeException("Paternity Leave type not found"));
-
-                    // Maksimum izin gün sayısı
-                    int maxDays = 5;
-
-                    // Kullanılmış gün sayısını al
-                    LeaveBalance leaveBalance = leaveBalanceRepository
-                            .findByEmployeeIdAndLeaveTypeId(employee.getId(), paternityLeaveType.getId())
-                            .orElseGet(() -> {
-                                // Eğer balance yoksa oluştur
-                                LeaveBalance lb = new LeaveBalance();
-                                lb.setEmployee(employee);
-                                lb.setLeaveType(paternityLeaveType);
-                                lb.setUsedDays(0);
-                                lb.setAmount(BigDecimal.ZERO);
-                                return lb;
-                            });
-
-                    int usedDays = leaveBalance.getUsedDays() != null ? leaveBalance.getUsedDays() : 0;
-                    int remainingDays = maxDays - usedDays;
-
-                    if (remainingDays <= 0) {
-                        return Mono.error(new RuntimeException("No remaining paternity leave days."));
-                    }
-
-                    int requested = request.getRequestedDays() != null ? request.getRequestedDays() : remainingDays;
-                    int approvedDays = Math.min(requested, remainingDays);
-
-                    return Mono.just(
-                            LeavePolicyResponse.builder()
-                                    .days(approvedDays)
-                                    .eligible(approvedDays > 0)
-                                    .build()
-                    );
-                });
+        return getMaxAllowedDaysForEmployeeAndType(request)
+                .map(days -> LeavePolicyResponse.builder().days(days).eligible(true).build());
     }
-
-
-
-
 
     @Override
     public Mono<LeavePolicyResponse> canBorrowLeave(LeavePolicyRequest request) {
         if (request.getRequestedDays() == null || request.getCurrentBorrowed() == null) {
             return Mono.error(new IllegalArgumentException("RequestedDays and CurrentBorrowed cannot be null"));
         }
-
         return getEmployee(request.getEmployeeId())
                 .map(employee -> {
                     LocalDate startDate = getEmploymentStartDate(employee);
                     if (startDate == null) return LeavePolicyResponse.builder().eligible(false).days(0).build();
-
                     int monthsWorked = Period.between(startDate, LocalDate.now()).getYears() * 12 +
                             Period.between(startDate, LocalDate.now()).getMonths();
-
                     boolean allowed = monthsWorked >= 3 &&
                             request.getRequestedDays() <= 5 &&
                             request.getCurrentBorrowed() + request.getRequestedDays() <= 10;
-
-                    return LeavePolicyResponse.builder()
-                            .eligible(allowed)
-                            .days(allowed ? request.getRequestedDays() : 0)
-                            .build();
+                    return LeavePolicyResponse.builder().eligible(allowed).days(allowed ? request.getRequestedDays() : 0).build();
                 });
     }
 
@@ -230,10 +203,7 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
                 case "grandparent", "aunt", "uncle", "in-law" -> 1;
                 default -> 0;
             };
-            return LeavePolicyResponse.builder()
-                    .days(days)
-                    .eligible(days > 0)
-                    .build();
+            return LeavePolicyResponse.builder().days(days).eligible(days > 0).build();
         });
     }
 
@@ -252,18 +222,11 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
 
     @Override
     public Mono<LeavePolicyResponse> isHoliday(LeavePolicyRequest request) {
-        if (request.getDate() == null) {
-            return Mono.error(new IllegalArgumentException("Date cannot be null"));
-        }
-
+        if (request.getDate() == null) return Mono.error(new IllegalArgumentException("Date cannot be null"));
         boolean holiday = OFFICIAL_HOLIDAYS.contains(request.getDate()) ||
                 request.getDate().getDayOfWeek() == DayOfWeek.SATURDAY ||
                 request.getDate().getDayOfWeek() == DayOfWeek.SUNDAY;
-
-        return Mono.just(LeavePolicyResponse.builder()
-                .eligible(holiday)
-                .days(holiday ? 1 : 0)
-                .build());
+        return Mono.just(LeavePolicyResponse.builder().eligible(holiday).days(holiday ? 1 : 0).build());
     }
 
     @Override

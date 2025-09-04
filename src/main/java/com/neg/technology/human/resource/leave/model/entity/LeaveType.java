@@ -47,6 +47,9 @@ public class LeaveType extends AuditableEntity {
     @Column(name = "borrowable_limit")
     private Integer borrowableLimit;
 
+    @Column(name = "max_days")
+    private Integer maxDays;
+
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     public enum Gender {
