@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: "9"
-      author: "Ayşe Şule"
+      author: "Burak Memiş"
       changes:
         - createTable:
             tableName: leave_balance
@@ -25,6 +25,10 @@ databaseChangeLog:
               - column:
                   name: date
                   type: INTEGER
+              - column:
+                  name: used_days
+                  type: INTEGER
+                  defaultValueNumeric: 0
               - column:
                   name: amount
                   type: NUMERIC(19,2)

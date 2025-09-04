@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: "8"
-      author: "Ayşe Şule"
+      author: "Burak Memiş"
       changes:
         - createTable:
             tableName: leave_type
@@ -28,6 +28,12 @@ databaseChangeLog:
               - column:
                   name: default_days
                   type: INTEGER
+              - column:
+                  name: max_days
+                  type: INTEGER
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
               - column:
                   name: valid_after_days
                   type: INTEGER

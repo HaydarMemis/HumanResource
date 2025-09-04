@@ -30,7 +30,7 @@ public class LeaveBalance extends AuditableEntity {
 
     private Integer date;
 
-    @Column(name = "used_days")  // DB’deki sütun adı ile eşleşir
+    @Column(name = "used_days")
     private Integer usedDays = 0;
 
 
