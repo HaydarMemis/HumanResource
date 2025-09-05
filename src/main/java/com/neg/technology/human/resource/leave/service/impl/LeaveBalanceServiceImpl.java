@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -77,10 +78,24 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                     String leaveName = leaveType.getName().trim();
                     int requestedDays = request.getAmount() != null ? request.getAmount().intValue() : 0;
 
-                    // Var olan balance
+                    int currentYear = java.time.LocalDate.now().getYear();
+
+                    int year = request.getDate() != null ? request.getDate() : LocalDate.now().getYear();
+
                     LeaveBalance existingBalance = leaveBalanceRepository
-                            .findByEmployeeIdAndLeaveTypeId(employee.getId(), leaveType.getId())
+                            .findByEmployeeIdAndLeaveTypeIdAndDate(employee.getId(), leaveType.getId(), year)
                             .orElse(null);
+
+
+
+                    if (existingBalance != null) {
+                        // Eğer kayıt eski yıla aitse -> yeni yıl için sıfırla
+                        if (existingBalance.getDate() == null || !existingBalance.getDate().equals(currentYear)) {
+                            existingBalance.setDate(currentYear);
+                            existingBalance.setAmount(BigDecimal.ZERO);
+                            existingBalance.setUsedDays(0);
+                        }
+                    }
 
                     int currentDays = existingBalance != null ? existingBalance.getAmount().intValue() : 0;
                     int totalRequestedDays = currentDays + requestedDays;
@@ -112,17 +127,17 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                     if (existingBalance != null) {
                         existingBalance.setAmount(BigDecimal.valueOf(totalRequestedDays));
                         balanceToSave = leaveBalanceRepository.save(existingBalance);
-                        Logger.logUpdated(LeaveBalance.class, balanceToSave.getId(), MESSAGE);
+                        Logger.logUpdated(LeaveBalance.class, balanceToSave.getId(), "Leave balance updated");
                     } else {
                         LeaveBalance entity = LeaveBalance.builder()
                                 .employee(employee)
                                 .leaveType(leaveType)
-                                .date(request.getDate())
+                                .date(year) // yıl kaydı
                                 .amount(BigDecimal.valueOf(requestedDays))
                                 .usedDays(0)
                                 .build();
                         balanceToSave = leaveBalanceRepository.save(entity);
-                        Logger.logCreated(LeaveBalance.class, balanceToSave.getId(), MESSAGE);
+                        Logger.logCreated(LeaveBalance.class, balanceToSave.getId(), "Leave balance created");
                     }
 
                     LeaveBalanceResponse response = LeaveBalanceResponse.builder()
@@ -139,6 +154,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                     return Mono.just(response);
                 });
     }
+
 
 
 
@@ -210,10 +226,11 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
 
         return Mono.fromCallable(() ->
                 leaveBalanceMapper.toResponseList(
-                        leaveBalanceRepository.findByEmployeeIdAndDate(request.getYear(), request.getEmployeeId())
+                        leaveBalanceRepository.findByEmployeeIdAndDate(request.getEmployeeId(), request.getYear())
                 )
         );
     }
+
 
     @Override
     public Mono<LeaveBalanceResponse> getByEmployeeAndLeaveType(EmployeeLeaveTypeRequest request) {
