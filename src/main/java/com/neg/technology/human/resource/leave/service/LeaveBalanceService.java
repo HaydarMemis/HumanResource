@@ -33,5 +33,6 @@ public interface LeaveBalanceService {
 
     Mono<LeaveBalanceResponseList> getByLeaveTypeAndYear(LeaveTypeYearRequest request);
 
+    int getTotalUsableLeaveDaysByEmployeeAndType(Long employeeId, Long leaveTypeId, int year);
 
 }

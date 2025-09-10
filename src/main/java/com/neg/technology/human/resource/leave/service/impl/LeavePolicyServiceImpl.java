@@ -39,9 +39,9 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     );
 
     private Mono<Employee> getEmployee(Long employeeId) {
-        if (employeeId == null) return Mono.error(new IllegalArgumentException("EmployeeId cannot be null"));
+        if (employeeId == null) return Mono.error(new IllegalArgumentException("Çalışan ID'si boş olamaz"));
         return employeeService.findById(employeeId)
-                .switchIfEmpty(Mono.error(new RuntimeException("Employee not found with id: " + employeeId)))
+                .switchIfEmpty(Mono.error(new RuntimeException("Çalışan bulunamadı, id: " + employeeId)))
                 .cast(Employee.class);
     }
 
@@ -52,7 +52,10 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     }
 
     private LocalDate getBirthDate(Employee employee) {
-        return employee != null && employee.getPerson() != null ? employee.getPerson().getBirthDate() : null;
+        if (employee != null && employee.getPerson() != null) {
+            return employee.getPerson().getBirthDate();
+        }
+        return null;
     }
 
     private String getGender(Employee employee) {
@@ -66,6 +69,9 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
 
     private int calculateAge(Employee employee) {
         LocalDate birthDate = getBirthDate(employee);
+        if (birthDate == null) {
+            throw new IllegalArgumentException("Çalışanın doğum tarihi bilgisi eksik veya erişilemiyor.");
+        }
         return calculateYearsBetween(birthDate, LocalDate.now());
     }
 
@@ -73,36 +79,38 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     @Override
     public Mono<Integer> getMaxAllowedDaysForEmployeeAndType(LeavePolicyRequest request) {
         if (request == null || request.getEmployeeId() == null || request.getLeaveTypeId() == null) {
-            return Mono.error(new IllegalArgumentException("employeeId and leaveTypeId are required"));
+            return Mono.error(new IllegalArgumentException("employeeId ve leaveTypeId zorunludur"));
         }
 
         return getEmployee(request.getEmployeeId())
                 .flatMap(employee -> {
                     LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
-                            .orElseThrow(() -> new RuntimeException("LeaveType not found: " + request.getLeaveTypeId()));
+                            .orElseThrow(() -> new RuntimeException("LeaveType bulunamadı: " + request.getLeaveTypeId()));
 
-                    String name = leaveType.getName().trim().toLowerCase();
+                    String name = leaveType.getName() != null ? leaveType.getName().trim().toLowerCase() : "";
 
-                    // Maternity Leave
+                    // Doğum izni
                     if ("maternity leave".equalsIgnoreCase(name)) {
-                        if (!"female".equalsIgnoreCase(employee.getPerson().getGender())) {
-                            return Mono.error(new RuntimeException("Maternity leave only for female employees"));
+                        String gender = getGender(employee);
+                        if (!"female".equalsIgnoreCase(gender)) {
+                            return Mono.error(new RuntimeException("Doğum izni sadece kadın çalışanlar içindir"));
                         }
                         boolean multiplePregnancy = Boolean.TRUE.equals(request.getMultiplePregnancy());
                         int max = multiplePregnancy ? 140 : 112;
                         return Mono.just(max);
                     }
 
-                    // Paternity Leave
+                    // Babalık izni
                     if ("paternity leave".equalsIgnoreCase(name)) {
-                        if (!"male".equalsIgnoreCase(employee.getPerson().getGender())) {
-                            return Mono.error(new RuntimeException("Paternity leave only for male employees"));
+                        String gender = getGender(employee);
+                        if (!"male".equalsIgnoreCase(gender)) {
+                            return Mono.error(new RuntimeException("Babalık izni sadece erkek çalışanlar içindir"));
                         }
                         Integer max = leaveType.getMaxDays() != null ? leaveType.getMaxDays() : 5;
                         return Mono.just(max);
                     }
 
-                    // Annual Leave
+                    // Yıllık izin
                     if ("annual leave".equalsIgnoreCase(name)) {
                         int yearsWorked = 0;
                         if (employee.getEmploymentStartDate() != null) {
@@ -117,12 +125,12 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
                         return Mono.just(max);
                     }
 
-                    // Diğer izin tipleri (Bereavement, Marriage, Birthday, Military vb.)
+                    // Diğer izin tipleri
                     if (leaveType.getMaxDays() != null) {
                         return Mono.just(leaveType.getMaxDays());
                     }
 
-                    // Default: sınırsız izin
+                    // Varsayılan: sınırsız izin
                     return Mono.just(Integer.MAX_VALUE);
                 });
     }
@@ -136,9 +144,17 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
                     LocalDate startDate = getEmploymentStartDate(employee);
                     if (startDate == null) return LeavePolicyResponse.builder().days(0).eligible(false).build();
                     int yearsWorked = calculateYearsBetween(startDate, LocalDate.now());
-                    int days = yearsWorked < 1 ? 0 :
-                            yearsWorked < 5 ? (calculateAge(employee) >= 50 ? 20 : 14) :
-                                    yearsWorked < 15 ? 20 : 26;
+                    int days;
+                    try {
+                        days = yearsWorked < 1 ? 0 :
+                                yearsWorked < 5 ? (calculateAge(employee) >= 50 ? 20 : 14) :
+                                        yearsWorked < 15 ? 20 : 26;
+                    } catch (IllegalArgumentException e) {
+                        // Doğum tarihi yoksa yaş bazlı ek gün verilmez, sadece kıdeme bakılır
+                        days = yearsWorked < 1 ? 0 :
+                                yearsWorked < 5 ? 14 :
+                                        yearsWorked < 15 ? 20 : 26;
+                    }
                     return LeavePolicyResponse.builder().days(days).eligible(days > 0).build();
                 });
     }
@@ -147,14 +163,20 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     public Mono<LeavePolicyResponse> getAgeBasedLeaveBonus(LeavePolicyRequest request) {
         return getEmployee(request.getEmployeeId())
                 .map(employee -> {
-                    int bonus = calculateAge(employee) >= 50 ? 2 : 0;
+                    int bonus = 0;
+                    try {
+                        bonus = calculateAge(employee) >= 50 ? 2 : 0;
+                    } catch (IllegalArgumentException e) {
+                        // Doğum tarihi yoksa yaş bazlı bonus verilmez
+                        bonus = 0;
+                    }
                     return LeavePolicyResponse.builder().days(bonus).eligible(bonus > 0).build();
                 });
     }
 
     @Override
     public Mono<LeavePolicyResponse> checkBirthdayLeave(LeavePolicyRequest request) {
-        if (request.getDate() == null) return Mono.error(new IllegalArgumentException("Date cannot be null"));
+        if (request.getDate() == null) return Mono.error(new IllegalArgumentException("Tarih boş olamaz"));
         return getEmployee(request.getEmployeeId())
                 .map(employee -> {
                     LocalDate birthDate = getBirthDate(employee);
@@ -180,7 +202,7 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     @Override
     public Mono<LeavePolicyResponse> canBorrowLeave(LeavePolicyRequest request) {
         if (request.getRequestedDays() == null || request.getCurrentBorrowed() == null) {
-            return Mono.error(new IllegalArgumentException("RequestedDays and CurrentBorrowed cannot be null"));
+            return Mono.error(new IllegalArgumentException("RequestedDays ve CurrentBorrowed boş olamaz"));
         }
         return getEmployee(request.getEmployeeId())
                 .map(employee -> {
@@ -222,7 +244,7 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
 
     @Override
     public Mono<LeavePolicyResponse> isHoliday(LeavePolicyRequest request) {
-        if (request.getDate() == null) return Mono.error(new IllegalArgumentException("Date cannot be null"));
+        if (request.getDate() == null) return Mono.error(new IllegalArgumentException("Tarih boş olamaz"));
         boolean holiday = OFFICIAL_HOLIDAYS.contains(request.getDate()) ||
                 request.getDate().getDayOfWeek() == DayOfWeek.SATURDAY ||
                 request.getDate().getDayOfWeek() == DayOfWeek.SUNDAY;
@@ -254,8 +276,14 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
                 if (startDate == null) return 0;
                 LocalDate referenceDate = LocalDate.of(year, 12, 31);
                 int yearsWorked = calculateYearsBetween(startDate, referenceDate);
+                int yas = 0;
+                try {
+                    yas = calculateAge(employee);
+                } catch (IllegalArgumentException e) {
+                    yas = 0;
+                }
                 if (yearsWorked < 1) return 0;
-                if (yearsWorked < 5) return calculateAge(employee) >= 50 ? 20 : 14;
+                if (yearsWorked < 5) return yas >= 50 ? 20 : 14;
                 if (yearsWorked < 15) return 20;
                 return 26;
             }

@@ -83,6 +83,11 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                     Employee employee = tuple.getT1();
                     LeaveType leaveType = tuple.getT2();
 
+                    // Doğum tarihi kontrolü (hata logundaki gibi)
+                    if (employee.getPerson() == null || employee.getPerson().getBirthDate() == null) {
+                        return Mono.error(new IllegalArgumentException("Çalışanın doğum tarihi bilgisi eksik veya erişilemiyor."));
+                    }
+
                     int requestYear = request.getDate() != null ? request.getDate() : LocalDate.now().getYear();
                     int requestedDays = request.getAmount() != null ? request.getAmount().intValue() : 0;
                     if (requestedDays <= 0) {
@@ -101,8 +106,6 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                     // LeavePolicyService ile hakediş hesapla (yaş, cinsiyet, kıdem vs.)
                     int earnedDays = 0;
                     try {
-                        // calculateLeaveDays metodu yoksa, LeavePolicyService'de getLeaveDaysByPolicy(Employee, LeaveType, int) gibi bir metot olmalı
-                        // Eğer yoksa, burada örnek bir implementasyon ile devam ediyoruz
                         earnedDays = leavePolicyService.getLeaveDaysByPolicy(employee, leaveType, requestYear);
                     } catch (Exception e) {
                         return Mono.error(new RuntimeException("İzin hakedişi hesaplanamadı: " + e.getMessage()));
@@ -299,6 +302,11 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Çalışan bulunamadı", employeeId));
         LeaveType leaveType = leaveTypeRepository.findById(leaveTypeId)
                 .orElseThrow(() -> new ResourceNotFoundException("İzin tipi bulunamadı", leaveTypeId));
+
+        // Doğum tarihi kontrolü (hata logundaki gibi)
+        if (employee.getPerson() == null || employee.getPerson().getBirthDate() == null) {
+            throw new IllegalArgumentException("Çalışanın doğum tarihi bilgisi eksik veya erişilemiyor.");
+        }
 
         // Hakediş gününü LeavePolicyService'den al
         int earnedDays = 0;
