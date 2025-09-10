@@ -1,161 +1,91 @@
 package com.neg.technology.human.resource.leave.validator;
 
+import com.neg.technology.human.resource.employee.model.entity.Employee;
+import com.neg.technology.human.resource.employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.leave.model.request.CreateLeaveBalanceRequest;
 import com.neg.technology.human.resource.leave.model.request.UpdateLeaveBalanceRequest;
-import com.neg.technology.human.resource.employee.model.entity.Employee;
 import com.neg.technology.human.resource.leave.model.entity.LeaveType;
-import com.neg.technology.human.resource.employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.leave.repository.LeaveTypeRepository;
+import com.neg.technology.human.resource.leave.service.LeavePolicyService;
+import jakarta.validation.ValidationException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 
 @Service
+@RequiredArgsConstructor
 public class LeaveBalanceValidator {
+
     private final EmployeeRepository employeeRepository;
     private final LeaveTypeRepository leaveTypeRepository;
-
-    public LeaveBalanceValidator(EmployeeRepository employeeRepository, LeaveTypeRepository leaveTypeRepository) {
-        this.employeeRepository = employeeRepository;
-        this.leaveTypeRepository = leaveTypeRepository;
-    }
+    private final LeavePolicyService leavePolicyService;
 
     public Employee validateAndGetEmployee(Long employeeId) {
         return employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new IllegalArgumentException("Geçersiz çalışan ID: " + employeeId));
+                .orElseThrow(() -> new ValidationException("Geçersiz çalışan ID: " + employeeId));
     }
 
     public LeaveType validateAndGetLeaveType(Long leaveTypeId) {
         return leaveTypeRepository.findById(leaveTypeId)
-                .orElseThrow(() -> new IllegalArgumentException("Geçersiz izin tipi ID: " + leaveTypeId));
+                .orElseThrow(() -> new ValidationException("Geçersiz izin tipi ID: " + leaveTypeId));
     }
 
     /**
-     * Çalışanın yaşına, cinsiyetine ve kıdemine göre izin hakkı hesaplanmalı.
-     * Bu metot, CreateLeaveBalanceRequest ile gelen bilgileri kontrol eder ve
-     * ilgili leaveBalanceServiceImpl'de kullanılmak üzere validasyon sağlar.
+     * CreateLeaveBalanceRequest için validasyon
      */
     public void validateCreateDTO(CreateLeaveBalanceRequest dto) {
         Employee employee = validateAndGetEmployee(dto.getEmployeeId());
         LeaveType leaveType = validateAndGetLeaveType(dto.getLeaveTypeId());
 
-        // Doğrudan getter ile veya alan ile erişim dene, yoksa null bırak
-        LocalDate birthDate = null;
-        LocalDate startDate = null;
-        String gender = null;
+        LocalDate birthDate = employee.getPerson() != null ? employee.getPerson().getBirthDate() : null;
+        String gender = employee.getPerson() != null ? employee.getPerson().getGender() : null;
+        LocalDateTime startDateTime = employee.getEmploymentStartDate();
+        LocalDate startDate = startDateTime != null ? startDateTime.toLocalDate() : null;
 
-        // Doğum tarihi
-        try {
-            if (employee.getClass().getMethod("getBirthDate") != null) {
-                birthDate = (LocalDate) employee.getClass().getMethod("getBirthDate").invoke(employee);
-            }
-        } catch (Exception e) {
-            try {
-                birthDate = (LocalDate) Employee.class.getDeclaredField("birthDate").get(employee);
-            } catch (Exception ex) {
-                try {
-                    birthDate = (LocalDate) employee.getClass().getField("birthDate").get(employee);
-                } catch (Exception exc) {
-                    // Yut, null kalsın
-                }
-            }
-        }
+        if (birthDate == null) throw new ValidationException("Çalışanın doğum tarihi bilgisi eksik.");
+        if (startDate == null) throw new ValidationException("Çalışanın işe başlama tarihi bilgisi eksik.");
+        if (gender == null) throw new ValidationException("Çalışanın cinsiyet bilgisi eksik.");
 
-        // İşe başlama tarihi
-        try {
-            if (employee.getClass().getMethod("getStartDate") != null) {
-                startDate = (LocalDate) employee.getClass().getMethod("getStartDate").invoke(employee);
-            }
-        } catch (Exception e) {
-            try {
-                startDate = (LocalDate) Employee.class.getDeclaredField("startDate").get(employee);
-            } catch (Exception ex) {
-                try {
-                    startDate = (LocalDate) employee.getClass().getField("startDate").get(employee);
-                } catch (Exception exc) {
-                    // Yut, null kalsın
-                }
+        int age = Period.between(birthDate, LocalDate.now()).getYears();
+        if (age < 18) throw new ValidationException("18 yaşından küçük çalışanlara izin eklenemez.");
+
+        // --- Policy kontrolü ---
+        int year = dto.getDate() != null ? dto.getDate() : LocalDate.now().getYear();
+        int maxDays = leavePolicyService.getLeaveDaysByPolicy(employee, leaveType, year);
+
+        // multiplePregnancy sadece maternity leave için geçerli
+        if ("maternity leave".equalsIgnoreCase(leaveType.getName()) && dto.getMultiplePregnancy() != null) {
+            if (dto.getMultiplePregnancy()) {
+                maxDays = Math.max(maxDays, 140);
+            } else {
+                maxDays = Math.max(maxDays, 112);
             }
         }
 
-        // Cinsiyet
-        try {
-            if (employee.getClass().getMethod("getGender") != null) {
-                gender = (String) employee.getClass().getMethod("getGender").invoke(employee);
-            }
-        } catch (Exception e) {
-            try {
-                gender = (String) Employee.class.getDeclaredField("gender").get(employee);
-            } catch (Exception ex) {
-                try {
-                    gender = (String) employee.getClass().getField("gender").get(employee);
-                } catch (Exception exc) {
-                    // Yut, null kalsın
-                }
-            }
+        if (dto.getAmount() != null && dto.getAmount().compareTo(BigDecimal.valueOf(maxDays)) > 0) {
+            throw new ValidationException(
+                    leaveType.getName() + " için maksimum izin gün sayısı aşılıyor. Maks: " + maxDays
+            );
         }
-
-        // Eksik zorunlu alanlar için daha açıklayıcı ve kullanıcı dostu hata mesajı
-        if (birthDate == null) {
-            throw new IllegalArgumentException("Çalışanın doğum tarihi bilgisi eksik. Lütfen personel kaydını kontrol ediniz.");
-        }
-        if (startDate == null) {
-            throw new IllegalArgumentException("Çalışanın işe başlama tarihi bilgisi eksik. Lütfen personel kaydını kontrol ediniz.");
-        }
-        if (gender == null) {
-            throw new IllegalArgumentException("Çalışanın cinsiyet bilgisi eksik. Lütfen personel kaydını kontrol ediniz.");
-        }
-
-        int yas = Period.between(birthDate, LocalDate.now()).getYears();
-        int kidem = Period.between(startDate, LocalDate.now()).getYears();
-
-        // Burada iş kurallarına göre izin hakkı belirlenebilir.
-        // Örneğin:
-        // - 50 yaş üstü fazladan izin hakkı
-        // - Kadın çalışanlara doğum izni
-        // - Kıdeme göre artan izin hakkı
-        // Bu kurallar LeaveBalanceServiceImpl'de detaylandırılmalı.
-
-        // Örnek validasyon: (detaylar serviste olmalı)
-        if (yas < 18) {
-            throw new IllegalArgumentException("18 yaşından küçük çalışanlara izin eklenemez.");
-        }
-        // Diğer kurallar LeaveBalanceServiceImpl'de uygulanacak.
     }
 
     /**
-     * Güncelleme için de aynı şekilde yaş, cinsiyet ve kıdem kontrolü yapılabilir.
+     * UpdateLeaveBalanceRequest için validasyon
      */
     public void validateUpdateDTO(UpdateLeaveBalanceRequest dto) {
-        if (dto.getEmployeeId() != null) {
-            Employee employee = validateAndGetEmployee(dto.getEmployeeId());
-            LocalDate birthDate = null;
-            try {
-                if (employee.getClass().getMethod("getBirthDate") != null) {
-                    birthDate = (LocalDate) employee.getClass().getMethod("getBirthDate").invoke(employee);
-                }
-            } catch (Exception e) {
-                try {
-                    birthDate = (LocalDate) Employee.class.getDeclaredField("birthDate").get(employee);
-                } catch (Exception ex) {
-                    try {
-                        birthDate = (LocalDate) employee.getClass().getField("birthDate").get(employee);
-                    } catch (Exception exc) {
-                        // Yut, null kalsın
-                    }
-                }
-            }
-            if (birthDate == null) {
-                throw new IllegalArgumentException("Çalışanın doğum tarihi bilgisi eksik. Lütfen personel kaydını kontrol ediniz.");
-            }
-            int yas = Period.between(birthDate, LocalDate.now()).getYears();
-            if (yas < 18) {
-                throw new IllegalArgumentException("18 yaşından küçük çalışanlara izin eklenemez.");
-            }
-        }
-        if (dto.getLeaveTypeId() != null) {
-            validateAndGetLeaveType(dto.getLeaveTypeId());
+        if (dto.getEmployeeId() != null && dto.getLeaveTypeId() != null) {
+            CreateLeaveBalanceRequest createDto = new CreateLeaveBalanceRequest();
+            createDto.setEmployeeId(dto.getEmployeeId());
+            createDto.setLeaveTypeId(dto.getLeaveTypeId());
+            createDto.setAmount(dto.getAmount());
+            createDto.setDate(dto.getDate());
+            // multiplePregnancy sadece ilgili izin tipleri için geçerli, null olabilir
+            createDto.setMultiplePregnancy(false);
+            validateCreateDTO(createDto);
         }
     }
 }

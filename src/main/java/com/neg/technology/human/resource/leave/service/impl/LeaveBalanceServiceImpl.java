@@ -13,12 +13,14 @@ import com.neg.technology.human.resource.leave.repository.LeaveBalanceRepository
 import com.neg.technology.human.resource.leave.repository.LeaveTypeRepository;
 import com.neg.technology.human.resource.leave.service.LeaveBalanceService;
 import com.neg.technology.human.resource.leave.service.LeavePolicyService;
+import com.neg.technology.human.resource.leave.validator.LeaveBalanceValidator;
 import com.neg.technology.human.resource.utility.Logger;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
 import com.neg.technology.human.resource.employee.model.request.EmployeeYearRequest;
 import com.neg.technology.human.resource.employee.model.request.EmployeeLeaveTypeRequest;
 import com.neg.technology.human.resource.employee.model.request.EmployeeLeaveTypeYearRequest;
 import com.neg.technology.human.resource.leave.model.request.LeaveTypeYearRequest;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -33,6 +35,8 @@ import java.util.stream.Collectors;
 public class LeaveBalanceServiceImpl implements LeaveBalanceService {
 
     public static final String MESSAGE = "LeaveBalance";
+    private final LeaveBalanceValidator leaveBalanceValidator;
+
 
     private final LeaveBalanceRepository leaveBalanceRepository;
     private final EmployeeRepository employeeRepository;
@@ -57,124 +61,62 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
         );
     }
 
-    /**
-     * Burada LeavePolicyService üzerinden izin hakedişini, cinsiyet, yaş, kıdem gibi parametrelerle çekiyoruz.
-     * Ayrıca eski yıllardan kalan izinleri son yıla topluyoruz.
-     * Aynı tarihte izin isteği varsa hata döner.
-     */
     @Override
     public Mono<LeaveBalanceResponse> create(CreateLeaveBalanceRequest request) {
-        if (request == null || request.getEmployeeId() == null || request.getLeaveTypeId() == null) {
-            return Mono.error(new IllegalArgumentException("EmployeeId ve LeaveTypeId zorunlu"));
-        }
+        leaveBalanceValidator.validateCreateDTO(request);
 
-        Mono<Employee> employeeMono = Mono.fromCallable(() ->
-                employeeRepository.findById(request.getEmployeeId())
-                        .orElseThrow(() -> new RuntimeException("Çalışan bulunamadı: " + request.getEmployeeId()))
-        );
+        return Mono.fromCallable(() -> {
+            Employee employee = employeeRepository.findById(request.getEmployeeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()));
+            LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId()));
 
-        Mono<LeaveType> leaveTypeMono = Mono.fromCallable(() ->
-                leaveTypeRepository.findById(request.getLeaveTypeId())
-                        .orElseThrow(() -> new RuntimeException("İzin tipi bulunamadı: " + request.getLeaveTypeId()))
-        );
+            int year = request.getDate() != null ? request.getDate() : LocalDate.now().getYear();
+            int requestedDays = request.getAmount() != null ? request.getAmount().intValue() : 0;
 
-        return Mono.zip(employeeMono, leaveTypeMono)
-                .flatMap(tuple -> {
-                    Employee employee = tuple.getT1();
-                    LeaveType leaveType = tuple.getT2();
+            // Hakediş gününü LeavePolicyService'den al
+            int maxDays = leavePolicyService.getLeaveDaysByPolicy(employee, leaveType, year);
 
-                    // Doğum tarihi kontrolü (hata logundaki gibi)
-                    if (employee.getPerson() == null || employee.getPerson().getBirthDate() == null) {
-                        return Mono.error(new IllegalArgumentException("Çalışanın doğum tarihi bilgisi eksik veya erişilemiyor."));
-                    }
+            // Maternity leave için multiplePregnancy kontrolü
+            if ("maternity leave".equalsIgnoreCase(leaveType.getName()) && request.getMultiplePregnancy() != null) {
+                maxDays = request.getMultiplePregnancy() ? Math.max(maxDays, 140) : Math.max(maxDays, 112);
+            }
 
-                    int requestYear = request.getDate() != null ? request.getDate() : LocalDate.now().getYear();
-                    int requestedDays = request.getAmount() != null ? request.getAmount().intValue() : 0;
-                    if (requestedDays <= 0) {
-                        return Mono.error(new RuntimeException("Talep edilen gün sayısı 0'dan büyük olmalı"));
-                    }
+            if (maxDays > 0 && requestedDays > maxDays) {
+                throw new ValidationException(
+                        leaveType.getName() + " için toplam izin gün sayısı maksimumu aşıyor. Maks: " + maxDays
+                );
+            }
 
-                    // Aynı tarihte izin isteği var mı kontrolü
-                    List<LeaveBalance> allBalances = leaveBalanceRepository
-                            .findByEmployeeIdAndLeaveTypeIdOrderByDateAsc(employee.getId(), leaveType.getId());
-                    boolean sameYearRequestExists = allBalances.stream()
-                            .anyMatch(b -> b.getDate().equals(requestYear));
-                    if (sameYearRequestExists) {
-                        return Mono.error(new RuntimeException("Aynı yıl için tekrar izin eklenemez!"));
-                    }
+            // Eski balance kontrolü
+            Optional<LeaveBalance> existingOpt = leaveBalanceRepository
+                    .findByEmployeeIdAndLeaveTypeIdAndDate(employee.getId(), leaveType.getId(), year);
 
-                    // LeavePolicyService ile hakediş hesapla (yaş, cinsiyet, kıdem vs.)
-                    int earnedDays = 0;
-                    try {
-                        earnedDays = leavePolicyService.getLeaveDaysByPolicy(employee, leaveType, requestYear);
-                    } catch (Exception e) {
-                        return Mono.error(new RuntimeException("İzin hakedişi hesaplanamadı: " + e.getMessage()));
-                    }
+            if (existingOpt.isPresent()) {
+                LeaveBalance existing = existingOpt.get();
+                int total = existing.getAmount().intValue() + requestedDays;
+                if (maxDays > 0 && total > maxDays) {
+                    throw new ValidationException(
+                            leaveType.getName() + " için toplam izin gün sayısı maksimumu aşıyor. Maks: " + maxDays
+                    );
+                }
+                existing.setAmount(BigDecimal.valueOf(total));
+                leaveBalanceRepository.save(existing);
+                return leaveBalanceMapper.toResponse(existing);
+            }
 
-                    // Eski yıllardan kalan izinleri bul ve son yıla topla
-                    int lastYear = requestYear;
-                    int totalUnused = 0;
-                    for (LeaveBalance b : allBalances) {
-                        if (b.getDate() < lastYear) {
-                            int unused = b.getAmount().intValue() - b.getUsedDays();
-                            if (unused > 0) totalUnused += unused;
-                        }
-                    }
+            // Yeni balance oluştur
+            LeaveBalance newBalance = LeaveBalance.builder()
+                    .employee(employee)
+                    .leaveType(leaveType)
+                    .date(year)
+                    .amount(BigDecimal.valueOf(requestedDays))
+                    .usedDays(0)
+                    .build();
 
-                    // Son yıl için toplam hakediş = hakediş + devreden
-                    int totalRight = earnedDays + totalUnused;
-
-                    // Borç izni varsa ekle
-                    int borrowableLimit = leaveType.getBorrowableLimit() != null ? leaveType.getBorrowableLimit() : 0;
-                    int maxUsable = totalRight + borrowableLimit;
-
-                    // Kullanılmış günleri bul
-                    int usedDays = allBalances.stream()
-                            .filter(b -> b.getDate() == lastYear)
-                            .mapToInt(LeaveBalance::getUsedDays)
-                            .sum();
-
-                    if (usedDays + requestedDays > maxUsable) {
-                        return Mono.error(new RuntimeException(
-                                "İzin talebi maksimum kullanılabilir gün sayısını aşıyor! (Hak: " + totalRight + ", Borç: " + borrowableLimit + ")"
-                        ));
-                    }
-
-                    // Son yıl için LeaveBalance oluştur/güncelle
-                    LeaveBalance yearBalance = allBalances.stream()
-                            .filter(b -> b.getDate() == lastYear)
-                            .findFirst()
-                            .orElse(null);
-
-                    if (yearBalance != null) {
-                        yearBalance.setAmount(yearBalance.getAmount().add(BigDecimal.valueOf(requestedDays)));
-                        yearBalance.setUsedDays(yearBalance.getUsedDays() + requestedDays);
-                        leaveBalanceRepository.save(yearBalance);
-                    } else {
-                        LeaveBalance newBalance = LeaveBalance.builder()
-                                .employee(employee)
-                                .leaveType(leaveType)
-                                .date(lastYear)
-                                .amount(BigDecimal.valueOf(requestedDays))
-                                .usedDays(requestedDays)
-                                .build();
-                        leaveBalanceRepository.save(newBalance);
-                        yearBalance = newBalance;
-                    }
-
-                    LeaveBalanceResponse response = LeaveBalanceResponse.builder()
-                            .id(yearBalance.getId())
-                            .employeeFirstName(employee.getPerson().getFirstName())
-                            .employeeLastName(employee.getPerson().getLastName())
-                            .leaveTypeName(leaveType.getName())
-                            .leaveTypeBorrowableLimit(leaveType.getBorrowableLimit())
-                            .leaveTypeIsUnpaid(leaveType.getIsUnpaid())
-                            .date(yearBalance.getDate())
-                            .amount(yearBalance.getAmount())
-                            .build();
-
-                    return Mono.just(response);
-                });
+            leaveBalanceRepository.save(newBalance);
+            return leaveBalanceMapper.toResponse(newBalance);
+        });
     }
 
     @Override
@@ -187,23 +129,42 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
             LeaveBalance existing = leaveBalanceRepository.findById(request.getId())
                     .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, request.getId()));
 
-            Employee employee = null;
+            Employee employee = existing.getEmployee();
             if (request.getEmployeeId() != null) {
                 employee = employeeRepository.findById(request.getEmployeeId())
                         .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()));
             }
 
-            LeaveType leaveType = null;
+            LeaveType leaveType = existing.getLeaveType();
             if (request.getLeaveTypeId() != null) {
                 leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
                         .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId()));
             }
 
-            leaveBalanceMapper.updateEntity(existing, request, employee, leaveType);
-            LeaveBalance updated = leaveBalanceRepository.save(existing);
+            int year = request.getDate() != null ? request.getDate() : existing.getDate();
+            int requestedDays = request.getAmount() != null ? request.getAmount().intValue() : existing.getAmount().intValue();
 
-            Logger.logUpdated(LeaveBalance.class, updated.getId(), MESSAGE);
-            return leaveBalanceMapper.toResponse(updated);
+            int maxDays = leavePolicyService.getLeaveDaysByPolicy(employee, leaveType, year);
+
+            // multiplePregnancy kontrolü
+            if ("maternity leave".equalsIgnoreCase(leaveType.getName())) {
+                boolean multiplePregnancy = request.getAmount() != null && request.getAmount().intValue() > 112; // örnek, ihtiyaca göre düzelt
+                maxDays = multiplePregnancy ? Math.max(maxDays, 140) : Math.max(maxDays, 112);
+            }
+
+            if (maxDays > 0 && requestedDays > maxDays) {
+                throw new ValidationException(
+                        leaveType.getName() + " için toplam izin gün sayısı maksimumu aşıyor. Maks: " + maxDays
+                );
+            }
+
+            existing.setEmployee(employee);
+            existing.setLeaveType(leaveType);
+            existing.setDate(year);
+            existing.setAmount(BigDecimal.valueOf(requestedDays));
+
+            leaveBalanceRepository.save(existing);
+            return leaveBalanceMapper.toResponse(existing);
         });
     }
 

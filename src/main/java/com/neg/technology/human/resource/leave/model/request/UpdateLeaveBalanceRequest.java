@@ -21,4 +21,6 @@ public class UpdateLeaveBalanceRequest {
 
     @Min(0)
     private BigDecimal amount;
+
+    private Boolean multiplePregnancy;
 }
