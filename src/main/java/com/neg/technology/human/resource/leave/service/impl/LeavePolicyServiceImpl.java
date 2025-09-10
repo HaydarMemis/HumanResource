@@ -241,4 +241,35 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
             return list;
         });
     }
+
+    @Override
+    public int getLeaveDaysByPolicy(Employee employee, LeaveType leaveType, int year) {
+        if (employee == null || leaveType == null) return 0;
+
+        String typeName = Optional.ofNullable(leaveType.getName()).orElse("").trim().toLowerCase();
+
+        switch (typeName) {
+            case "annual leave": {
+                LocalDate startDate = getEmploymentStartDate(employee);
+                if (startDate == null) return 0;
+                LocalDate referenceDate = LocalDate.of(year, 12, 31);
+                int yearsWorked = calculateYearsBetween(startDate, referenceDate);
+                if (yearsWorked < 1) return 0;
+                if (yearsWorked < 5) return calculateAge(employee) >= 50 ? 20 : 14;
+                if (yearsWorked < 15) return 20;
+                return 26;
+            }
+            case "maternity leave": {
+                if (!"female".equalsIgnoreCase(getGender(employee))) return 0;
+                return leaveType.getMaxDays() != null ? leaveType.getMaxDays() : 112;
+            }
+            case "paternity leave": {
+                if (!"male".equalsIgnoreCase(getGender(employee))) return 0;
+                return leaveType.getMaxDays() != null ? leaveType.getMaxDays() : 5;
+            }
+            default: {
+                return leaveType.getMaxDays() != null ? leaveType.getMaxDays() : 0;
+            }
+        }
+    }
 }

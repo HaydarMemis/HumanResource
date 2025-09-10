@@ -4,7 +4,6 @@ import com.neg.technology.human.resource.employee.model.entity.Employee;
 import com.neg.technology.human.resource.employee.model.request.EmployeeDateRangeRequest;
 import com.neg.technology.human.resource.employee.model.request.EmployeeLeaveTypeDateRangeRequest;
 import com.neg.technology.human.resource.employee.model.request.EmployeeStatusRequest;
-import com.neg.technology.human.resource.employee.model.request.EmployeeYearRequest;
 import com.neg.technology.human.resource.employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.leave.model.entity.LeaveRequest;
@@ -18,6 +17,7 @@ import com.neg.technology.human.resource.leave.model.response.LeaveRequestRespon
 import com.neg.technology.human.resource.leave.repository.LeaveRequestRepository;
 import com.neg.technology.human.resource.leave.repository.LeaveTypeRepository;
 import com.neg.technology.human.resource.leave.service.LeaveRequestService;
+import com.neg.technology.human.resource.leave.service.LeaveBalanceService;
 import com.neg.technology.human.resource.utility.Logger;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
 import com.neg.technology.human.resource.utility.module.entity.request.StatusRequest;
@@ -34,6 +34,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     private final LeaveRequestRepository leaveRequestRepository;
     private final EmployeeRepository employeeRepository;
     private final LeaveTypeRepository leaveTypeRepository;
+    private final LeaveBalanceService leaveBalanceService; // LeaveBalanceServiceImpl üzerinden çekilecek
 
     @Override
     public Mono<LeaveRequestResponseList> getAll() {
@@ -55,19 +56,51 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         );
     }
 
+    /**
+     * Burada izin talebi oluşturulurken;
+     * - Çalışan ve izin tipi kontrolü yapılır.
+     * - Aynı tarihte izin çakışması kontrol edilir.
+     * - Tüm yıllardan devreden ve o yılki hakediş + borç izni dahil toplam izin hakkı hesaplanır.
+     * - Talep edilen gün bu toplam hakkı aşamaz.
+     * - LeavePolicyServiceImpl'deki kurallar (yaş, cinsiyet, kıdem vs.) LeaveBalanceServiceImpl üzerinden uygulanır.
+     */
     @Override
     public Mono<LeaveRequestResponse> create(CreateLeaveRequestRequest dto) {
         return Mono.fromCallable(() -> {
+            // Çalışan ve izin tipi kontrolü
             Employee employee = employeeRepository.findById(dto.getEmployeeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Employee", dto.getEmployeeId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Çalışan bulunamadı", dto.getEmployeeId()));
 
             LeaveType leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Leave Type", dto.getLeaveTypeId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("İzin tipi bulunamadı", dto.getLeaveTypeId()));
+
+            // Aynı tarihte izin isteği var mı kontrolü (çakışma)
+            List<LeaveRequest> mevcutIzinler = leaveRequestRepository.findByEmployeeId(dto.getEmployeeId());
+            boolean cakismaVar = mevcutIzinler.stream().anyMatch(izin ->
+                    !(dto.getEndDate().isBefore(izin.getStartDate()) || dto.getStartDate().isAfter(izin.getEndDate()))
+            );
+            if (cakismaVar) {
+                throw new IllegalArgumentException("Aynı tarihlerde daha önce izin isteği gönderilmiş.");
+            }
+
+            // Toplam kullanılabilir izin hakkı: eski yıllardan devreden + o yılki hakediş + borç izni
+            // LeaveBalanceServiceImpl.getTotalUsableLeaveDaysByEmployeeAndType metodu LeavePolicyServiceImpl kurallarını uygular
+            int toplamIzinHakki = leaveBalanceService.getTotalUsableLeaveDaysByEmployeeAndType(
+                    dto.getEmployeeId(),
+                    dto.getLeaveTypeId(),
+                    dto.getStartDate().getYear()
+            );
+
+            // Talep edilen gün sayısı
+            long talepEdilenGun = dto.getEndDate().toEpochDay() - dto.getStartDate().toEpochDay() + 1;
+            if (talepEdilenGun > toplamIzinHakki) {
+                throw new IllegalArgumentException("Talep edilen gün sayısı toplam izin hakkını aşıyor. Kalan: " + toplamIzinHakki);
+            }
 
             Employee approver = null;
-            if(dto.getApprovedById() != null){
+            if (dto.getApprovedById() != null) {
                 approver = employeeRepository.findById(dto.getApprovedById())
-                        .orElseThrow(() -> new ResourceNotFoundException("Approver Employee", dto.getApprovedById()));
+                        .orElseThrow(() -> new ResourceNotFoundException("Onaylayan çalışan bulunamadı", dto.getApprovedById()));
             }
 
             LeaveRequest entity = LeaveRequestMapper.toEntity(dto, employee, leaveType, approver);
@@ -88,19 +121,33 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
             Employee employee = null;
             if (dto.getEmployeeId() != null) {
                 employee = employeeRepository.findById(dto.getEmployeeId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Employee", dto.getEmployeeId()));
+                        .orElseThrow(() -> new ResourceNotFoundException("Çalışan bulunamadı", dto.getEmployeeId()));
             }
 
             LeaveType leaveType = null;
             if (dto.getLeaveTypeId() != null) {
                 leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Leave Type", dto.getLeaveTypeId()));
+                        .orElseThrow(() -> new ResourceNotFoundException("İzin tipi bulunamadı", dto.getLeaveTypeId()));
             }
 
             Employee approver = null;
             if (dto.getApprovedById() != null) {
                 approver = employeeRepository.findById(dto.getApprovedById())
-                        .orElseThrow(() -> new ResourceNotFoundException("Approver Employee", dto.getApprovedById()));
+                        .orElseThrow(() -> new ResourceNotFoundException("Onaylayan çalışan bulunamadı", dto.getApprovedById()));
+            }
+
+            // Eğer tarih aralığı değişiyorsa, tekrar çakışma kontrolü yapılmalı
+            if (dto.getStartDate() != null && dto.getEndDate() != null) {
+                Long kontrolEdilecekEmployeeId = dto.getEmployeeId() != null ? dto.getEmployeeId() : existing.getEmployee().getId();
+                List<LeaveRequest> mevcutIzinler = leaveRequestRepository.findByEmployeeId(kontrolEdilecekEmployeeId);
+                boolean overlap = mevcutIzinler.stream()
+                        .filter(izin -> !izin.getId().equals(existing.getId())) // Kendi kaydını hariç tut
+                        .anyMatch(izin ->
+                                !(dto.getEndDate().isBefore(izin.getStartDate()) || dto.getStartDate().isAfter(izin.getEndDate()))
+                        );
+                if (overlap) {
+                    throw new IllegalArgumentException("Aynı tarihlerde daha önce izin isteği gönderilmiş.");
+                }
             }
 
             LeaveRequestMapper.updateEntity(existing, dto, employee, leaveType, approver);
@@ -256,6 +303,5 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
             return LeaveRequestMapper.toDTO(updated);
         });
     }
-
 
 }

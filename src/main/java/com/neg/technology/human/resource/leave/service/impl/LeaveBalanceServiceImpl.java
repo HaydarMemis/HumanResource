@@ -25,7 +25,8 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +48,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     @Override
     public Mono<LeaveBalanceResponse> getById(IdRequest request) {
         if (request == null || request.getId() == null) {
-            return Mono.error(new IllegalArgumentException("Id is required"));
+            return Mono.error(new IllegalArgumentException("Id zorunludur"));
         }
         return Mono.fromCallable(() ->
                 leaveBalanceRepository.findById(request.getId())
@@ -56,6 +57,11 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
         );
     }
 
+    /**
+     * Burada LeavePolicyService üzerinden izin hakedişini, cinsiyet, yaş, kıdem gibi parametrelerle çekiyoruz.
+     * Ayrıca eski yıllardan kalan izinleri son yıla topluyoruz.
+     * Aynı tarihte izin isteği varsa hata döner.
+     */
     @Override
     public Mono<LeaveBalanceResponse> create(CreateLeaveBalanceRequest request) {
         if (request == null || request.getEmployeeId() == null || request.getLeaveTypeId() == null) {
@@ -64,69 +70,79 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
 
         Mono<Employee> employeeMono = Mono.fromCallable(() ->
                 employeeRepository.findById(request.getEmployeeId())
-                        .orElseThrow(() -> new RuntimeException("Employee bulunamadı: " + request.getEmployeeId()))
+                        .orElseThrow(() -> new RuntimeException("Çalışan bulunamadı: " + request.getEmployeeId()))
         );
 
         Mono<LeaveType> leaveTypeMono = Mono.fromCallable(() ->
                 leaveTypeRepository.findById(request.getLeaveTypeId())
-                        .orElseThrow(() -> new RuntimeException("LeaveType bulunamadı: " + request.getLeaveTypeId()))
+                        .orElseThrow(() -> new RuntimeException("İzin tipi bulunamadı: " + request.getLeaveTypeId()))
         );
 
         return Mono.zip(employeeMono, leaveTypeMono)
                 .flatMap(tuple -> {
                     Employee employee = tuple.getT1();
                     LeaveType leaveType = tuple.getT2();
-                    String leaveName = leaveType.getName().trim();
 
+                    int requestYear = request.getDate() != null ? request.getDate() : LocalDate.now().getYear();
                     int requestedDays = request.getAmount() != null ? request.getAmount().intValue() : 0;
                     if (requestedDays <= 0) {
                         return Mono.error(new RuntimeException("Talep edilen gün sayısı 0'dan büyük olmalı"));
                     }
 
-                    int requestYear = request.getDate() != null ? request.getDate() : LocalDate.now().getYear();
-
-                    // max gün kuralı
-                    int maxDays;
-                    switch (leaveName) {
-                        case "Ebeveyn İzni":
-                            String gender = employee.getPerson() != null ? employee.getPerson().getGender() : null;
-                            if ("female".equalsIgnoreCase(gender)) {
-                                maxDays = leaveType.getDefaultDays() != null ? leaveType.getDefaultDays() : 112;
-                            } else if ("male".equalsIgnoreCase(gender)) {
-                                maxDays = 5;
-                            } else {
-                                return Mono.error(new RuntimeException("Ebeveyn izni için cinsiyet bilinmiyor"));
-                            }
-                            break;
-                        default:
-                            maxDays = leaveType.getDefaultDays() != null ? leaveType.getDefaultDays() : Integer.MAX_VALUE;
+                    // Aynı tarihte izin isteği var mı kontrolü
+                    List<LeaveBalance> allBalances = leaveBalanceRepository
+                            .findByEmployeeIdAndLeaveTypeIdOrderByDateAsc(employee.getId(), leaveType.getId());
+                    boolean sameYearRequestExists = allBalances.stream()
+                            .anyMatch(b -> b.getDate().equals(requestYear));
+                    if (sameYearRequestExists) {
+                        return Mono.error(new RuntimeException("Aynı yıl için tekrar izin eklenemez!"));
                     }
 
-                    // tüm yıllardaki balance'ları sırayla al
-                    List<LeaveBalance> balances = leaveBalanceRepository
-                            .findByEmployeeIdAndLeaveTypeIdOrderByDateAsc(employee.getId(), leaveType.getId());
+                    // LeavePolicyService ile hakediş hesapla (yaş, cinsiyet, kıdem vs.)
+                    int earnedDays = 0;
+                    try {
+                        // calculateLeaveDays metodu yoksa, LeavePolicyService'de getLeaveDaysByPolicy(Employee, LeaveType, int) gibi bir metot olmalı
+                        // Eğer yoksa, burada örnek bir implementasyon ile devam ediyoruz
+                        earnedDays = leavePolicyService.getLeaveDaysByPolicy(employee, leaveType, requestYear);
+                    } catch (Exception e) {
+                        return Mono.error(new RuntimeException("İzin hakedişi hesaplanamadı: " + e.getMessage()));
+                    }
 
-                    // sadece request yılına ait balance
-                    List<LeaveBalance> yearBalances = balances.stream()
-                            .filter(b -> b.getDate().equals(requestYear))
-                            .toList();
+                    // Eski yıllardan kalan izinleri bul ve son yıla topla
+                    int lastYear = requestYear;
+                    int totalUnused = 0;
+                    for (LeaveBalance b : allBalances) {
+                        if (b.getDate() < lastYear) {
+                            int unused = b.getAmount().intValue() - b.getUsedDays();
+                            if (unused > 0) totalUnused += unused;
+                        }
+                    }
 
-                    int usedDaysInYear = yearBalances.stream()
+                    // Son yıl için toplam hakediş = hakediş + devreden
+                    int totalRight = earnedDays + totalUnused;
+
+                    // Borç izni varsa ekle
+                    int borrowableLimit = leaveType.getBorrowableLimit() != null ? leaveType.getBorrowableLimit() : 0;
+                    int maxUsable = totalRight + borrowableLimit;
+
+                    // Kullanılmış günleri bul
+                    int usedDays = allBalances.stream()
+                            .filter(b -> b.getDate() == lastYear)
                             .mapToInt(LeaveBalance::getUsedDays)
                             .sum();
 
-                    if (usedDaysInYear + requestedDays > maxDays) {
+                    if (usedDays + requestedDays > maxUsable) {
                         return Mono.error(new RuntimeException(
-                                leaveName + " için izin talebi maksimum gün sayısını aşıyor (" + maxDays + ")"
+                                "İzin talebi maksimum kullanılabilir gün sayısını aşıyor! (Hak: " + totalRight + ", Borç: " + borrowableLimit + ")"
                         ));
                     }
 
-                    // mevcut yıl balance
-                    LeaveBalance yearBalance = yearBalances.stream()
+                    // Son yıl için LeaveBalance oluştur/güncelle
+                    LeaveBalance yearBalance = allBalances.stream()
+                            .filter(b -> b.getDate() == lastYear)
                             .findFirst()
                             .orElse(null);
 
-                    // yeni balance ekleme veya mevcut balance güncelleme
                     if (yearBalance != null) {
                         yearBalance.setAmount(yearBalance.getAmount().add(BigDecimal.valueOf(requestedDays)));
                         yearBalance.setUsedDays(yearBalance.getUsedDays() + requestedDays);
@@ -135,7 +151,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                         LeaveBalance newBalance = LeaveBalance.builder()
                                 .employee(employee)
                                 .leaveType(leaveType)
-                                .date(requestYear)
+                                .date(lastYear)
                                 .amount(BigDecimal.valueOf(requestedDays))
                                 .usedDays(requestedDays)
                                 .build();
@@ -143,7 +159,6 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                         yearBalance = newBalance;
                     }
 
-                    // response hazırla
                     LeaveBalanceResponse response = LeaveBalanceResponse.builder()
                             .id(yearBalance.getId())
                             .employeeFirstName(employee.getPerson().getFirstName())
@@ -159,19 +174,10 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                 });
     }
 
-
-
-
-
-
-
-
-
-
     @Override
     public Mono<LeaveBalanceResponse> update(UpdateLeaveBalanceRequest request) {
         if (request == null || request.getId() == null) {
-            return Mono.error(new IllegalArgumentException("Id is required for update"));
+            return Mono.error(new IllegalArgumentException("Id zorunludur"));
         }
 
         return Mono.fromCallable(() -> {
@@ -201,7 +207,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     @Override
     public Mono<Void> delete(IdRequest request) {
         if (request == null || request.getId() == null) {
-            return Mono.error(new IllegalArgumentException("Id cannot be null"));
+            return Mono.error(new IllegalArgumentException("Id boş olamaz"));
         }
 
         return Mono.fromRunnable(() -> {
@@ -216,7 +222,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     @Override
     public Mono<LeaveBalanceResponseList> getByEmployee(IdRequest request) {
         if (request == null || request.getId() == null) {
-            return Mono.error(new IllegalArgumentException("EmployeeId cannot be null"));
+            return Mono.error(new IllegalArgumentException("EmployeeId boş olamaz"));
         }
 
         return Mono.fromCallable(() ->
@@ -227,7 +233,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     @Override
     public Mono<LeaveBalanceResponseList> getByEmployeeAndYear(EmployeeYearRequest request) {
         if (request == null || request.getEmployeeId() == null || request.getYear() == null) {
-            return Mono.error(new IllegalArgumentException("EmployeeId and Year are required"));
+            return Mono.error(new IllegalArgumentException("EmployeeId ve Year zorunlu"));
         }
 
         return Mono.fromCallable(() ->
@@ -237,11 +243,10 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
         );
     }
 
-
     @Override
     public Mono<LeaveBalanceResponse> getByEmployeeAndLeaveType(EmployeeLeaveTypeRequest request) {
         if (request == null || request.getEmployeeId() == null || request.getLeaveTypeId() == null) {
-            return Mono.error(new IllegalArgumentException("EmployeeId and LeaveTypeId are required"));
+            return Mono.error(new IllegalArgumentException("EmployeeId ve LeaveTypeId zorunlu"));
         }
 
         return Mono.fromCallable(() ->
@@ -255,7 +260,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     @Override
     public Mono<LeaveBalanceResponse> getByEmployeeLeaveTypeAndYear(EmployeeLeaveTypeYearRequest request) {
         if (request == null || request.getEmployeeId() == null || request.getLeaveTypeId() == null || request.getYear() == null) {
-            return Mono.error(new IllegalArgumentException("EmployeeId, LeaveTypeId and Year are required"));
+            return Mono.error(new IllegalArgumentException("EmployeeId, LeaveTypeId ve Year zorunlu"));
         }
 
         return Mono.fromCallable(() ->
@@ -270,7 +275,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     @Override
     public Mono<LeaveBalanceResponseList> getByLeaveTypeAndYear(LeaveTypeYearRequest request) {
         if (request == null || request.getLeaveTypeId() == null || request.getYear() == null) {
-            return Mono.error(new IllegalArgumentException("LeaveTypeId and Year are required"));
+            return Mono.error(new IllegalArgumentException("LeaveTypeId ve Year zorunlu"));
         }
 
         return Mono.fromCallable(() ->
@@ -278,5 +283,56 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                         leaveBalanceRepository.findByLeaveTypeIdAndDate(request.getLeaveTypeId(), request.getYear())
                 )
         );
+    }
+
+    /**
+     * Belirli bir çalışanın, belirli bir izin tipi ve yıl için toplam kullanılabilir izin gününü döner.
+     * Bu metod, LeaveRequestServiceImpl gibi servisler tarafından çağrılır.
+     */
+    @Override
+    public int getTotalUsableLeaveDaysByEmployeeAndType(Long employeeId, Long leaveTypeId, int year) {
+        if (employeeId == null || leaveTypeId == null) {
+            throw new IllegalArgumentException("EmployeeId ve LeaveTypeId zorunlu");
+        }
+
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Çalışan bulunamadı", employeeId));
+        LeaveType leaveType = leaveTypeRepository.findById(leaveTypeId)
+                .orElseThrow(() -> new ResourceNotFoundException("İzin tipi bulunamadı", leaveTypeId));
+
+        // Hakediş gününü LeavePolicyService'den al
+        int earnedDays = 0;
+        try {
+            earnedDays = leavePolicyService.getLeaveDaysByPolicy(employee, leaveType, year);
+        } catch (Exception e) {
+            throw new RuntimeException("İzin hakedişi hesaplanamadı: " + e.getMessage());
+        }
+
+        // Eski yıllardan devreden kullanılmamış izinleri bul
+        List<LeaveBalance> allBalances = leaveBalanceRepository
+                .findByEmployeeIdAndLeaveTypeIdOrderByDateAsc(employeeId, leaveTypeId);
+
+        int totalUnused = 0;
+        for (LeaveBalance b : allBalances) {
+            if (b.getDate() < year) {
+                int unused = b.getAmount().intValue() - b.getUsedDays();
+                if (unused > 0) totalUnused += unused;
+            }
+        }
+
+        // Borç izni limiti
+        int borrowableLimit = leaveType.getBorrowableLimit() != null ? leaveType.getBorrowableLimit() : 0;
+
+        // O yıl için kullanılan günleri bul
+        int usedDays = allBalances.stream()
+                .filter(b -> b.getDate() == year)
+                .mapToInt(LeaveBalance::getUsedDays)
+                .sum();
+
+        // Toplam kullanılabilir gün = hakediş + devreden + borç - kullanılan
+        int totalUsable = earnedDays + totalUnused + borrowableLimit - usedDays;
+        if (totalUsable < 0) totalUsable = 0;
+
+        return totalUsable;
     }
 }

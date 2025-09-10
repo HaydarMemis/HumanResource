@@ -1,5 +1,7 @@
 package com.neg.technology.human.resource.leave.service;
 
+import com.neg.technology.human.resource.employee.model.entity.Employee;
+import com.neg.technology.human.resource.leave.model.entity.LeaveType;
 import com.neg.technology.human.resource.leave.model.request.LeavePolicyRequest;
 import com.neg.technology.human.resource.leave.model.response.LeavePolicyResponse;
 import com.neg.technology.human.resource.leave.model.response.LeavePolicyResponseList;
@@ -30,4 +32,6 @@ public interface LeavePolicyService {
     Mono<LeavePolicyResponse> isHoliday(LeavePolicyRequest request);
 
     Mono<LeavePolicyResponseList> getAllLeavePolicies();
+
+    int getLeaveDaysByPolicy(Employee employee, LeaveType leaveType, int year);
 }
