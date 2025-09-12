@@ -28,12 +28,19 @@ public class LeaveBalance extends AuditableEntity {
     @JoinColumn(name = "leave_type_id", nullable = false)
     private LeaveType leaveType;
 
-    private Integer date;
+    @Column(name = "year", nullable = false)
+    private Integer year;
 
-    @Column(name = "used_days")
+    @Column(name = "earned_days", nullable = false)
+    private Integer earnedDays;
+
+    @Column(name = "used_days", nullable = false)
     private Integer usedDays = 0;
 
+    @Column(name = "carried_over_days", nullable = false)
+    private Integer carriedOverDays = 0;
 
-    @Column(nullable = false)
-    private BigDecimal amount;
+    public Integer getRemainingDays() {
+        return earnedDays + carriedOverDays - usedDays;
+    }
 }

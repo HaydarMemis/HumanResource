@@ -39,7 +39,7 @@ public class LeaveRequestValidator {
                 .orElseThrow(() -> new ValidationException("Leave balance not found"));
 
         long requestedDays = ChronoUnit.DAYS.between(dto.getStartDate(), dto.getEndDate()) + 1;
-        if (requestedDays > balance.getAmount().intValue()) {
+        if (requestedDays > balance.getEarnedDays().intValue()) {
             throw new ValidationException("Requested days exceed leave balance");
         }
 

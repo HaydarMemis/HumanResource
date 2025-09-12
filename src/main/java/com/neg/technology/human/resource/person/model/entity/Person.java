@@ -43,4 +43,7 @@ public class Person extends AuditableEntity {
 
     @Column(name = "marital_status")
     private String maritalStatus;
+
+    @Column(name = "hire_date", nullable = false)
+    private LocalDate hireDate;
 }

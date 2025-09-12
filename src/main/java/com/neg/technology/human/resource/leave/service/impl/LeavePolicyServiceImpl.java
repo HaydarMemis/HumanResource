@@ -2,23 +2,22 @@ package com.neg.technology.human.resource.leave.service.impl;
 
 import com.neg.technology.human.resource.employee.model.entity.Employee;
 import com.neg.technology.human.resource.employee.service.EmployeeService;
-import com.neg.technology.human.resource.leave.model.entity.LeaveBalance;
 import com.neg.technology.human.resource.leave.model.entity.LeaveType;
 import com.neg.technology.human.resource.leave.model.request.LeavePolicyRequest;
 import com.neg.technology.human.resource.leave.model.response.LeavePolicyResponse;
 import com.neg.technology.human.resource.leave.model.response.LeavePolicyResponseList;
-import com.neg.technology.human.resource.leave.repository.LeaveBalanceRepository;
 import com.neg.technology.human.resource.leave.repository.LeaveTypeRepository;
+import com.neg.technology.human.resource.leave.repository.LeaveBalanceRepository;
 import com.neg.technology.human.resource.leave.service.LeavePolicyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
 import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,16 +46,12 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
 
     private LocalDate getEmploymentStartDate(Employee employee) {
         if (employee == null) return null;
-        LocalDateTime dt = employee.getEmploymentStartDate();
-        return dt != null ? dt.toLocalDate() : null;
+        if (employee.getEmploymentStartDate() == null) return null;
+        return employee.getEmploymentStartDate().toLocalDate();
     }
 
     private LocalDate getBirthDate(Employee employee) {
         return employee != null && employee.getPerson() != null ? employee.getPerson().getBirthDate() : null;
-    }
-
-    private String getGender(Employee employee) {
-        return employee != null && employee.getPerson() != null ? employee.getPerson().getGender() : null;
     }
 
     private int calculateYearsBetween(LocalDate startDate, LocalDate endDate) {
@@ -69,7 +64,12 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
         return calculateYearsBetween(birthDate, LocalDate.now());
     }
 
-    // --- Genel max gün kontrolü ---
+    /**
+     * Returns maximum allowed days for employee & leaveType based on rules.
+     * - Annual leave rules: 0 if <1 year, 14 if 1-4, 20 if 5-14, 26 if >=15
+     * - Age >=50 => +2 bonus days
+     * - Maternity/Paternity handled separately
+     */
     @Override
     public Mono<Integer> getMaxAllowedDaysForEmployeeAndType(LeavePolicyRequest request) {
         if (request == null || request.getEmployeeId() == null || request.getLeaveTypeId() == null) {
@@ -81,54 +81,60 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
                     LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
                             .orElseThrow(() -> new RuntimeException("LeaveType not found: " + request.getLeaveTypeId()));
 
-                    String name = leaveType.getName().trim().toLowerCase();
+                    String name = Optional.ofNullable(leaveType.getName()).orElse("").trim().toLowerCase();
 
-                    // Maternity Leave
-                    if ("maternity leave".equalsIgnoreCase(name)) {
-                        if (!"female".equalsIgnoreCase(employee.getPerson().getGender())) {
+                    // Maternity Leave (ebeveynlik özel kuralları)
+                    if ("maternity leave".equalsIgnoreCase(name) || "ebeveyn izni".equalsIgnoreCase(name) || "doğum izni".equalsIgnoreCase(name)) {
+                        if (!"female".equalsIgnoreCase(employee.getPerson() != null ? employee.getPerson().getGender() : null)) {
                             return Mono.error(new RuntimeException("Maternity leave only for female employees"));
                         }
                         boolean multiplePregnancy = Boolean.TRUE.equals(request.getMultiplePregnancy());
-                        int max = multiplePregnancy ? 140 : 112;
+                        int max = multiplePregnancy ? 140 : 112; // 16 hafta * 7 = 112 gibi örnek
                         return Mono.just(max);
                     }
 
                     // Paternity Leave
-                    if ("paternity leave".equalsIgnoreCase(name)) {
-                        if (!"male".equalsIgnoreCase(employee.getPerson().getGender())) {
+                    if ("paternity leave".equalsIgnoreCase(name) || "babalık izni".equalsIgnoreCase(name)) {
+                        if (!"male".equalsIgnoreCase(employee.getPerson() != null ? employee.getPerson().getGender() : null)) {
                             return Mono.error(new RuntimeException("Paternity leave only for male employees"));
                         }
-                        Integer max = leaveType.getMaxDays() != null ? leaveType.getMaxDays() : 5;
-                        return Mono.just(max);
+                        Integer maxDays = leaveType.getMaxDays() != null ? leaveType.getMaxDays() : 5;
+                        return Mono.just(maxDays);
                     }
 
-                    // Annual Leave
-                    if ("annual leave".equalsIgnoreCase(name)) {
+                    // Annual Leave / Yıllık İzin
+                    if ("annual leave".equalsIgnoreCase(name) || "yıllık izin".equalsIgnoreCase(name)) {
                         int yearsWorked = 0;
                         if (employee.getEmploymentStartDate() != null) {
                             yearsWorked = (int) employee.getEmploymentStartDate()
-                                    .until(java.time.LocalDateTime.now(), java.time.temporal.ChronoUnit.YEARS);
+                                    .until(LocalDateTime.now(), ChronoUnit.YEARS);
                         }
+
                         int max;
                         if (yearsWorked < 1) max = 0;
                         else if (yearsWorked < 5) max = 14;
                         else if (yearsWorked < 15) max = 20;
                         else max = 26;
+
+                        // yaş >= 50 bonus kuralı
+                        if (calculateAge(employee) >= 50) {
+                            max += 2;
+                        }
+
                         return Mono.just(max);
                     }
 
-                    // Diğer izin tipleri (Bereavement, Marriage, Birthday, Military vb.)
+                    // Diğer izin tipleri için leaveType içindeki maxDays alanını kullan
                     if (leaveType.getMaxDays() != null) {
                         return Mono.just(leaveType.getMaxDays());
                     }
 
-                    // Default: sınırsız izin
+                    // Default: sınırsız göster
                     return Mono.just(Integer.MAX_VALUE);
                 });
     }
 
-
-    // --- Leave kuralları ---
+    // --- Leave kuralları (diğer yardımcı endpointler) ---
     @Override
     public Mono<LeavePolicyResponse> getAnnualLeave(LeavePolicyRequest request) {
         return getEmployee(request.getEmployeeId())

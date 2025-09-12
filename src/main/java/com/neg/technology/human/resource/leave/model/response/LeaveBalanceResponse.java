@@ -1,7 +1,6 @@
 package com.neg.technology.human.resource.leave.model.response;
 
 import lombok.*;
-
 import java.math.BigDecimal;
 
 @Getter
@@ -18,4 +17,9 @@ public class LeaveBalanceResponse {
     private Boolean leaveTypeIsUnpaid;
     private Integer date;
     private BigDecimal amount;
+
+    private BigDecimal totalAllowance;
+    private BigDecimal totalUsed;
+    private BigDecimal remaining;
+    private Integer usedThisYear;
 }
