@@ -2,7 +2,7 @@ package com.neg.technology.human.resource.leave.controller;
 
 import com.neg.technology.human.resource.leave.model.request.ChangeLeaveRequestStatusRequest;
 import com.neg.technology.human.resource.leave.model.request.CreateLeaveRequestRequest;
-import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequestRequest;
+import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequest;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponse;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponseList;
 import com.neg.technology.human.resource.leave.service.LeaveRequestService;
@@ -53,7 +53,7 @@ public class LeaveRequestController {
 
     @Operation(summary = "Update an existing leave request")
     @PostMapping("/update")
-    public Mono<ResponseEntity<LeaveRequestResponse>> updateLeaveRequest(@Valid @RequestBody UpdateLeaveRequestRequest dto) {
+    public Mono<ResponseEntity<LeaveRequestResponse>> updateLeaveRequest(@Valid @RequestBody UpdateLeaveRequest dto) {
         return leaveRequestService.update(dto)
                 .map(ResponseEntity::ok);
     }

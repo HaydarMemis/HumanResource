@@ -15,7 +15,7 @@ import com.neg.technology.human.resource.leave.model.request.ChangeLeaveRequestS
 import com.neg.technology.human.resource.leave.model.request.CreateLeaveRequestRequest;
 import com.neg.technology.human.resource.leave.model.request.DeductLeaveRequest;
 import com.neg.technology.human.resource.leave.model.request.EmployeeLeaveTypeRequest;
-import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequestRequest;
+import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequest;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponse;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponseList;
 import com.neg.technology.human.resource.leave.repository.LeaveRequestRepository;
@@ -26,6 +26,7 @@ import com.neg.technology.human.resource.leave.validator.LeaveRequestValidator;
 import com.neg.technology.human.resource.utility.Logger;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
 import com.neg.technology.human.resource.utility.module.entity.request.StatusRequest;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -97,28 +98,44 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         return Mono.zip(
                 getEmployee(dto.getEmployeeId()),
                 getLeaveType(dto.getLeaveTypeId()),
-                dto.getApprovedById() != null ? getEmployee(dto.getApprovedById()) : Mono.just(null)
+                dto.getApprovedById() != null ? getEmployee(dto.getApprovedById()) : Mono.just((Employee) null)
         ).flatMap(tuple -> {
             Employee employee = tuple.getT1();
             LeaveType leaveType = tuple.getT2();
             Employee approver = tuple.getT3();
 
-            BigDecimal requestedDays = BigDecimal.valueOf(ChronoUnit.DAYS.between(dto.getStartDate(), dto.getEndDate()) + 1);
+            // İzin gün sayısını hesapla
+            BigDecimal requestedDays = BigDecimal.valueOf(
+                    ChronoUnit.DAYS.between(dto.getStartDate(), dto.getEndDate()) + 1
+            );
 
+            // Validator ile izin talebini kontrol et
             return leaveRequestValidator.validateLeaveRequestCreation(employee, leaveType, dto.getStartDate(), dto.getEndDate(), requestedDays)
-                    .flatMap(ignored -> leaveBalanceService.deductLeave(new DeductLeaveRequest(employee.getId(), leaveType.getId(), requestedDays, dto.getStartDate().getYear())))
+                    .flatMap(ignored ->
+                            // Leave balance'dan düş
+                            leaveBalanceService.deductLeave(new DeductLeaveRequest(
+                                    employee.getId(),
+                                    leaveType.getId(),
+                                    requestedDays
+                            ))
+                    )
                     .then(Mono.fromCallable(() -> {
+                        // LeaveRequest entity oluştur
                         LeaveRequest entity = LeaveRequestMapper.toEntity(dto, employee, leaveType, approver);
                         entity.setStatus(LeaveStatus.PENDING);
+
+                        // Kaydet
                         LeaveRequest saved = leaveRequestRepository.save(entity);
                         Logger.logCreated(LeaveRequest.class, saved.getId(), "LeaveRequest");
+
                         return LeaveRequestMapper.toDTO(saved);
                     }));
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
+
     @Override
-    public Mono<LeaveRequestResponse> update(UpdateLeaveRequestRequest dto) {
+    public Mono<LeaveRequestResponse> update(UpdateLeaveRequest dto) {
         return Mono.fromCallable(() -> {
             LeaveRequest existing = leaveRequestRepository.findById(dto.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Leave Request", dto.getId()));
@@ -284,33 +301,36 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
                         .orElseThrow(() -> new ResourceNotFoundException("Leave Request", dto.getLeaveRequestId()))
         ).flatMap(existing -> {
             LeaveStatus oldStatus = existing.getStatus();
-            LeaveStatus newStatus = dto.getStatus(); // dto.status already enum (as you changed it)
+            LeaveStatus newStatus = dto.getStatus(); // enum zaten dto içinde
 
-            BigDecimal requestedDays = BigDecimal.valueOf(ChronoUnit.DAYS.between(existing.getStartDate(), existing.getEndDate()) + 1);
+            BigDecimal requestedDays = BigDecimal.valueOf(
+                    ChronoUnit.DAYS.between(existing.getStartDate(), existing.getEndDate()) + 1
+            );
 
             return leaveRequestValidator.validateStatusChange(existing, dto)
                     .then(Mono.defer(() -> {
                         if (LeaveStatus.APPROVED.equals(newStatus) && !LeaveStatus.APPROVED.equals(oldStatus)) {
+                            // LeaveBalance çek ve yeterlilik kontrolü
                             return leaveBalanceService.getByEmployeeAndLeaveType(
                                             new EmployeeLeaveTypeRequest(existing.getEmployee().getId(), existing.getLeaveType().getId()))
                                     .flatMap(balance -> {
-                                        if (balance.getAmount().compareTo(requestedDays) < 0) {
+                                        if (balance.getAvailableBalance().compareTo(requestedDays) < 0) {
                                             return Mono.error(new RuntimeException("Insufficient leave balance."));
                                         }
+                                        // Deduct leave
                                         return leaveBalanceService.deductLeave(new DeductLeaveRequest(
                                                         existing.getEmployee().getId(),
                                                         existing.getLeaveType().getId(),
-                                                        requestedDays,
-                                                        existing.getStartDate().getYear()))
+                                                        requestedDays))
                                                 .then(updateLeaveRequest(existing, newStatus, dto.getApprovalNote()));
                                     });
                         } else if ((LeaveStatus.REJECTED.equals(newStatus) || LeaveStatus.CANCELLED.equals(newStatus))
                                 && LeaveStatus.APPROVED.equals(oldStatus)) {
+                            // Reactive addLeave
                             return leaveBalanceService.addLeave(new AddLeaveRequest(
                                             existing.getEmployee().getId(),
                                             existing.getLeaveType().getId(),
-                                            requestedDays,
-                                            existing.getStartDate().getYear()))
+                                            requestedDays))
                                     .then(updateLeaveRequest(existing, newStatus, dto.getApprovalNote()));
                         } else {
                             return updateLeaveRequest(existing, newStatus, dto.getApprovalNote());
@@ -319,6 +339,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
                     .map(LeaveRequestMapper::toDTO);
         }).subscribeOn(Schedulers.boundedElastic());
     }
+
 
     private Mono<LeaveRequest> updateLeaveRequest(LeaveRequest existing, LeaveStatus newStatus, String approvalNote) {
         existing.setStatus(newStatus);

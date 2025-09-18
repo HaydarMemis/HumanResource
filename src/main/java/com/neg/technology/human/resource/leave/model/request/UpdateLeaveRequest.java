@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UpdateLeaveRequestRequest {
+public class UpdateLeaveRequest {
     @NotNull
     private Long id;
 

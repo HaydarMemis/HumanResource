@@ -2,7 +2,6 @@ package com.neg.technology.human.resource.leave.service.impl;
 
 import com.neg.technology.human.resource.employee.model.entity.Employee;
 import com.neg.technology.human.resource.employee.model.request.EmployeeLeaveTypeYearRequest;
-import com.neg.technology.human.resource.employee.model.request.EmployeeYearRequest;
 import com.neg.technology.human.resource.employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.leave.model.entity.LeaveBalance;
@@ -17,8 +16,6 @@ import com.neg.technology.human.resource.leave.service.LeaveBalanceService;
 import com.neg.technology.human.resource.leave.validator.LeaveBalanceValidator;
 import com.neg.technology.human.resource.utility.Logger;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
-import com.neg.technology.human.resource.leave.model.request.EmployeeLeaveTypeRequest;
-import com.neg.technology.human.resource.leave.model.request.LeaveTypeYearRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -28,7 +25,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +50,21 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
     }
 
     @Override
+    public Mono<LeaveBalanceResponseList> getByLeaveTypeAndYear(LeaveTypeYearRequest request) {
+        if (request == null || request.getLeaveTypeId() == null) {
+            return Mono.error(new IllegalArgumentException("LeaveTypeId is required"));
+        }
+
+        return Mono.fromCallable(() ->
+                leaveBalanceMapper.toResponseList(
+                        leaveBalanceRepository.findByLeaveTypeId(request.getLeaveTypeId())
+                )
+        ).subscribeOn(Schedulers.boundedElastic());
+    }
+
+
+
+    @Override
     public Mono<LeaveBalanceResponse> getById(IdRequest request) {
         if (request == null || request.getId() == null) {
             return Mono.error(new IllegalArgumentException("Id is required"));
@@ -67,10 +78,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
 
     @Override
     public Mono<LeaveBalanceResponse> create(CreateLeaveBalanceRequest request) {
-        // Null gelirse default tarih ata
-        if (request.getEffectiveDate() == null) {
-            request.setEffectiveDate(LocalDate.of(LocalDate.now().getYear(), 1, 1));
-        }
+        BigDecimal totalAmount = request.getTotalAmount() != null ? request.getTotalAmount() : BigDecimal.ZERO;
 
         return Mono.zip(
                 Mono.fromCallable(() -> employeeRepository.findById(request.getEmployeeId())
@@ -81,19 +89,25 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
             Employee employee = tuple.getT1();
             LeaveType leaveType = tuple.getT2();
 
-            leaveBalanceValidator.validateLeaveCreation(request.getAmount(), employee, leaveType);
+            leaveBalanceValidator.validateLeaveCreation(totalAmount, employee, leaveType);
 
-            // Repository metodunu ve DTO'daki alan adını tutarlı hale getirin.
-            return Mono.fromCallable(() -> leaveBalanceRepository.findByEmployeeIdAndLeaveTypeIdAndEffectiveDate(
-                    request.getEmployeeId(), request.getLeaveTypeId(), request.getEffectiveDate()
+            return Mono.fromCallable(() -> leaveBalanceRepository.findByEmployeeIdAndLeaveTypeId(
+                    request.getEmployeeId(), request.getLeaveTypeId()
             )).flatMap(existingBalanceOpt -> {
                 if (existingBalanceOpt.isPresent()) {
-                    return Mono.error(new IllegalArgumentException("Leave balance for this employee, leave type and year already exists. Use update method instead."));
+                    return Mono.error(new IllegalArgumentException(
+                            "Leave balance for this employee and leave type already exists. Use update method instead."));
                 }
-                // LeaveBalance.builder() çağrısını DTO ile uyumlu hale getirin.
-                LeaveBalance entity = leaveBalanceMapper.toEntity(request, employee, leaveType);
+
+                LeaveBalance entity = LeaveBalance.builder()
+                        .employee(employee)
+                        .leaveType(leaveType)
+                        .totalAmount(totalAmount)
+                        .usedDays(0)
+                        .build();
+
                 LeaveBalance saved = leaveBalanceRepository.save(entity);
-                Logger.logCreated(LeaveBalance.class, saved.getId(), "LeaveBalance");
+                Logger.logCreated(LeaveBalance.class, saved.getId(), MESSAGE);
                 return Mono.just(leaveBalanceMapper.toResponse(saved));
             });
         }).subscribeOn(Schedulers.boundedElastic());
@@ -122,8 +136,12 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
             }
 
             leaveBalanceMapper.updateEntity(existing, request, employee, leaveType);
-            LeaveBalance updated = leaveBalanceRepository.save(existing);
 
+            if (request.getTotalAmount() != null) {
+                existing.setTotalAmount(request.getTotalAmount());
+            }
+
+            LeaveBalance updated = leaveBalanceRepository.save(existing);
             Logger.logUpdated(LeaveBalance.class, updated.getId(), MESSAGE);
             return leaveBalanceMapper.toResponse(updated);
         }).subscribeOn(Schedulers.boundedElastic());
@@ -135,13 +153,12 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
             return Mono.error(new IllegalArgumentException("Id cannot be null"));
         }
 
-        return Mono.fromCallable(() -> {
+        return Mono.fromRunnable(() -> {
             if (!leaveBalanceRepository.existsById(request.getId())) {
                 throw new ResourceNotFoundException(MESSAGE, request.getId());
             }
             leaveBalanceRepository.deleteById(request.getId());
             Logger.logDeleted(LeaveBalance.class, request.getId());
-            return null;
         }).subscribeOn(Schedulers.boundedElastic()).then();
     }
 
@@ -158,184 +175,84 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
 
     @Override
     public Mono<LeaveBalanceResponseList> getByEmployeeAndYear(EmployeeYearRequest request) {
-        if (request == null || request.getEmployeeId() == null || request.getYear() == null) {
-            return Mono.error(new IllegalArgumentException("EmployeeId and Year are required"));
+        if (request == null || request.getEmployeeId() == null) {
+            return Mono.error(new IllegalArgumentException("EmployeeId is required"));
         }
-
-        // Repository metot adını DTO ve varlık ile uyumlu hale getirin.
-        // DTO'da year, varlıkta effectiveDate var. Yıl aralığı ile arama yapmalısınız.
-        LocalDate startDate = LocalDate.of(request.getYear(), 1, 1);
-        LocalDate endDate = LocalDate.of(request.getYear(), 12, 31);
 
         return Mono.fromCallable(() ->
                 leaveBalanceMapper.toResponseList(
-                        leaveBalanceRepository.findByEmployeeIdAndEffectiveDateBetween(
-                                request.getEmployeeId(),
-                                startDate,
-                                endDate
-                        )
+                        leaveBalanceRepository.findByEmployeeId(request.getEmployeeId())
                 )
         ).subscribeOn(Schedulers.boundedElastic());
     }
 
+
+
     @Override
     public Mono<LeaveBalanceResponse> getByEmployeeAndLeaveType(EmployeeLeaveTypeRequest request) {
-        if (request == null || request.getEmployeeId() == null || request.getLeaveTypeId() == null) {
-            return Mono.error(new IllegalArgumentException("EmployeeId and LeaveTypeId are required"));
-        }
-
-        return Mono.fromCallable(() ->
-                        leaveBalanceRepository
-                                .findByEmployeeIdAndLeaveTypeIdOrderByEffectiveDateAsc(request.getEmployeeId(), request.getLeaveTypeId())
-                                .stream().findFirst()
-                                .orElseThrow(() -> new ResourceNotFoundException(MESSAGE,
-                                        "Employee: " + request.getEmployeeId() + ", LeaveType: " + request.getLeaveTypeId()))
-                )
+        return Mono.fromCallable(() -> leaveBalanceRepository
+                        .findByEmployeeIdAndLeaveTypeId(request.getEmployeeId(), request.getLeaveTypeId())
+                        .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, -1L)))
                 .map(leaveBalanceMapper::toResponse)
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
     public Mono<LeaveBalanceResponse> getByEmployeeLeaveTypeAndYear(EmployeeLeaveTypeYearRequest request) {
-        if (request == null || request.getEmployeeId() == null || request.getLeaveTypeId() == null || request.getYear() == null) {
-            return Mono.error(new IllegalArgumentException("EmployeeId, LeaveTypeId and Year are required"));
+        if (request == null || request.getEmployeeId() == null || request.getLeaveTypeId() == null) {
+            return Mono.error(new IllegalArgumentException("EmployeeId and LeaveTypeId are required"));
         }
 
-        LocalDate startDate = LocalDate.of(request.getYear(), 1, 1);
-        LocalDate endDate = LocalDate.of(request.getYear(), 12, 31);
-
         return Mono.fromCallable(() -> {
-            List<LeaveBalance> balances = leaveBalanceRepository
-                    .findByEmployeeIdAndLeaveTypeIdAndEffectiveDateBetween(
-                            request.getEmployeeId(), request.getLeaveTypeId(), startDate, endDate
-                    );
+            LeaveBalance balance = leaveBalanceRepository
+                    .findByEmployeeIdAndLeaveTypeId(request.getEmployeeId(), request.getLeaveTypeId())
+                    .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, -1L));
 
-            if (balances.isEmpty()) {
-                throw new ResourceNotFoundException(MESSAGE,
-                        "Employee: " + request.getEmployeeId() + ", LeaveType: " + request.getLeaveTypeId() + ", Year: " + request.getYear());
-            }
-
-            return leaveBalanceMapper.toResponse(balances.get(0));
+            return leaveBalanceMapper.toResponse(balance);
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
 
-
-    @Override
-    public Mono<LeaveBalanceResponseList> getByLeaveTypeAndYear(LeaveTypeYearRequest request) {
-        if (request == null || request.getLeaveTypeId() == null || request.getYear() == null) {
-            return Mono.error(new IllegalArgumentException("LeaveTypeId and Year are required"));
-        }
-
-        // Repository metot adını DTO ve varlık ile uyumlu hale getirin.
-        LocalDate startDate = LocalDate.of(request.getYear(), 1, 1);
-        LocalDate endDate = LocalDate.of(request.getYear(), 12, 31);
-
-        return Mono.fromCallable(() ->
-                leaveBalanceMapper.toResponseList(
-                        leaveBalanceRepository.findByLeaveTypeIdAndEffectiveDateBetween(request.getLeaveTypeId(), startDate, endDate)
-                )
-        ).subscribeOn(Schedulers.boundedElastic());
-    }
 
     @Override
     public Mono<Void> deductLeave(DeductLeaveRequest request) {
-        LocalDate startDate = LocalDate.of(request.getYear(), 1, 1);
-        LocalDate endDate = LocalDate.of(request.getYear(), 12, 31);
+        return Mono.fromRunnable(() -> {
+            LeaveBalance balance = leaveBalanceRepository
+                    .findByEmployeeIdAndLeaveTypeId(request.getEmployeeId(), request.getLeaveTypeId())
+                    .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, -1L));
 
-        // Reactive olarak repository çağrısı
-        return Mono.fromCallable(() ->
-                leaveBalanceRepository.findByEmployeeIdAndLeaveTypeIdAndEffectiveDateBetween(
-                        request.getEmployeeId(),
-                        request.getLeaveTypeId(),
-                        startDate,
-                        endDate
-                )
-        ).flatMap(balances -> {
-            if (balances.isEmpty()) {
-                return Mono.error(new ResourceNotFoundException("Leave Balance", -1L));
+            BigDecimal available = balance.getAvailableBalance();
+            if (available.compareTo(request.getDays()) < 0) {
+                throw new IllegalArgumentException("Insufficient leave balance");
             }
 
-            // Toplam bakiyeyi hesapla
-            BigDecimal totalBalance = leaveBalanceValidator.calculateTotalBalance(balances);
-            leaveBalanceValidator.hasEnoughBalance(totalBalance, request.getAmount());
-
-            // Deduct işlemi: en eski effectiveDate’den başla
-            BigDecimal remainingToDeduct = request.getAmount();
-            for (LeaveBalance balance : balances) {
-                BigDecimal available = balance.getAmount().subtract(BigDecimal.valueOf(balance.getUsedDays()));
-                if (available.compareTo(remainingToDeduct) >= 0) {
-                    balance.setUsedDays(balance.getUsedDays() + remainingToDeduct.intValue());
-                    remainingToDeduct = BigDecimal.ZERO;
-                    break;
-                } else {
-                    balance.setUsedDays(balance.getUsedDays() + available.intValue());
-                    remainingToDeduct = remainingToDeduct.subtract(available);
-                }
-            }
-
-            // SaveAll blocking çağrısını boundedElastic üzerinde yap
-            return Mono.fromCallable(() -> leaveBalanceRepository.saveAll(balances))
-                    .subscribeOn(Schedulers.boundedElastic())
-                    .then();
-        }).subscribeOn(Schedulers.boundedElastic());
-    }
-
-
-    @Override
-    public Mono<Void> addLeave(AddLeaveRequest request) {
-        if (request == null || request.getEmployeeId() == null || request.getLeaveTypeId() == null || request.getYear() == null) {
-            return Mono.error(new IllegalArgumentException("EmployeeId, LeaveTypeId and Year are required"));
-        }
-
-        LocalDate startDate = LocalDate.of(request.getYear(), 1, 1);
-        LocalDate endDate = LocalDate.of(request.getYear(), 12, 31);
-
-        return Mono.zip(
-                Mono.fromCallable(() -> employeeRepository.findById(request.getEmployeeId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()))),
-                Mono.fromCallable(() -> leaveTypeRepository.findById(request.getLeaveTypeId())
-                        .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId())))
-        ).flatMap(tuple -> {
-            Employee employee = tuple.getT1();
-            LeaveType leaveType = tuple.getT2();
-
-            // Yeni yıl balance'ini kontrol et
-            List<LeaveBalance> currentYearBalances = leaveBalanceRepository
-                    .findByEmployeeIdAndLeaveTypeIdAndEffectiveDateBetween(
-                            request.getEmployeeId(), request.getLeaveTypeId(), startDate, endDate
-                    );
-
-            LeaveBalance currentYearBalance;
-            if (!currentYearBalances.isEmpty()) {
-                currentYearBalance = currentYearBalances.get(0);
-            } else {
-                // Eğer yoksa yeni balance oluştur
-                currentYearBalance = LeaveBalance.builder()
-                        .employee(employee)
-                        .leaveType(leaveType)
-                        .amount(BigDecimal.ZERO)
-                        .effectiveDate(startDate)
-                        .usedDays(0)
-                        .build();
-            }
-
-            // Geçmiş yıllardan kalan izinleri ekle
-            List<LeaveBalance> pastBalances = leaveBalanceRepository
-                    .findByEmployeeIdAndLeaveTypeIdOrderByEffectiveDateAsc(request.getEmployeeId(), request.getLeaveTypeId());
-
-            BigDecimal carryOver = pastBalances.stream()
-                    .filter(b -> b.getEffectiveDate().isBefore(startDate))
-                    .map(b -> b.getAmount().subtract(BigDecimal.valueOf(b.getUsedDays())))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-            currentYearBalance.setAmount(currentYearBalance.getAmount().add(request.getAmount()).add(carryOver));
-
-            leaveBalanceRepository.save(currentYearBalance);
-
-            return Mono.empty();
+            balance.deduct(request.getDays());
+            leaveBalanceRepository.save(balance);
         }).subscribeOn(Schedulers.boundedElastic()).then();
     }
 
+    @Override
+    public Mono<Void> addLeave(AddLeaveRequest request) {
+        return Mono.fromRunnable(() -> {
+            LeaveBalance balance = leaveBalanceRepository
+                    .findByEmployeeIdAndLeaveTypeId(request.getEmployeeId(), request.getLeaveTypeId())
+                    .orElseGet(() -> {
+                        Employee employee = employeeRepository.findById(request.getEmployeeId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()));
+                        LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
+                                .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId()));
+                        LeaveBalance newBalance = LeaveBalance.builder()
+                                .employee(employee)
+                                .leaveType(leaveType)
+                                .totalAmount(BigDecimal.ZERO)
+                                .usedDays(0)
+                                .build();
+                        leaveBalanceRepository.save(newBalance);
+                        return newBalance;
+                    });
 
+            balance.addLeave(request.getDays());
+            leaveBalanceRepository.save(balance);
+        }).subscribeOn(Schedulers.boundedElastic()).then();
+    }
 }

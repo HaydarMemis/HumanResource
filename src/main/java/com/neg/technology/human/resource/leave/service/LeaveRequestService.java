@@ -5,7 +5,7 @@ import com.neg.technology.human.resource.employee.model.request.EmployeeLeaveTyp
 import com.neg.technology.human.resource.employee.model.request.EmployeeStatusRequest;
 import com.neg.technology.human.resource.leave.model.request.ChangeLeaveRequestStatusRequest;
 import com.neg.technology.human.resource.leave.model.request.CreateLeaveRequestRequest;
-import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequestRequest;
+import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequest;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponse;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponseList;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
@@ -19,7 +19,7 @@ public interface LeaveRequestService {
 
     Mono<LeaveRequestResponse> create(CreateLeaveRequestRequest dto);
 
-    Mono<LeaveRequestResponse> update(UpdateLeaveRequestRequest dto);
+    Mono<LeaveRequestResponse> update(UpdateLeaveRequest dto);
 
     Mono<Void> delete(IdRequest request);
 

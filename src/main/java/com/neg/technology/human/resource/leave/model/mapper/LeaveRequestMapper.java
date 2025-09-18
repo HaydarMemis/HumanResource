@@ -5,7 +5,7 @@ import com.neg.technology.human.resource.leave.model.entity.LeaveRequest;
 import com.neg.technology.human.resource.leave.model.entity.LeaveType;
 import com.neg.technology.human.resource.leave.model.enums.LeaveStatus;
 import com.neg.technology.human.resource.leave.model.request.CreateLeaveRequestRequest;
-import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequestRequest;
+import com.neg.technology.human.resource.leave.model.request.UpdateLeaveRequest;
 import com.neg.technology.human.resource.leave.model.response.LeaveRequestResponse;
 
 public class LeaveRequestMapper {
@@ -45,7 +45,7 @@ public class LeaveRequestMapper {
                 .build();
     }
 
-    public static void updateEntity(LeaveRequest entity, UpdateLeaveRequestRequest dto, Employee employee, LeaveType leaveType, Employee approver) {
+    public static void updateEntity(LeaveRequest entity, UpdateLeaveRequest dto, Employee employee, LeaveType leaveType, Employee approver) {
         if (employee != null) entity.setEmployee(employee);
         if (leaveType != null) entity.setLeaveType(leaveType);
         if (dto.getStartDate() != null) entity.setStartDate(dto.getStartDate());

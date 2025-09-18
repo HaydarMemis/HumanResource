@@ -10,6 +10,8 @@ import com.neg.technology.human.resource.leave.model.entity.LeaveType;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
 @Component
 public class LeaveBalanceMapper {
@@ -18,30 +20,28 @@ public class LeaveBalanceMapper {
         if (leaveBalance == null) {
             return null;
         }
+
+        Employee employee = leaveBalance.getEmployee();
+        LeaveType leaveType = leaveBalance.getLeaveType();
+
         return LeaveBalanceResponse.builder()
                 .id(leaveBalance.getId())
-                .employeeFirstName(
-                        leaveBalance.getEmployee() != null && leaveBalance.getEmployee().getPerson() != null
-                                ? leaveBalance.getEmployee().getPerson().getFirstName()
-                                : null
-                )
-                .employeeLastName(
-                        leaveBalance.getEmployee() != null && leaveBalance.getEmployee().getPerson() != null
-                                ? leaveBalance.getEmployee().getPerson().getLastName()
-                                : null
-                )
-                .leaveTypeName(leaveBalance.getLeaveType() != null ? leaveBalance.getLeaveType().getName() : null)
-                .leaveTypeBorrowableLimit(leaveBalance.getLeaveType() != null ? leaveBalance.getLeaveType().getBorrowableLimit() : null)
-                .leaveTypeIsUnpaid(leaveBalance.getLeaveType() != null ? leaveBalance.getLeaveType().getIsUnpaid() : null)
-                .effectiveDate(leaveBalance.getEffectiveDate()) // Corrected to use existing field
-                .amount(leaveBalance.getAmount())
+                .employeeFirstName(employee != null && employee.getPerson() != null ? employee.getPerson().getFirstName() : null)
+                .employeeLastName(employee != null && employee.getPerson() != null ? employee.getPerson().getLastName() : null)
+                .leaveTypeName(leaveType != null ? leaveType.getName() : null)
+                .leaveTypeBorrowableLimit(leaveType != null ? leaveType.getBorrowableLimit() : null)
+                .leaveTypeIsUnpaid(leaveType != null ? leaveType.getIsUnpaid() : null)
+                .totalAmount(leaveBalance.getTotalAmount())
+                .usedDays(leaveBalance.getUsedDays())
+                .availableBalance(leaveBalance.getAvailableBalance())
                 .build();
     }
 
     public LeaveBalanceResponseList toResponseList(List<LeaveBalance> leaveBalances) {
-        List<LeaveBalanceResponse> responses = leaveBalances.stream()
-                .map(this::toResponse)
-                .toList();
+        List<LeaveBalanceResponse> responses = leaveBalances == null ? List.of() :
+                leaveBalances.stream()
+                        .map(this::toResponse)
+                        .collect(Collectors.toList());
         return new LeaveBalanceResponseList(responses);
     }
 
@@ -49,11 +49,12 @@ public class LeaveBalanceMapper {
         if (dto == null) {
             return null;
         }
+
         return LeaveBalance.builder()
                 .employee(employee)
                 .leaveType(leaveType)
-                .effectiveDate(dto.getEffectiveDate()) // Corrected to use existing field
-                .amount(dto.getAmount())
+                .totalAmount(dto.getTotalAmount() != null ? dto.getTotalAmount() : BigDecimal.ZERO)
+                .usedDays(0)
                 .build();
     }
 
@@ -67,11 +68,11 @@ public class LeaveBalanceMapper {
         if (leaveType != null) {
             existing.setLeaveType(leaveType);
         }
-        if (dto.getEffectiveDate() != null) {
-            existing.setEffectiveDate(dto.getEffectiveDate()); // Corrected to use existing field
+        if (dto.getTotalAmount() != null) {
+            existing.setTotalAmount(dto.getTotalAmount());
         }
-        if (dto.getAmount() != null) {
-            existing.setAmount(dto.getAmount());
+        if (dto.getUsedDays() != null) {
+            existing.setUsedDays(dto.getUsedDays());
         }
     }
 }

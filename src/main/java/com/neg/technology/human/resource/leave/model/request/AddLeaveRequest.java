@@ -14,6 +14,15 @@ import java.math.BigDecimal;
 public class AddLeaveRequest {
     private Long employeeId;
     private Long leaveTypeId;
-    private BigDecimal amount;
-    private Integer year;
+    private BigDecimal days; // Burayı ekle
+
+    // Getter ve Setter
+    public BigDecimal getDays() { return days; }
+    public void setDays(BigDecimal days) { this.days = days; }
+
+    public Long getEmployeeId() { return employeeId; }
+    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+
+    public Long getLeaveTypeId() { return leaveTypeId; }
+    public void setLeaveTypeId(Long leaveTypeId) { this.leaveTypeId = leaveTypeId; }
 }

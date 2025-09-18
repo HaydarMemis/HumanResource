@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: "9"
-      author: "Haydar Memis"
+      author: "Burak Talha Memiş"
       changes:
         - createTable:
             tableName: leave_balance
@@ -23,17 +23,15 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: effective_date
-                  type: DATE
-              - column:
                   name: used_days
                   type: INT
                   defaultValueNumeric: 0
                   constraints:
                     nullable: false
               - column:
-                  name: amount
+                  name: total_amount
                   type: NUMERIC(19,2)
+                  defaultValueNumeric: 0
                   constraints:
                     nullable: false
               - column:
@@ -48,6 +46,11 @@ databaseChangeLog:
               - column:
                   name: updated_at
                   type: TIMESTAMP
+
+        - addUniqueConstraint:
+            tableName: leave_balance
+            columnNames: employee_id, leave_type_id
+            constraintName: uq_leave_balance_employee_leave_type
 
         - addForeignKeyConstraint:
             baseTableName: leave_balance

@@ -6,7 +6,7 @@ import com.neg.technology.human.resource.leave.model.response.LeaveBalanceRespon
 import com.neg.technology.human.resource.leave.service.LeaveBalanceService;
 import com.neg.technology.human.resource.leave.validator.LeaveBalanceValidator;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
-import com.neg.technology.human.resource.employee.model.request.EmployeeYearRequest;
+import com.neg.technology.human.resource.leave.model.request.EmployeeYearRequest;
 import com.neg.technology.human.resource.employee.model.request.EmployeeLeaveTypeYearRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
