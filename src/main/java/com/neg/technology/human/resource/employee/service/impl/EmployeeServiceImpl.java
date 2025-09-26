@@ -185,10 +185,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Mono<Object> findById(Long employeeId) {
-        return Mono.fromCallable(() ->
-                employeeRepository.findById(employeeId)
-                        .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, employeeId))
-        );
+    public Mono<Employee> findById(Long employeeId) {
+        return Mono.justOrEmpty(employeeRepository.findById(employeeId));
     }
+
 }

@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Component
@@ -29,11 +30,11 @@ public class LeaveBalanceValidator {
         }
 
         BigDecimal totalDays = balances.stream()
-                .map(LeaveBalance::getTotalDays)
+                .map(b -> Optional.ofNullable(b.getTotalDays()).orElse(BigDecimal.ZERO))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal usedDays = balances.stream()
-                .map(LeaveBalance::getUsedDays)
+                .map(b -> Optional.ofNullable(b.getUsedDays()).orElse(BigDecimal.ZERO))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return totalDays.subtract(usedDays);
@@ -46,9 +47,10 @@ public class LeaveBalanceValidator {
         if (requestedDays == null || requestedDays.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Requested days must be greater than zero.");
         }
-        if (totalBalance == null || totalBalance.compareTo(requestedDays) < 0) {
+        BigDecimal available = Optional.ofNullable(totalBalance).orElse(BigDecimal.ZERO);
+        if (available.compareTo(requestedDays) < 0) {
             throw new LeaveBalanceExceededException(
-                    "Yetersiz izin bakiyesi. Mevcut bakiye: " + totalBalance + ", İstenen: " + requestedDays
+                    "Yetersiz izin bakiyesi. Mevcut bakiye: " + available + ", İstenen: " + requestedDays
             );
         }
     }
@@ -57,43 +59,48 @@ public class LeaveBalanceValidator {
      * Çalışanın yıllık izin hakkını leave tipi ve hizmet yılına göre hesaplar
      */
     public BigDecimal getAnnualLeaveAllowance(Employee employee, LeaveType leaveType) {
-        String leaveTypeName = leaveType.getName().trim().toLowerCase();
-        Gender gender = employee.getPerson().getGender();
+        if (employee == null || leaveType == null) return BigDecimal.ZERO;
 
-        switch (leaveTypeName) {
-            case "paternity leave":
-                if (gender != Gender.MALE) {
-                    throw new InvalidLeaveRequestException("Babalık izni sadece erkek çalışanlar içindir.");
-                }
-                return new BigDecimal(5);
+        String rawName = Optional.ofNullable(leaveType.getName()).orElse("").trim().toLowerCase(Locale.ROOT);
+        LocalDateTime startDateTime = employee.getEmploymentStartDate();
+        Gender gender = employee.getPerson() != null ? employee.getPerson().getGender() : null;
 
-            case "maternity leave":
-                if (gender != Gender.FEMALE) {
-                    throw new InvalidLeaveRequestException("Annelik izni sadece kadın çalışanlar içindir.");
-                }
-                return new BigDecimal(112);
-
-            case "yıllık izin":
-                LocalDateTime startDateTime = employee.getEmploymentStartDate();
-                if (startDateTime == null) {
-                    return BigDecimal.ZERO;
-                }
-                LocalDate startDate = startDateTime.toLocalDate();
-                Period period = Period.between(startDate, LocalDate.now());
-                int yearsOfService = period.getYears();
-
-                if (yearsOfService >= 1 && yearsOfService <= 5) {
-                    return new BigDecimal(14);
-                } else if (yearsOfService >= 6 && yearsOfService <= 15) {
-                    return new BigDecimal(20);
-                } else if (yearsOfService > 15) {
-                    return new BigDecimal(26);
-                }
-                return BigDecimal.ZERO;
-
-            default:
-                return BigDecimal.ZERO;
+        // Paternity
+        if (rawName.contains("paternity") || rawName.contains("babalık") || rawName.contains("paternity leave")) {
+            if (gender != Gender.MALE) {
+                throw new InvalidLeaveRequestException("Babalık izni sadece erkek çalışanlar içindir.");
+            }
+            return BigDecimal.valueOf(5);
         }
+
+        // Maternity
+        if (rawName.contains("maternity") || rawName.contains("annelik") || rawName.contains("maternity leave")) {
+            if (gender != Gender.FEMALE) {
+                throw new InvalidLeaveRequestException("Annelik izni sadece kadın çalışanlar içindir.");
+            }
+            return BigDecimal.valueOf(112);
+        }
+
+        // Annual / Yıllık
+        if (rawName.contains("annual") || rawName.contains("yıllık") || rawName.contains("yillik") || rawName.contains("annual leave")) {
+            if (startDateTime == null) return BigDecimal.ZERO;
+            LocalDate startDate = startDateTime.toLocalDate();
+            Period period = Period.between(startDate, LocalDate.now());
+            int yearsOfService = period.getYears();
+
+            if (yearsOfService >= 1 && yearsOfService <= 5) {
+                return BigDecimal.valueOf(14);
+            } else if (yearsOfService >= 6 && yearsOfService <= 15) {
+                return BigDecimal.valueOf(20);
+            } else if (yearsOfService > 15) {
+                return BigDecimal.valueOf(26);
+            }
+            return BigDecimal.ZERO;
+        }
+
+        // Diğer leave tipleri için entity'den max veya default var ise onu kullan (LeaveType yapısına bağlı).
+        // Burada genel kural: özel tipler için servis tarafında kontrol yapılmalı. Burayı 0 döndürüyoruz.
+        return BigDecimal.ZERO;
     }
 
     /**
@@ -105,14 +112,20 @@ public class LeaveBalanceValidator {
             BigDecimal amountToAdd,
             Employee employee) {
 
-        BigDecimal annualAllowance = getAnnualLeaveAllowance(employee, leaveType);
-        String leaveTypeName = leaveType.getName().trim().toLowerCase();
-        Gender gender = employee.getPerson().getGender();
+        if (amountToAdd == null || amountToAdd.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Added amount must be greater than zero.");
+        }
+        if (leaveType == null || employee == null) {
+            throw new IllegalArgumentException("LeaveType and Employee must not be null for validation.");
+        }
 
-        if ("maternity leave".equals(leaveTypeName) && gender != Gender.FEMALE) {
+        String rawName = Optional.ofNullable(leaveType.getName()).orElse("").trim().toLowerCase(Locale.ROOT);
+        Gender gender = employee.getPerson() != null ? employee.getPerson().getGender() : null;
+
+        if ((rawName.contains("maternity") || rawName.contains("annelik")) && gender != Gender.FEMALE) {
             throw new InvalidLeaveRequestException("Maternity leave is only for female employees.");
         }
-        if ("paternity leave".equals(leaveTypeName) && gender != Gender.MALE) {
+        if ((rawName.contains("paternity") || rawName.contains("babalık")) && gender != Gender.MALE) {
             throw new InvalidLeaveRequestException("Paternity leave is only for male employees.");
         }
 
@@ -122,10 +135,12 @@ public class LeaveBalanceValidator {
 
         BigDecimal newTotal = currentTotal.add(amountToAdd);
 
-        if (newTotal.compareTo(annualAllowance) > 0) {
+        BigDecimal annualAllowance = getAnnualLeaveAllowance(employee, leaveType);
+        // Eğer allowance 0 ise bu tip için yıllık üst sınır yok demektir (veya ayrı politikaya tabi). Sadece >0 ise kontrol et.
+        if (annualAllowance.compareTo(BigDecimal.ZERO) > 0 && newTotal.compareTo(annualAllowance) > 0) {
             throw new LeaveBalanceExceededException(
                     "İzin eklenemiyor. Yıllık izin limitini aşıyor. Yıllık izin hakkı: " + annualAllowance +
-                    ", Mevcut izin: " + currentTotal + ", Eklenmek istenen: " + amountToAdd
+                            ", Mevcut izin: " + currentTotal + ", Eklenmek istenen: " + amountToAdd
             );
         }
     }
@@ -134,12 +149,18 @@ public class LeaveBalanceValidator {
      * Yeni izin oluşturma talebini validate eder
      */
     public void validateLeaveCreation(BigDecimal requestedAmount, Employee employee, LeaveType leaveType) {
-        BigDecimal annualAllowance = getAnnualLeaveAllowance(employee, leaveType);
+        if (requestedAmount == null || requestedAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Requested amount must be greater than zero.");
+        }
+        if (employee == null || leaveType == null) {
+            throw new IllegalArgumentException("Employee and LeaveType are required.");
+        }
 
-        if (requestedAmount.compareTo(annualAllowance) > 0) {
+        BigDecimal annualAllowance = getAnnualLeaveAllowance(employee, leaveType);
+        if (annualAllowance.compareTo(BigDecimal.ZERO) > 0 && requestedAmount.compareTo(annualAllowance) > 0) {
             throw new LeaveBalanceExceededException(
                     "İzin eklenemiyor. Yıllık izin limitini aşıyor. Yıllık izin hakkı: " + annualAllowance +
-                    ", Eklenmek istenen: " + requestedAmount
+                            ", Eklenmek istenen: " + requestedAmount
             );
         }
     }

@@ -16,6 +16,8 @@ import com.neg.technology.human.resource.leave.service.LeaveBalanceService;
 import com.neg.technology.human.resource.leave.validator.LeaveBalanceValidator;
 import com.neg.technology.human.resource.utility.Logger;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
+import com.neg.technology.human.resource.exception.LeaveBalanceExceededException;
+import com.neg.technology.human.resource.exception.InvalidLeaveRequestException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -158,6 +161,8 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
             if (entity.getAdvanceDays() == null) {
                 entity.setAdvanceDays(BigDecimal.valueOf(5));
             }
+            // Validate creation against policy / annual allowance
+            leaveBalanceValidator.validateLeaveCreation(Optional.ofNullable(entity.getTotalDays()).orElse(BigDecimal.ZERO), employee, leaveType);
 
             LeaveBalance saved = leaveBalanceRepository.save(entity);
 
@@ -191,6 +196,9 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
             }
 
             leaveBalanceMapper.updateEntity(existing, request, employee, leaveType);
+            // After mapping, validate that totalDays does not exceed allowed
+            ensureTotalWithinAllowance(existing);
+
             LeaveBalance updated = leaveBalanceRepository.save(existing);
 
             Logger.logUpdated(LeaveBalance.class, updated.getId(), MESSAGE);
@@ -232,7 +240,8 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                                     ", LeaveType: " + request.getLeaveTypeId() +
                                     ", Year: " + request.getYear()));
 
-            leaveBalanceValidator.hasEnoughBalance(balance.getAvailableBalance(), request.getAmount());
+            BigDecimal available = Optional.ofNullable(balance.getAvailableBalance()).orElse(BigDecimal.ZERO);
+            leaveBalanceValidator.hasEnoughBalance(available, request.getAmount());
             balance.deduct(request.getAmount());
             leaveBalanceRepository.save(balance);
         }).subscribeOn(Schedulers.boundedElastic()).then();
@@ -245,37 +254,65 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
             return Mono.error(new IllegalArgumentException("EmployeeId, LeaveTypeId, Year and Amount are required"));
         }
 
-        return Mono.zip(
-                Mono.fromCallable(() -> employeeRepository.findById(request.getEmployeeId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()))),
-                Mono.fromCallable(() -> leaveTypeRepository.findById(request.getLeaveTypeId())
-                        .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId())))
-        ).flatMap(tuple -> {
-            Employee employee = tuple.getT1();
-            LeaveType leaveType = tuple.getT2();
+        // Blocking DB ops wrapped in boundedElastic
+        return Mono.fromCallable(() -> {
+            Employee employee = employeeRepository.findById(request.getEmployeeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()));
+
+            LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId()));
 
             LeaveBalance balance = leaveBalanceRepository
                     .findByEmployeeIdAndLeaveTypeIdAndYear(request.getEmployeeId(), request.getLeaveTypeId(), request.getYear())
-                    .orElseGet(() -> LeaveBalance.builder()
-                            .employee(employee)
-                            .leaveType(leaveType)
-                            .year(request.getYear())
-                            .totalDays(BigDecimal.ZERO)
-                            .usedDays(BigDecimal.ZERO)
-                            .advanceDays(BigDecimal.valueOf(5))
-                            .build());
+                    .orElseGet(() -> {
+                        LeaveBalance lb = LeaveBalance.builder()
+                                .employee(employee)
+                                .leaveType(leaveType)
+                                .year(request.getYear())
+                                .totalDays(BigDecimal.ZERO)
+                                .usedDays(BigDecimal.ZERO)
+                                .advanceDays(BigDecimal.valueOf(5))
+                                .build();
+                        return lb;
+                    });
 
             BigDecimal carryOver = leaveBalanceRepository
                     .findByEmployeeIdAndLeaveTypeId(request.getEmployeeId(), request.getLeaveTypeId())
                     .stream()
                     .filter(b -> b.getYear() < request.getYear())
-                    .map(LeaveBalance::getAvailableBalance)
+                    .map(b -> Optional.ofNullable(b.getAvailableBalance()).orElse(BigDecimal.ZERO))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            balance.setTotalDays(balance.getTotalDays().add(request.getAmount()).add(carryOver));
+            BigDecimal currentTotal = Optional.ofNullable(balance.getTotalDays()).orElse(BigDecimal.ZERO);
+            BigDecimal amountToAdd = request.getAmount();
+            BigDecimal effectiveNewTotal = currentTotal.add(amountToAdd).add(Optional.ofNullable(carryOver).orElse(BigDecimal.ZERO));
 
+            // Validate rules (gender, limits) using the validator helper
+            // getAnnualLeaveAllowance checks gender for maternity/paternity and returns allowance for those types
+            // validateLeaveCreation checks total against allowance when allowance > 0
+            leaveBalanceValidator.getAnnualLeaveAllowance(employee, leaveType); // may throw InvalidLeaveRequestException for gender mismatch
+            leaveBalanceValidator.validateLeaveCreation(effectiveNewTotal, employee, leaveType);
+
+            // save new total
+            balance.setTotalDays(effectiveNewTotal);
             leaveBalanceRepository.save(balance);
-            return Mono.empty();
+            return null;
         }).subscribeOn(Schedulers.boundedElastic()).then();
+    }
+
+    // -------------------- PRIVATE HELPERS --------------------
+
+    private void ensureTotalWithinAllowance(LeaveBalance balance) {
+        if (balance == null) return;
+        BigDecimal total = Optional.ofNullable(balance.getTotalDays()).orElse(BigDecimal.ZERO);
+        Employee employee = balance.getEmployee();
+        LeaveType leaveType = balance.getLeaveType();
+
+        if (employee == null || leaveType == null) return;
+
+        BigDecimal allowance = leaveBalanceValidator.getAnnualLeaveAllowance(employee, leaveType);
+        if (allowance.compareTo(BigDecimal.ZERO) > 0 && total.compareTo(allowance) > 0) {
+            throw new LeaveBalanceExceededException("Güncellenen izin toplamı yıllık limiti aşıyor. Limit: " + allowance + ", Güncel: " + total);
+        }
     }
 }
