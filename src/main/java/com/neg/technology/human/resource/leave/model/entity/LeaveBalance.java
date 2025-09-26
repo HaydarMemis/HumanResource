@@ -39,6 +39,9 @@ public class LeaveBalance extends AuditableEntity {
     @Builder.Default
     private BigDecimal usedDays = BigDecimal.ZERO;
 
+    @Column(name = "advance_days")
+    private BigDecimal advanceDays;
+
     @Column(nullable = false)
     @Builder.Default
     private String deleted = "N";

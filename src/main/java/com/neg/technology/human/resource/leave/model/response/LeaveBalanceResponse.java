@@ -17,4 +17,5 @@ public class LeaveBalanceResponse {
     private BigDecimal totalDays;
     private BigDecimal usedDays;
     private BigDecimal availableDays;
+    private BigDecimal advanceDays;
 }

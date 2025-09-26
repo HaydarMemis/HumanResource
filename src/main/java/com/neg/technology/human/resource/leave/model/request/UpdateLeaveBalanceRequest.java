@@ -26,4 +26,8 @@ public class UpdateLeaveBalanceRequest {
 
     private BigDecimal usedDays;
 
+    @Builder.Default
+    @NotNull
+    private BigDecimal advanceDays = BigDecimal.ZERO;
+
 }

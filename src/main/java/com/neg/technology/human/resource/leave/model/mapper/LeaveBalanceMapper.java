@@ -24,18 +24,17 @@ public class LeaveBalanceMapper {
                 .employeeFirstName(
                         leaveBalance.getEmployee() != null && leaveBalance.getEmployee().getPerson() != null
                                 ? leaveBalance.getEmployee().getPerson().getFirstName()
-                                : null
-                )
+                                : null)
                 .employeeLastName(
                         leaveBalance.getEmployee() != null && leaveBalance.getEmployee().getPerson() != null
                                 ? leaveBalance.getEmployee().getPerson().getLastName()
-                                : null
-                )
+                                : null)
                 .leaveTypeName(leaveBalance.getLeaveType() != null ? leaveBalance.getLeaveType().getName() : null)
                 .year(leaveBalance.getYear())
                 .totalDays(leaveBalance.getTotalDays())
                 .usedDays(leaveBalance.getUsedDays())
-                .availableDays(leaveBalance.getAvailableBalance()) // helper’dan gelen değer
+                .availableDays(leaveBalance.getAvailableBalance())
+                .advanceDays(leaveBalance.getAdvanceDays())
                 .build();
     }
 
@@ -58,11 +57,13 @@ public class LeaveBalanceMapper {
                 .year(dto.getYear())
                 .totalDays(dto.getTotalDays())
                 .usedDays(dto.getUsedDays() != null ? dto.getUsedDays() : java.math.BigDecimal.ZERO)
+                .advanceDays(dto.getAdvanceDays() != null ? dto.getAdvanceDays() : java.math.BigDecimal.ZERO)
                 .build();
     }
 
     // Request -> Entity (update)
-    public void updateEntity(LeaveBalance existing, UpdateLeaveBalanceRequest dto, Employee employee, LeaveType leaveType) {
+    public void updateEntity(LeaveBalance existing, UpdateLeaveBalanceRequest dto, Employee employee,
+            LeaveType leaveType) {
         if (existing == null || dto == null) {
             return;
         }
@@ -81,5 +82,10 @@ public class LeaveBalanceMapper {
         if (dto.getUsedDays() != null) {
             existing.setUsedDays(dto.getUsedDays());
         }
+
+        if (dto.getAdvanceDays() != null) {
+            existing.setAdvanceDays(dto.getAdvanceDays());
+        }
+
     }
 }

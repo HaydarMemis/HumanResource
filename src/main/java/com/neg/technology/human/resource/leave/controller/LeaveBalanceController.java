@@ -4,6 +4,7 @@ import com.neg.technology.human.resource.leave.model.request.*;
 import com.neg.technology.human.resource.leave.model.response.LeaveBalanceResponse;
 import com.neg.technology.human.resource.leave.model.response.LeaveBalanceResponseList;
 import com.neg.technology.human.resource.leave.service.LeaveBalanceService;
+import com.neg.technology.human.resource.leave.service.LeavePolicyService;
 import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
 import com.neg.technology.human.resource.employee.model.request.EmployeeYearRequest;
 import com.neg.technology.human.resource.employee.model.request.EmployeeLeaveTypeYearRequest;
@@ -25,6 +26,7 @@ import reactor.core.publisher.Mono;
 public class LeaveBalanceController {
 
     private final LeaveBalanceService leaveBalanceService;
+    private final LeavePolicyService leavePolicyService;
 
     @Operation(summary = "Get all leave balances")
     @PostMapping("/getAll")
@@ -49,19 +51,37 @@ public class LeaveBalanceController {
                 .then(Mono.just(ResponseEntity.ok().build()));
     }
 
-
     @Operation(summary = "Create leave balance")
     @PostMapping("/create")
     public Mono<ResponseEntity<LeaveBalanceResponse>> createLeaveBalance(@Valid @RequestBody CreateLeaveBalanceRequest dto) {
-        return leaveBalanceService.create(dto)
+        return validateMaxAllowedDays(dto.getEmployeeId(), dto.getLeaveTypeId(), dto.getTotalDays())
+                .flatMap(validDays -> leaveBalanceService.create(dto))
                 .map(ResponseEntity::ok);
     }
 
     @Operation(summary = "Update leave balance")
     @PostMapping("/update")
     public Mono<ResponseEntity<LeaveBalanceResponse>> updateLeaveBalance(@Valid @RequestBody UpdateLeaveBalanceRequest dto) {
-        return leaveBalanceService.update(dto)
+        return validateMaxAllowedDays(dto.getEmployeeId(), dto.getLeaveTypeId(), dto.getTotalDays())
+                .flatMap(validDays -> leaveBalanceService.update(dto))
                 .map(ResponseEntity::ok);
+    }
+
+    private Mono<Void> validateMaxAllowedDays(Long employeeId, Long leaveTypeId, java.math.BigDecimal requestedDays) {
+        return leavePolicyService.getMaxAllowedDaysForEmployeeAndType(
+                        com.neg.technology.human.resource.leave.model.request.LeavePolicyRequest.builder()
+                                .employeeId(employeeId)
+                                .leaveTypeId(leaveTypeId)
+                                .build()
+                )
+                .flatMap(maxAllowed -> {
+                    if (requestedDays.compareTo(maxAllowed) > 0) {
+                        return Mono.error(new IllegalArgumentException(
+                                "Requested leave days exceed maximum allowed: " + maxAllowed
+                        ));
+                    }
+                    return Mono.empty();
+                });
     }
 
     @Operation(summary = "Delete leave balance")

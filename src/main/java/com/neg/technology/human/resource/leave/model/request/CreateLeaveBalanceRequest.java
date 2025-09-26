@@ -26,4 +26,8 @@ public class CreateLeaveBalanceRequest {
     @NotNull
     private Integer year;
 
+    @Builder.Default
+    @NotNull
+    private BigDecimal advanceDays = BigDecimal.ZERO;
+
 }

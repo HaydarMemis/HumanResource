@@ -11,6 +11,7 @@ databaseChangeLog:
               - column: { name: year, valueNumeric: 2025 }
               - column: { name: total_days, valueNumeric: 14.00 }
               - column: { name: used_days, valueNumeric: 0 }
+              - column: { name: advance_days, valueNumeric: 0 }
               - column: { name: created_at, valueDate: "2025-01-01T09:00:00" }
               - column: { name: updated_at, valueDate: "2025-01-01T09:00:00" }
 
@@ -22,6 +23,7 @@ databaseChangeLog:
               - column: { name: year, valueNumeric: 2025 }
               - column: { name: total_days, valueNumeric: 112.00 }
               - column: { name: used_days, valueNumeric: 0 }
+              - column: { name: advance_days, valueNumeric: 0 }
               - column: { name: created_at, valueDate: "2025-02-01T09:00:00" }
               - column: { name: updated_at, valueDate: "2025-02-01T09:00:00" }
 
@@ -33,5 +35,6 @@ databaseChangeLog:
               - column: { name: year, valueNumeric: 2025 }
               - column: { name: total_days, valueNumeric: 5.00 }
               - column: { name: used_days, valueNumeric: 0 }
+              - column: { name: advance_days, valueNumeric: 0 }
               - column: { name: created_at, valueDate: "2025-03-01T09:00:00" }
               - column: { name: updated_at, valueDate: "2025-03-01T09:00:00" }

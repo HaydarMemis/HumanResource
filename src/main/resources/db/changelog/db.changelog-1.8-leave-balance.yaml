@@ -41,6 +41,12 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: advance_days
+                  type: NUMERIC(19,2)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
                   name: deleted
                   type: VARCHAR(1)
                   defaultValue: "N"
