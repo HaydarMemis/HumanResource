@@ -70,3 +70,74 @@ databaseChangeLog:
       file: dummy/db.changelog-1.9-insert-dummy-data-leave-request.yaml
       relativeToChangelogFile: true
       context: dev
+
+
+
+      databaseChangeLog:
+        - changeSet:
+            id: COUNTRIES-SEED-202509031710
+            author: mbatmaz
+            context: dev
+            changes:
+              - insert:
+                  tableName: COUNTRIES
+                  columns:
+                    - column:
+                        name: ISO2
+                        value: AF
+                    - column:
+                        name: NAME
+                        value: Afganistan
+                    - column:
+                        name: OFFICIAL_NAME
+                        value: Afganistan İslam Cumhuriyeti
+                    - column:
+                        name: NAME_EN
+                        value: Afghanistan
+                    - column:
+                        name: CREATED_BY
+                        value: admin
+                    - column:
+                        name: CREATE_DATE
+                        valueComputed: now()
+                    - column:
+                        name: UPDATED_BY
+                        value: admin
+                    - column:
+                        name: UPDATE_DATE
+                        valueComputed: now()
+                    - column:
+                        name: DELETED
+                        valueBoolean: false
+              - insert:
+                  tableName: COUNTRIES
+                  columns:
+                    - column:
+                        name: ISO2
+                        value: AL
+                    - column:
+                        name: NAME
+                        value: Arnavutluk
+                    - column:
+                        name: OFFICIAL_NAME
+                        value: Arnavutluk Cumhuriyeti
+                    - column:
+                        name: NAME_EN
+                        value: Albania
+                    - column:
+                        name: CREATED_BY
+                        value: admin
+                    - column:
+                        name: CREATE_DATE
+                        valueComputed: now()
+                    - column:
+                        name: UPDATED_BY
+                        value: admin
+                    - column:
+                        name: UPDATE_DATE
+                        valueComputed: now()
+                    - column:
+                        name: DELETED
+                        valueBoolean: false
+TURPAT-788-country-insert-data:
+  yml:

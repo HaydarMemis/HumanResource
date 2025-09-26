@@ -28,7 +28,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -256,11 +255,9 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                 return Mono.error(new ResourceNotFoundException("Leave Balance", -1L));
             }
 
-            // Toplam bakiyeyi hesapla
             BigDecimal totalBalance = leaveBalanceValidator.calculateTotalBalance(balances);
             leaveBalanceValidator.hasEnoughBalance(totalBalance, request.getAmount());
 
-            // Deduct işlemi: en eski effectiveDate’den başla
             BigDecimal remainingToDeduct = request.getAmount();
             for (LeaveBalance balance : balances) {
                 BigDecimal available = balance.getAmount().subtract(BigDecimal.valueOf(balance.getUsedDays()));
@@ -274,7 +271,6 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                 }
             }
 
-            // SaveAll blocking çağrısını boundedElastic üzerinde yap
             return Mono.fromCallable(() -> leaveBalanceRepository.saveAll(balances))
                     .subscribeOn(Schedulers.boundedElastic())
                     .then();

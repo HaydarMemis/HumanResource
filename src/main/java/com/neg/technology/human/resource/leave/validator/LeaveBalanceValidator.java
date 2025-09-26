@@ -50,7 +50,7 @@ public class LeaveBalanceValidator {
         Gender gender = employee.getPerson().getGender();
 
         switch (leaveTypeName) {
-            case "paternity leave":
+            case "paternity leave": //enum tanimla
                 if (gender != Gender.MALE) {
                     throw new InvalidLeaveRequestException("Babalık izni sadece erkek çalışanlar içindir.");
                 }
