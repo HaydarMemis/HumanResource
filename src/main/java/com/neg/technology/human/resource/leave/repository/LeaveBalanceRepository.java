@@ -2,27 +2,26 @@ package com.neg.technology.human.resource.leave.repository;
 
 import com.neg.technology.human.resource.leave.model.entity.LeaveBalance;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface LeaveBalanceRepository extends JpaRepository<LeaveBalance, Long> {
+
+    Optional<LeaveBalance> findByEmployeeIdAndLeaveTypeIdAndYear(Long employeeId, Long leaveTypeId, Integer year);
 
     List<LeaveBalance> findByEmployeeId(Long employeeId);
 
-    List<LeaveBalance> findByEmployeeIdAndEffectiveDateBetween(Long employeeId, LocalDate startDate, LocalDate endDate);
+    List<LeaveBalance> findByEmployeeIdAndYear(Long employeeId, Integer year);
 
-    Optional<LeaveBalance> findByEmployeeIdAndLeaveTypeIdAndEffectiveDate(Long employeeId, Long leaveTypeId, LocalDate effectiveDate);
+    List<LeaveBalance> findByEmployeeIdAndLeaveTypeIdOrderByYearAsc(Long employeeId, Long leaveTypeId);
 
-    List<LeaveBalance> findByEmployeeIdAndLeaveTypeIdOrderByEffectiveDateAsc(Long employeeId, Long leaveTypeId);
+    List<LeaveBalance> findByEmployeeIdAndLeaveTypeIdAndYearBetween(Long employeeId, Long leaveTypeId,Integer startYear, Integer endYear);
 
-    List<LeaveBalance> findByEmployeeIdAndLeaveTypeIdAndEffectiveDateBetween(Long employeeId, Long leaveTypeId, LocalDate startDate, LocalDate endDate);
+    List<LeaveBalance> findByLeaveTypeIdAndYearBetween(Long leaveTypeId, Integer startYear, Integer endYear);
 
-    List<LeaveBalance> findByLeaveTypeIdAndEffectiveDateBetween(Long leaveTypeId, LocalDate startDate, LocalDate endDate);
+    List<LeaveBalance> findByLeaveTypeIdAndYear(Long leaveTypeId, Integer year);
 
-    boolean existsById(Long id);
+    List<LeaveBalance> findByEmployeeIdAndLeaveTypeId(Long employeeId, Long leaveTypeId);
+
 }
-

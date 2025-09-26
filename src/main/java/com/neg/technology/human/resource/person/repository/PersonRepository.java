@@ -2,6 +2,7 @@ package com.neg.technology.human.resource.person.repository;
 
 import com.neg.technology.human.resource.person.model.entity.Person;
 import com.neg.technology.human.resource.person.model.enums.Gender;
+import com.neg.technology.human.resource.person.model.enums.MaritalStatus;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -23,14 +24,11 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 
     boolean existsByNationalId(String nationalId);
 
-    // Gender artık enum, IgnoreCase olmaz ❌
     List<Person> findByGender(Gender gender);
 
     List<Person> findByBirthDateBefore(LocalDate birthDate);
 
-    // Eğer maritalStatus da enum ise Gender gibi düzelt
-    // Eğer String ise IgnoreCase kalabilir
-    List<Person> findByMaritalStatusIgnoreCase(String maritalStatus);
+    List<Person> findByMaritalStatus(MaritalStatus maritalStatus);
 
     List<Person> findByFirstNameContainingIgnoreCase(String firstName);
 

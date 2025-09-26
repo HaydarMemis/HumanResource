@@ -294,7 +294,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
                             return leaveBalanceService.getByEmployeeAndLeaveType(
                                             new EmployeeLeaveTypeRequest(existing.getEmployee().getId(), existing.getLeaveType().getId()))
                                     .flatMap(balance -> {
-                                        if (balance.getAmount().compareTo(requestedDays) < 0) {
+                                        if (balance.getTotalDays().compareTo(requestedDays) < 0) {
                                             return Mono.error(new RuntimeException("Insufficient leave balance."));
                                         }
                                         return leaveBalanceService.deductLeave(new DeductLeaveRequest(

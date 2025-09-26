@@ -62,11 +62,11 @@ public class LeavePolicyController {
                 .map(ResponseEntity::ok);
     }
 
-    @Operation(summary = "Check if employee can borrow leave days")
-    @PostMapping("/can-borrow-leave")
-    public Mono<ResponseEntity<LeavePolicyResponse>> canBorrowLeave(
+    @Operation(summary = "Check if employee can borrow leave days (Advance Leave)")
+    @PostMapping("/advance-leave")
+    public Mono<ResponseEntity<LeavePolicyResponse>> getAdvanceLeave(
             @Valid @RequestBody LeavePolicyRequest request) {
-        return leavePolicyService.canBorrowLeave(request)
+        return leavePolicyService.getAdvanceLeave(request)
                 .map(ResponseEntity::ok);
     }
 

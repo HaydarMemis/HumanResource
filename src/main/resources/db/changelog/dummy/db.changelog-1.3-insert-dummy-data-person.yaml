@@ -20,7 +20,7 @@ databaseChangeLog:
                   valueDate: "1998-05-20"
               - column:
                   name: gender
-                  value: "Female"
+                  value: "FEMALE"
               - column:
                   name: email
                   value: "elif.yilmaz@example.com"
@@ -32,7 +32,7 @@ databaseChangeLog:
                   value: "Ankara, Turkey"
               - column:
                   name: marital_status
-                  value: "Single"
+                  value: "SINGLE"
               - column:
                   name: deleted
                   value: "N"
@@ -60,7 +60,7 @@ databaseChangeLog:
                   valueDate: "1995-11-10"
               - column:
                   name: gender
-                  value: "Male"
+                  value: "MALE"
               - column:
                   name: email
                   value: "ahmet.demir@example.com"
@@ -72,7 +72,7 @@ databaseChangeLog:
                   value: "Istanbul, Turkey"
               - column:
                   name: marital_status
-                  value: "Married"
+                  value: "MARRIED"
               - column:
                   name: deleted
                   value: "N"
@@ -100,7 +100,7 @@ databaseChangeLog:
                   valueDate: "1990-02-15"
               - column:
                   name: gender
-                  value: "Male"
+                  value: "MALE"
               - column:
                   name: email
                   value: "mehmet.kaya@example.com"
@@ -112,7 +112,7 @@ databaseChangeLog:
                   value: "Izmir, Turkey"
               - column:
                   name: marital_status
-                  value: "Single"
+                  value: "SINGLE"
               - column:
                   name: deleted
                   value: "N"

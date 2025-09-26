@@ -1,13 +1,14 @@
 package com.neg.technology.human.resource.leave.service;
 
+import java.math.BigDecimal;
+
 import com.neg.technology.human.resource.leave.model.request.LeavePolicyRequest;
 import com.neg.technology.human.resource.leave.model.response.LeavePolicyResponse;
 import com.neg.technology.human.resource.leave.model.response.LeavePolicyResponseList;
 import reactor.core.publisher.Mono;
-
 public interface LeavePolicyService {
 
-    Mono<Integer> getMaxAllowedDaysForEmployeeAndType(LeavePolicyRequest request);
+    Mono<BigDecimal> getMaxAllowedDaysForEmployeeAndType(LeavePolicyRequest request);
 
     Mono<LeavePolicyResponse> getAnnualLeave(LeavePolicyRequest request);
 
@@ -19,7 +20,7 @@ public interface LeavePolicyService {
 
     Mono<LeavePolicyResponse> getPaternityLeaveDays(LeavePolicyRequest request);
 
-    Mono<LeavePolicyResponse> canBorrowLeave(LeavePolicyRequest request);
+    Mono<LeavePolicyResponse> getAdvanceLeave(LeavePolicyRequest request);
 
     Mono<LeavePolicyResponse> getBereavementLeave(LeavePolicyRequest request);
 

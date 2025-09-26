@@ -13,6 +13,8 @@ import com.neg.technology.human.resource.exception.InvalidLeaveRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
 import java.time.*;
 import java.util.List;
 import java.util.Set;
@@ -56,14 +58,19 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
         return Period.between(startDate, endDate).getYears();
     }
 
+    private int calculateMonthsBetween(LocalDate startDate, LocalDate endDate) {
+        if (startDate == null || endDate == null) return 0;
+        Period p = Period.between(startDate, endDate);
+        return p.getYears() * 12 + p.getMonths();
+    }
+
     private int calculateAge(Employee employee) {
         LocalDate birthDate = getBirthDate(employee);
         return calculateYearsBetween(birthDate, LocalDate.now());
     }
 
-    // --- Genel max gün kontrolü ---
     @Override
-    public Mono<Integer> getMaxAllowedDaysForEmployeeAndType(LeavePolicyRequest request) {
+    public Mono<BigDecimal> getMaxAllowedDaysForEmployeeAndType(LeavePolicyRequest request) {
         if (request == null || request.getEmployeeId() == null || request.getLeaveTypeId() == null) {
             return Mono.error(new IllegalArgumentException("employeeId and leaveTypeId are required"));
         }
@@ -73,7 +80,6 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
                     LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
                             .orElseThrow(() -> new RuntimeException("LeaveType not found: " + request.getLeaveTypeId()));
 
-                    // Cinsiyete özel izin kontrolü
                     Gender requiredGender = leaveType.getGenderRequired();
                     Gender employeeGender = employee.getPerson().getGender();
 
@@ -85,44 +91,68 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
                         }
                     }
 
-                    // Yıllık İzin
                     if (Boolean.TRUE.equals(leaveType.getIsAnnual())) {
-                        int yearsWorked = 0;
-                        if (employee.getEmploymentStartDate() != null) {
-                            yearsWorked = (int) employee.getEmploymentStartDate()
-                                    .until(java.time.LocalDateTime.now(), java.time.temporal.ChronoUnit.YEARS);
-                        }
-                        int max;
-                        if (yearsWorked < 1) max = 0;
-                        else if (yearsWorked < 5) max = 14;
-                        else if (yearsWorked < 15) max = 20;
-                        else max = 26;
+                        int yearsWorked = calculateYearsBetween(getEmploymentStartDate(employee), LocalDate.now());
+                        BigDecimal max;
+                        if (yearsWorked < 1) max = BigDecimal.ZERO;
+                        else if (yearsWorked < 5) max = BigDecimal.valueOf(14);
+                        else if (yearsWorked < 15) max = BigDecimal.valueOf(20);
+                        else max = BigDecimal.valueOf(26);
                         return Mono.just(max);
                     }
 
-                    // Diğer izin tipleri için max gün sayısını döndür
                     if (leaveType.getMaxDays() != null) {
-                        return Mono.just(leaveType.getMaxDays());
+                        return Mono.just(BigDecimal.valueOf(leaveType.getMaxDays()));
                     }
 
-                    // Default
-                    return Mono.just(leaveType.getDefaultDays() != null ? leaveType.getDefaultDays() : Integer.MAX_VALUE);
+                    return Mono.just(leaveType.getDefaultDays() != null ? BigDecimal.valueOf(leaveType.getDefaultDays()) : BigDecimal.ZERO);
                 });
     }
 
-
-    // --- Leave kuralları ---
     @Override
     public Mono<LeavePolicyResponse> getAnnualLeave(LeavePolicyRequest request) {
         return getEmployee(request.getEmployeeId())
                 .map(employee -> {
                     LocalDate startDate = getEmploymentStartDate(employee);
-                    if (startDate == null) return LeavePolicyResponse.builder().days(0).eligible(false).build();
+                    if (startDate == null) return LeavePolicyResponse.builder()
+                            .days(BigDecimal.ZERO)
+                            .eligible(false)
+                            .build();
+
                     int yearsWorked = calculateYearsBetween(startDate, LocalDate.now());
-                    int days = yearsWorked < 1 ? 0 :
+                    BigDecimal days = BigDecimal.valueOf(
+                            yearsWorked < 1 ? 0 :
                             yearsWorked < 5 ? (calculateAge(employee) >= 50 ? 20 : 14) :
-                                    yearsWorked < 15 ? 20 : 26;
-                    return LeavePolicyResponse.builder().days(days).eligible(days > 0).build();
+                            yearsWorked < 15 ? 20 : 26
+                    );
+
+                    return LeavePolicyResponse.builder()
+                            .days(days)
+                            .eligible(days.compareTo(BigDecimal.ZERO) > 0)
+                            .build();
+                });
+    }
+
+    @Override
+    public Mono<LeavePolicyResponse> getAdvanceLeave(LeavePolicyRequest request) {
+        if (request.getRequestedDays() == null || request.getCurrentBorrowed() == null) {
+            return Mono.error(new IllegalArgumentException("RequestedDays and CurrentBorrowed cannot be null"));
+        }
+        return getEmployee(request.getEmployeeId())
+                .map(employee -> {
+                    LocalDate startDate = getEmploymentStartDate(employee);
+                    if (startDate == null) return LeavePolicyResponse.builder().eligible(false).days(BigDecimal.ZERO).build();
+
+                    int monthsWorked = calculateMonthsBetween(startDate, LocalDate.now());
+
+                    boolean allowed = monthsWorked >= 3 &&
+                            request.getRequestedDays().compareTo(BigDecimal.valueOf(5)) <= 0 &&
+                            request.getCurrentBorrowed().add(request.getRequestedDays()).compareTo(BigDecimal.valueOf(10)) <= 0;
+
+                    return LeavePolicyResponse.builder()
+                            .eligible(allowed)
+                            .days(allowed ? request.getRequestedDays() : BigDecimal.ZERO)
+                            .build();
                 });
     }
 
@@ -130,8 +160,8 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     public Mono<LeavePolicyResponse> getAgeBasedLeaveBonus(LeavePolicyRequest request) {
         return getEmployee(request.getEmployeeId())
                 .map(employee -> {
-                    int bonus = calculateAge(employee) >= 50 ? 2 : 0;
-                    return LeavePolicyResponse.builder().days(bonus).eligible(bonus > 0).build();
+                    BigDecimal bonus = calculateAge(employee) >= 50 ? BigDecimal.valueOf(2) : BigDecimal.ZERO;
+                    return LeavePolicyResponse.builder().days(bonus).eligible(bonus.compareTo(BigDecimal.ZERO) > 0).build();
                 });
     }
 
@@ -144,7 +174,10 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
                     boolean eligible = birthDate != null &&
                             birthDate.getMonth() == request.getDate().getMonth() &&
                             birthDate.getDayOfMonth() == request.getDate().getDayOfMonth();
-                    return LeavePolicyResponse.builder().eligible(eligible).days(eligible ? 1 : 0).build();
+                    return LeavePolicyResponse.builder()
+                            .eligible(eligible)
+                            .days(eligible ? BigDecimal.ONE : BigDecimal.ZERO)
+                            .build();
                 });
     }
 
@@ -161,32 +194,14 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     }
 
     @Override
-    public Mono<LeavePolicyResponse> canBorrowLeave(LeavePolicyRequest request) {
-        if (request.getRequestedDays() == null || request.getCurrentBorrowed() == null) {
-            return Mono.error(new IllegalArgumentException("RequestedDays and CurrentBorrowed cannot be null"));
-        }
-        return getEmployee(request.getEmployeeId())
-                .map(employee -> {
-                    LocalDate startDate = getEmploymentStartDate(employee);
-                    if (startDate == null) return LeavePolicyResponse.builder().eligible(false).days(0).build();
-                    int monthsWorked = Period.between(startDate, LocalDate.now()).getYears() * 12 +
-                            Period.between(startDate, LocalDate.now()).getMonths();
-                    boolean allowed = monthsWorked >= 3 &&
-                            request.getRequestedDays() <= 5 &&
-                            request.getCurrentBorrowed() + request.getRequestedDays() <= 10;
-                    return LeavePolicyResponse.builder().eligible(allowed).days(allowed ? request.getRequestedDays() : 0).build();
-                });
-    }
-
-    @Override
     public Mono<LeavePolicyResponse> getBereavementLeave(LeavePolicyRequest request) {
         return Mono.fromCallable(() -> {
-            int days = switch (request.getRelationType() != null ? request.getRelationType().toLowerCase() : "") {
-                case "parent", "sibling", "child", "spouse" -> 3;
-                case "grandparent", "aunt", "uncle", "in-law" -> 1;
-                default -> 0;
+            BigDecimal days = switch (request.getRelationType() != null ? request.getRelationType().toLowerCase() : "") {
+                case "parent", "sibling", "child", "spouse" -> BigDecimal.valueOf(3);
+                case "grandparent", "aunt", "uncle", "in-law" -> BigDecimal.ONE;
+                default -> BigDecimal.ZERO;
             };
-            return LeavePolicyResponse.builder().days(days).eligible(days > 0).build();
+            return LeavePolicyResponse.builder().days(days).eligible(days.compareTo(BigDecimal.ZERO) > 0).build();
         });
     }
 
@@ -194,13 +209,13 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
     public Mono<LeavePolicyResponse> getMarriageLeave(LeavePolicyRequest request) {
         boolean firstMarriage = Boolean.TRUE.equals(request.getFirstMarriage());
         boolean hasMarriageCertificate = Boolean.TRUE.equals(request.getIsSpouseWorking());
-        int days = (firstMarriage && hasMarriageCertificate) ? 3 : 0;
-        return Mono.just(LeavePolicyResponse.builder().days(days).eligible(days > 0).build());
+        BigDecimal days = (firstMarriage && hasMarriageCertificate) ? BigDecimal.valueOf(3) : BigDecimal.ZERO;
+        return Mono.just(LeavePolicyResponse.builder().days(days).eligible(days.compareTo(BigDecimal.ZERO) > 0).build());
     }
 
     @Override
     public Mono<LeavePolicyResponse> getMilitaryLeaveInfo(LeavePolicyRequest request) {
-        return Mono.just(LeavePolicyResponse.builder().eligible(true).days(null).build());
+        return Mono.just(LeavePolicyResponse.builder().eligible(true).days(BigDecimal.ZERO).build());
     }
 
     @Override
@@ -209,7 +224,7 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
         boolean holiday = OFFICIAL_HOLIDAYS.contains(request.getDate()) ||
                 request.getDate().getDayOfWeek() == DayOfWeek.SATURDAY ||
                 request.getDate().getDayOfWeek() == DayOfWeek.SUNDAY;
-        return Mono.just(LeavePolicyResponse.builder().eligible(holiday).days(holiday ? 1 : 0).build());
+        return Mono.just(LeavePolicyResponse.builder().eligible(holiday).days(holiday ? BigDecimal.ONE : BigDecimal.ZERO).build());
     }
 
     @Override
@@ -217,9 +232,9 @@ public class LeavePolicyServiceImpl implements LeavePolicyService {
         return Mono.fromCallable(() -> {
             LeavePolicyResponseList list = new LeavePolicyResponseList();
             list.setLeavePolicies(List.of(
-                    LeavePolicyResponse.builder().days(14).eligible(true).build(),
-                    LeavePolicyResponse.builder().days(5).eligible(true).build(),
-                    LeavePolicyResponse.builder().days(112).eligible(true).build()
+                    LeavePolicyResponse.builder().days(BigDecimal.valueOf(14)).eligible(true).build(),
+                    LeavePolicyResponse.builder().days(BigDecimal.valueOf(5)).eligible(true).build(),
+                    LeavePolicyResponse.builder().days(BigDecimal.valueOf(0.5)).eligible(true).build() // yarım gün
             ));
             return list;
         });

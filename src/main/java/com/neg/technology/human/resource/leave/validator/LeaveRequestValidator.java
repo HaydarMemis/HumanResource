@@ -94,7 +94,7 @@ public class LeaveRequestValidator {
                 .then(Mono.fromCallable(() -> {
                     return leaveBalanceService.getByEmployeeAndLeaveType(new EmployeeLeaveTypeRequest(employee.getId(), leaveType.getId()))
                             .doOnNext(balance -> {
-                                if (balance.getAmount().compareTo(requestedDays) < 0) {
+                                if (balance.getTotalDays().compareTo(requestedDays) < 0) {
                                     throw new RuntimeException("Insufficient leave balance.");
                                 }
                             })
