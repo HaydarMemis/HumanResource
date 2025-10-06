@@ -16,5 +16,5 @@ public class LeaveBalanceResponse {
     private Integer year;
     private BigDecimal totalDays;
     private BigDecimal usedDays;
-    private BigDecimal availableDays;
+    private BigDecimal availableBalance;
 }

@@ -67,38 +67,40 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
             return Mono.error(new IllegalArgumentException("Request cannot be null"));
         }
 
-        // employee ve leaveType objelerini al
-        Employee employee;
-        LeaveType leaveType;
-        try {
-            employee = employeeRepository.findById(request.getEmployeeId())
+        return Mono.fromCallable(() -> {
+            Employee employee = employeeRepository.findById(request.getEmployeeId())
                     .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()));
 
-            leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
+            LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
                     .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId()));
-        } catch (ResourceNotFoundException e) {
-            return Mono.error(e);
-        }
 
-        // Aynı employee, leaveType ve year için balance var mı kontrol et
-        return Mono.fromCallable(() -> leaveBalanceRepository.findByEmployeeIdAndLeaveTypeIdAndYear(
-                request.getEmployeeId(),
-                request.getLeaveTypeId(),
-                request.getYear())).flatMap(existingBalanceOpt -> {
-                    if (existingBalanceOpt.isPresent()) {
-                        return Mono.error(new IllegalArgumentException(
-                                "Leave balance for this employee, leave type and year already exists. Use update method instead."));
-                    }
+            leaveBalanceRepository.findByEmployeeIdAndLeaveTypeIdAndYear(
+                    request.getEmployeeId(),
+                    request.getLeaveTypeId(),
+                    request.getYear()).ifPresent(existing -> {
+                        throw new IllegalArgumentException(
+                                "Leave balance already exists for this employee, leave type and year. Use update method instead.");
+                    });
 
-                    // Entity oluştur
-                    LeaveBalance entity = leaveBalanceMapper.toEntity(request, employee, leaveType);
-                    LeaveBalance saved = leaveBalanceRepository.save(entity);
+            BigDecimal requestedDays = request.getTotalDays() != null ? request.getTotalDays()
+                    : (leaveType.getDefaultDays() != null ? BigDecimal.valueOf(leaveType.getDefaultDays())
+                            : BigDecimal.ZERO);
 
-                    // Log kaydı
-                    Logger.logCreated(LeaveBalance.class, saved.getId(), MESSAGE);
+            // --- Kırpılmış izin miktarını al ---
+            BigDecimal totalDays = leaveBalanceValidator.getCappedLeaveAmount(requestedDays, employee, leaveType);
 
-                    return Mono.just(leaveBalanceMapper.toResponse(saved));
-                }).subscribeOn(Schedulers.boundedElastic());
+            LeaveBalance entity = LeaveBalance.builder()
+                    .employee(employee)
+                    .leaveType(leaveType)
+                    .year(request.getYear())
+                    .totalDays(totalDays)
+                    .usedDays(BigDecimal.ZERO)
+                    .build();
+
+            LeaveBalance saved = leaveBalanceRepository.save(entity);
+            Logger.logCreated(LeaveBalance.class, saved.getId(), MESSAGE);
+            return leaveBalanceMapper.toResponse(saved);
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
@@ -167,7 +169,6 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
         return Mono.fromCallable(() -> leaveBalanceMapper.toResponseList(
                 leaveBalanceRepository.findByEmployeeIdAndYear(request.getEmployeeId(), request.getYear())))
                 .subscribeOn(Schedulers.boundedElastic());
-
     }
 
     @Override
@@ -200,7 +201,6 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                         "Employee: " + request.getEmployeeId() + ", LeaveType: " + request.getLeaveTypeId() +
                                 ", Year: " + request.getYear())))
                 .subscribeOn(Schedulers.boundedElastic());
-
     }
 
     @Override
@@ -212,7 +212,6 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
         return Mono.fromCallable(() -> leaveBalanceMapper.toResponseList(
                 leaveBalanceRepository.findByLeaveTypeIdAndYear(request.getLeaveTypeId(), request.getYear())))
                 .subscribeOn(Schedulers.boundedElastic());
-
     }
 
     @Override
@@ -264,6 +263,10 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                                     .usedDays(BigDecimal.ZERO)
                                     .build());
 
+                    // --- İzin miktarını kırp ---
+                    BigDecimal cappedAmount = leaveBalanceValidator.getCappedLeaveAmount(request.getAmount(), employee,
+                            leaveType);
+
                     // Geçmiş yıllardan devreden izinleri ekle
                     BigDecimal carryOver = leaveBalanceRepository
                             .findByEmployeeIdAndLeaveTypeId(request.getEmployeeId(), request.getLeaveTypeId())
@@ -272,7 +275,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                             .map(LeaveBalance::getAvailableBalance)
                             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                    balance.setTotalDays(balance.getTotalDays().add(request.getAmount()).add(carryOver));
+                    balance.setTotalDays(balance.getTotalDays().add(cappedAmount).add(carryOver));
 
                     leaveBalanceRepository.save(balance);
 

@@ -25,5 +25,5 @@ public class UpdateLeaveBalanceRequest {
     private BigDecimal totalDays;
 
     private BigDecimal usedDays;
-
+    private BigDecimal availableDays;
 }

@@ -54,11 +54,9 @@ public class LeaveBalance extends AuditableEntity {
 
     /**
      * Kullanılabilir bakiye varsa düşme işlemi
+     * Sadece yıllık izin için -5'e kadar düşme mantığı validator'da kontrol edilecek
      */
     public void deduct(BigDecimal days) {
-        if (getAvailableBalance().compareTo(days) < 0) {
-            throw new IllegalArgumentException("Insufficient leave balance.");
-        }
         this.usedDays = this.usedDays.add(days);
     }
 
@@ -70,12 +68,9 @@ public class LeaveBalance extends AuditableEntity {
     }
 
     /**
-     * Yeni yıl devri için helper:
-     * - kullanılmamış günleri döndürür
-     * - yeni yıl için usedDays resetlenir
+     * Yeni yıl devri için helper
      */
-    public BigDecimal carryOverToNewYear(BigDecimal newYearEntitlement) {
-        BigDecimal remaining = getAvailableBalance();
-        return remaining.add(newYearEntitlement);
+    public BigDecimal calculateNewYearEntitlement(BigDecimal newYearEntitlement) {
+        return newYearEntitlement;
     }
 }

@@ -24,18 +24,16 @@ public class LeaveBalanceMapper {
                 .employeeFirstName(
                         leaveBalance.getEmployee() != null && leaveBalance.getEmployee().getPerson() != null
                                 ? leaveBalance.getEmployee().getPerson().getFirstName()
-                                : null
-                )
+                                : null)
                 .employeeLastName(
                         leaveBalance.getEmployee() != null && leaveBalance.getEmployee().getPerson() != null
                                 ? leaveBalance.getEmployee().getPerson().getLastName()
-                                : null
-                )
+                                : null)
                 .leaveTypeName(leaveBalance.getLeaveType() != null ? leaveBalance.getLeaveType().getName() : null)
                 .year(leaveBalance.getYear())
                 .totalDays(leaveBalance.getTotalDays())
                 .usedDays(leaveBalance.getUsedDays())
-                .availableDays(leaveBalance.getAvailableBalance()) // helper’dan gelen değer
+                .availableBalance(leaveBalance.getAvailableBalance())
                 .build();
     }
 
@@ -57,12 +55,12 @@ public class LeaveBalanceMapper {
                 .leaveType(leaveType)
                 .year(dto.getYear())
                 .totalDays(dto.getTotalDays())
-                .usedDays(dto.getUsedDays() != null ? dto.getUsedDays() : java.math.BigDecimal.ZERO)
                 .build();
     }
 
     // Request -> Entity (update)
-    public void updateEntity(LeaveBalance existing, UpdateLeaveBalanceRequest dto, Employee employee, LeaveType leaveType) {
+    public void updateEntity(LeaveBalance existing, UpdateLeaveBalanceRequest dto, Employee employee,
+            LeaveType leaveType) {
         if (existing == null || dto == null) {
             return;
         }

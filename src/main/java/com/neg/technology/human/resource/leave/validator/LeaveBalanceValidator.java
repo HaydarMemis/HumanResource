@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 import java.util.Optional;
@@ -46,10 +45,15 @@ public class LeaveBalanceValidator {
         if (requestedDays == null || requestedDays.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Requested days must be greater than zero.");
         }
-        if (totalBalance == null || totalBalance.compareTo(requestedDays) < 0) {
+
+        BigDecimal maxNegative = BigDecimal.valueOf(-5); // izin negatif limiti
+        BigDecimal projectedBalance = totalBalance.subtract(requestedDays);
+
+        if (projectedBalance.compareTo(maxNegative) < 0) {
             throw new LeaveBalanceExceededException(
-                    "Yetersiz izin bakiyesi. Mevcut bakiye: " + totalBalance + ", İstenen: " + requestedDays
-            );
+                    "Yetersiz izin bakiyesi. Mevcut bakiye: " + totalBalance +
+                            ", İstenen: " + requestedDays +
+                            ". Maximum negative allowed: -5 gün.");
         }
     }
 
@@ -57,43 +61,34 @@ public class LeaveBalanceValidator {
      * Çalışanın yıllık izin hakkını leave tipi ve hizmet yılına göre hesaplar
      */
     public BigDecimal getAnnualLeaveAllowance(Employee employee, LeaveType leaveType) {
-        String leaveTypeName = leaveType.getName().trim().toLowerCase();
-        Gender gender = employee.getPerson().getGender();
-
-        switch (leaveTypeName) {
-            case "paternity leave":
-                if (gender != Gender.MALE) {
-                    throw new InvalidLeaveRequestException("Babalık izni sadece erkek çalışanlar içindir.");
-                }
-                return new BigDecimal(5);
-
-            case "maternity leave":
-                if (gender != Gender.FEMALE) {
-                    throw new InvalidLeaveRequestException("Annelik izni sadece kadın çalışanlar içindir.");
-                }
-                return new BigDecimal(112);
-
-            case "yıllık izin":
-                LocalDateTime startDateTime = employee.getEmploymentStartDate();
-                if (startDateTime == null) {
-                    return BigDecimal.ZERO;
-                }
-                LocalDate startDate = startDateTime.toLocalDate();
-                Period period = Period.between(startDate, LocalDate.now());
-                int yearsOfService = period.getYears();
-
-                if (yearsOfService >= 1 && yearsOfService <= 5) {
-                    return new BigDecimal(14);
-                } else if (yearsOfService >= 6 && yearsOfService <= 15) {
-                    return new BigDecimal(20);
-                } else if (yearsOfService > 15) {
-                    return new BigDecimal(26);
-                }
-                return BigDecimal.ZERO;
-
-            default:
-                return BigDecimal.ZERO;
+        if (!Boolean.TRUE.equals(leaveType.getIsAnnual())) {
+            return BigDecimal.ZERO; // Yıllık izin değilse 0 döner
         }
+
+        if (employee.getEmploymentStartDate() == null) {
+            return BigDecimal.ZERO;
+        }
+
+        LocalDate hireDate = employee.getEmploymentStartDate().toLocalDate();
+        LocalDate today = LocalDate.now();
+        Period period = Period.between(hireDate, today);
+        int yearsOfService = period.getYears();
+
+        // 1 yıldan az çalışana izin 0 gün
+        if (yearsOfService < 1) {
+            return BigDecimal.ZERO;
+        }
+
+        // Hizmet yılına göre izin günleri
+        if (yearsOfService >= 1 && yearsOfService <= 5) {
+            return BigDecimal.valueOf(14);
+        } else if (yearsOfService >= 6 && yearsOfService <= 15) {
+            return BigDecimal.valueOf(20);
+        } else if (yearsOfService > 15) {
+            return BigDecimal.valueOf(26);
+        }
+
+        return BigDecimal.ZERO;
     }
 
     /**
@@ -125,8 +120,7 @@ public class LeaveBalanceValidator {
         if (newTotal.compareTo(annualAllowance) > 0) {
             throw new LeaveBalanceExceededException(
                     "İzin eklenemiyor. Yıllık izin limitini aşıyor. Yıllık izin hakkı: " + annualAllowance +
-                    ", Mevcut izin: " + currentTotal + ", Eklenmek istenen: " + amountToAdd
-            );
+                            ", Mevcut izin: " + currentTotal + ", Eklenmek istenen: " + amountToAdd);
         }
     }
 
@@ -134,13 +128,60 @@ public class LeaveBalanceValidator {
      * Yeni izin oluşturma talebini validate eder
      */
     public void validateLeaveCreation(BigDecimal requestedAmount, Employee employee, LeaveType leaveType) {
-        BigDecimal annualAllowance = getAnnualLeaveAllowance(employee, leaveType);
+        Gender employeeGender = employee.getPerson().getGender();
 
-        if (requestedAmount.compareTo(annualAllowance) > 0) {
-            throw new LeaveBalanceExceededException(
-                    "İzin eklenemiyor. Yıllık izin limitini aşıyor. Yıllık izin hakkı: " + annualAllowance +
-                    ", Eklenmek istenen: " + requestedAmount
-            );
+        // --- Cinsiyet bazlı validasyon ---
+        if (leaveType.getGenderRequired() != null) {
+            if (!leaveType.getGenderRequired().equals(employeeGender)) {
+                throw new InvalidLeaveRequestException(
+                        leaveType.getName() + " sadece " + leaveType.getGenderRequired()
+                                + " çalışanlar için geçerlidir.");
+            }
+        }
+
+        // --- Yıllık izin mi kontrolü ---
+        if (Boolean.TRUE.equals(leaveType.getIsAnnual())) {
+            // yıllık izin -> kıdeme göre max gün
+            BigDecimal annualAllowance = getAnnualLeaveAllowance(employee, leaveType);
+            if (requestedAmount.compareTo(annualAllowance) > 0) {
+                throw new LeaveBalanceExceededException(
+                        "Yıllık izin limiti aşıldı. Hakkınız: " + annualAllowance + ", Talep edilen: " + requestedAmount
+                                + " gün.");
+            }
+        } else {
+            // diğer izinler -> leaveType maxDays veya defaultDays
+            BigDecimal maxDays = leaveType.getMaxDays() != null
+                    ? BigDecimal.valueOf(leaveType.getMaxDays())
+                    : (leaveType.getDefaultDays() != null ? BigDecimal.valueOf(leaveType.getDefaultDays())
+                            : BigDecimal.ZERO);
+
+            if (requestedAmount.compareTo(maxDays) > 0) {
+                throw new LeaveBalanceExceededException(
+                        leaveType.getName() + " için talep edilen izin (" + requestedAmount +
+                                " gün) maksimum izin süresini (" + maxDays + " gün) aşıyor.");
+            }
         }
     }
+
+    /**
+     * Kullanıcının istediği izin miktarını izin hakkı ile sınırlar
+     */
+    public BigDecimal getCappedLeaveAmount(BigDecimal requestedAmount, Employee employee, LeaveType leaveType) {
+        if (requestedAmount == null || requestedAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal allowedAmount;
+        if (Boolean.TRUE.equals(leaveType.getIsAnnual())) {
+            allowedAmount = getAnnualLeaveAllowance(employee, leaveType);
+        } else {
+            allowedAmount = leaveType.getMaxDays() != null
+                    ? BigDecimal.valueOf(leaveType.getMaxDays())
+                    : (leaveType.getDefaultDays() != null ? BigDecimal.valueOf(leaveType.getDefaultDays())
+                            : requestedAmount);
+        }
+
+        return requestedAmount.compareTo(allowedAmount) > 0 ? allowedAmount : requestedAmount;
+    }
+
 }

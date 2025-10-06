@@ -16,10 +16,7 @@ public class CreateLeaveBalanceRequest {
 
     @NotNull
     private Long leaveTypeId;
-
-    @NotNull
-    private BigDecimal usedDays;
-
+    
     @NotNull
     private BigDecimal totalDays;
 

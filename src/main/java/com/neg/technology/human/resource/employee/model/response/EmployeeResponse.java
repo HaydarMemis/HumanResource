@@ -1,5 +1,7 @@
 package com.neg.technology.human.resource.employee.model.response;
 
+import java.time.LocalDateTime;
+
 import lombok.*;
 
 @Getter
@@ -17,4 +19,5 @@ public class EmployeeResponse {
     private String managerFirstName;
     private String managerLastName;
     private String companyName;
+    private LocalDateTime hireDate;
 }

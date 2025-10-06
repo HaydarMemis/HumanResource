@@ -27,6 +27,7 @@ public class EmployeeMapper {
                 .positionTitle(employee.getPosition() != null ? employee.getPosition().getTitle() : null)
                 .managerFirstName(employee.getManager() != null && employee.getManager().getPerson() != null ? employee.getManager().getPerson().getFirstName() : null)
                 .managerLastName(employee.getManager() != null && employee.getManager().getPerson() != null ? employee.getManager().getPerson().getLastName() : null)
+                .hireDate(employee.getHireDate())
                 .companyName(employee.getCompany() != null ? employee.getCompany().getName() : null)
                 .build();
     }

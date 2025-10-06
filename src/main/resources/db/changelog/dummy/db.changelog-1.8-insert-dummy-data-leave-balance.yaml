@@ -3,21 +3,21 @@ databaseChangeLog:
       id: "9-insert-dummy-leave-balance"
       author: "Haydar Memis"
       changes:
-        - insert:
-            tableName: leave_balance
-            columns:
-              - column: { name: employee_id, valueNumeric: 1 }
-              - column: { name: leave_type_id, valueNumeric: 1 }
-              - column: { name: year, valueNumeric: 2025 }
-              - column: { name: total_days, valueNumeric: 14.00 }
-              - column: { name: used_days, valueNumeric: 0 }
-              - column: { name: created_at, valueDate: "2025-01-01T09:00:00" }
-              - column: { name: updated_at, valueDate: "2025-01-01T09:00:00" }
+        # - insert:
+        #     tableName: leave_balance
+        #     columns:
+        #       - column: { name: employee_id, valueNumeric: 1 }
+        #       - column: { name: leave_type_id, valueNumeric: 1 }
+        #       - column: { name: year, valueNumeric: 2025 }
+        #       - column: { name: total_days, valueNumeric: 14.00 }
+        #       - column: { name: used_days, valueNumeric: 0 }
+        #       - column: { name: created_at, valueDate: "2025-01-01T09:00:00" }
+        #       - column: { name: updated_at, valueDate: "2025-01-01T09:00:00" }
 
         - insert:
             tableName: leave_balance
             columns:
-              - column: { name: employee_id, valueNumeric: 2 }
+              - column: { name: employee_id, valueNumeric: 1 }
               - column: { name: leave_type_id, valueNumeric: 2 }
               - column: { name: year, valueNumeric: 2025 }
               - column: { name: total_days, valueNumeric: 112.00 }
@@ -28,10 +28,32 @@ databaseChangeLog:
         - insert:
             tableName: leave_balance
             columns:
-              - column: { name: employee_id, valueNumeric: 1 }
+              - column: { name: employee_id, valueNumeric: 2 }
               - column: { name: leave_type_id, valueNumeric: 3 }
               - column: { name: year, valueNumeric: 2025 }
               - column: { name: total_days, valueNumeric: 5.00 }
               - column: { name: used_days, valueNumeric: 0 }
               - column: { name: created_at, valueDate: "2025-03-01T09:00:00" }
               - column: { name: updated_at, valueDate: "2025-03-01T09:00:00" }
+
+        - insert:
+            tableName: leave_balance
+            columns:
+              - column: { name: employee_id, valueNumeric: 3 }
+              - column: { name: leave_type_id, valueNumeric: 3 }
+              - column: { name: year, valueNumeric: 2025 }
+              - column: { name: total_days, valueNumeric: 5.00 }
+              - column: { name: used_days, valueNumeric: 0 }
+              - column: { name: created_at, valueDate: "2025-03-01T09:00:00" }
+              - column: { name: updated_at, valueDate: "2025-03-01T09:00:00" }
+
+        # - insert:
+        #     tableName: leave_balance
+        #     columns:
+        #       - column: { name: employee_id, valueNumeric: 3 }
+        #       - column: { name: leave_type_id, valueNumeric: 1 }
+        #       - column: { name: year, valueNumeric: 2025 }
+        #       - column: { name: total_days, valueNumeric: 14.00 }
+        #       - column: { name: used_days, valueNumeric: 0 }
+        #       - column: { name: created_at, valueDate: "2025-03-01T09:00:00" }
+        #       - column: { name: updated_at, valueDate: "2025-03-01T09:00:00" }

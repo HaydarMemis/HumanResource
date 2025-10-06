@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: "6-insert-dummy-employee"
-      author: "Ayşe Şule"
+      author: "Burak Talha"
       changes:
         - insert:
             tableName: employee
@@ -112,10 +112,10 @@ databaseChangeLog:
                   value: "EMP003"
               - column:
                   name: hire_date
-                  valueDate: "2023-03-10T09:00:00"
+                  valueDate: "2025-03-10T09:00:00"
               - column:
                   name: employment_start_date
-                  valueDate: "2023-03-10T09:00:00"
+                  valueDate: "2025-03-10T09:00:00"
               - column:
                   name: employment_end_date
                   valueDate: null
@@ -127,7 +127,50 @@ databaseChangeLog:
                   value: "N"
               - column:
                   name: created_at
-                  valueDate: "2023-03-10T09:00:00"
+                  valueDate: "2025-03-10T09:00:00"
               - column:
                   name: updated_at
-                  valueDate: "2023-03-10T09:00:00"
+                  valueDate: "2025-03-10T09:00:00"
+
+        - insert:
+            tableName: employee
+            columns:
+              - column:
+                  name: person_id
+                  valueNumeric: 4
+              - column:
+                  name: department_id
+                  valueNumeric: 1
+              - column:
+                  name: position_id
+                  valueNumeric: 3
+              - column:
+                  name: company_id
+                  valueNumeric: 1
+              - column:
+                  name: manager_id
+                  valueNumeric: 1
+              - column:
+                  name: registration_number
+                  value: "EMP004"
+              - column:
+                  name: hire_date
+                  valueDate: "2018-03-10T09:00:00"
+              - column:
+                  name: employment_start_date
+                  valueDate: "2018-03-10T09:00:00"
+              - column:
+                  name: employment_end_date
+                  valueDate: null
+              - column:
+                  name: is_active
+                  valueBoolean: true
+              - column:
+                  name: deleted
+                  value: "N"
+              - column:
+                  name: created_at
+                  valueDate: "2018-03-10T09:00:00"
+              - column:
+                  name: updated_at
+                  valueDate: "2018-03-10T09:00:00"
