@@ -87,7 +87,6 @@ public class LeaveBalanceValidator {
         } else if (yearsOfService > 15) {
             return BigDecimal.valueOf(26);
         }
-
         return BigDecimal.ZERO;
     }
 
