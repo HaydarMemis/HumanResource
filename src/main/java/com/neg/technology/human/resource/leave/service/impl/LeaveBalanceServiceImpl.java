@@ -57,7 +57,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
         }
         return Mono.fromCallable(() -> leaveBalanceRepository.findById(request.getId())
                 .map(leaveBalanceMapper::toResponse)
-                .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, request.getId())))
+                .orElseThrow(ResourceNotFoundException::leaveBalanceNotFound))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -69,10 +69,10 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
 
         return Mono.fromCallable(() -> {
             Employee employee = employeeRepository.findById(request.getEmployeeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()));
+                    .orElseThrow(ResourceNotFoundException::employeeNotFound);
 
             LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId()));
+                    .orElseThrow(ResourceNotFoundException::leaveTypeNotFound);
 
             leaveBalanceRepository.findByEmployeeIdAndLeaveTypeIdAndYear(
                     request.getEmployeeId(),
@@ -86,7 +86,6 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                     : (leaveType.getDefaultDays() != null ? BigDecimal.valueOf(leaveType.getDefaultDays())
                             : BigDecimal.ZERO);
 
-            // --- Kırpılmış izin miktarını al ---
             BigDecimal totalDays = leaveBalanceValidator.getCappedLeaveAmount(requestedDays, employee, leaveType);
 
             LeaveBalance entity = LeaveBalance.builder()
@@ -111,18 +110,18 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
 
         return Mono.fromCallable(() -> {
             LeaveBalance existing = leaveBalanceRepository.findById(request.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, request.getId()));
+                    .orElseThrow(ResourceNotFoundException::leaveBalanceNotFound);
 
             Employee employee = null;
             if (request.getEmployeeId() != null) {
                 employee = employeeRepository.findById(request.getEmployeeId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()));
+                        .orElseThrow(ResourceNotFoundException::employeeNotFound);
             }
 
             LeaveType leaveType = null;
             if (request.getLeaveTypeId() != null) {
                 leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
-                        .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId()));
+                        .orElseThrow(ResourceNotFoundException::leaveTypeNotFound);
             }
 
             leaveBalanceMapper.updateEntity(existing, request, employee, leaveType);
@@ -141,7 +140,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
 
         return Mono.fromCallable(() -> {
             if (!leaveBalanceRepository.existsById(request.getId())) {
-                throw new ResourceNotFoundException(MESSAGE, request.getId());
+                throw ResourceNotFoundException.leaveBalanceNotFound();
             }
             leaveBalanceRepository.deleteById(request.getId());
             Logger.logDeleted(LeaveBalance.class, request.getId());
@@ -180,8 +179,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
         return Mono.fromCallable(() -> leaveBalanceRepository
                 .findByEmployeeIdAndLeaveTypeIdOrderByYearAsc(request.getEmployeeId(), request.getLeaveTypeId())
                 .stream().findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException(MESSAGE,
-                        "Employee: " + request.getEmployeeId() + ", LeaveType: " + request.getLeaveTypeId())))
+                .orElseThrow(ResourceNotFoundException::leaveBalanceNotFound))
                 .map(leaveBalanceMapper::toResponse)
                 .subscribeOn(Schedulers.boundedElastic());
     }
@@ -197,9 +195,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                 .findByEmployeeIdAndLeaveTypeIdAndYear(request.getEmployeeId(), request.getLeaveTypeId(),
                         request.getYear())
                 .map(leaveBalanceMapper::toResponse)
-                .orElseThrow(() -> new ResourceNotFoundException(MESSAGE,
-                        "Employee: " + request.getEmployeeId() + ", LeaveType: " + request.getLeaveTypeId() +
-                                ", Year: " + request.getYear())))
+                .orElseThrow(ResourceNotFoundException::leaveBalanceNotFound))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -226,9 +222,7 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                     .findByEmployeeIdAndLeaveTypeIdAndYear(request.getEmployeeId(),
                             request.getLeaveTypeId(),
                             request.getYear())
-                    .orElseThrow(() -> new ResourceNotFoundException("LeaveBalance",
-                            "Employee: " + request.getEmployeeId() + ", LeaveType: " + request.getLeaveTypeId() +
-                                    ", Year: " + request.getYear()));
+                    .orElseThrow(ResourceNotFoundException::leaveBalanceNotFound);
 
             leaveBalanceValidator.hasEnoughBalance(balance.getAvailableBalance(), request.getAmount());
             balance.deduct(request.getAmount());
@@ -245,9 +239,9 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
 
         return Mono.zip(
                 Mono.fromCallable(() -> employeeRepository.findById(request.getEmployeeId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()))),
+                        .orElseThrow(ResourceNotFoundException::employeeNotFound)),
                 Mono.fromCallable(() -> leaveTypeRepository.findById(request.getLeaveTypeId())
-                        .orElseThrow(() -> new ResourceNotFoundException("LeaveType", request.getLeaveTypeId()))))
+                        .orElseThrow(ResourceNotFoundException::leaveTypeNotFound)))
                 .flatMap(tuple -> {
                     Employee employee = tuple.getT1();
                     LeaveType leaveType = tuple.getT2();
@@ -263,11 +257,9 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                                     .usedDays(BigDecimal.ZERO)
                                     .build());
 
-                    // --- İzin miktarını kırp ---
                     BigDecimal cappedAmount = leaveBalanceValidator.getCappedLeaveAmount(request.getAmount(), employee,
                             leaveType);
 
-                    // Geçmiş yıllardan devreden izinleri ekle
                     BigDecimal carryOver = leaveBalanceRepository
                             .findByEmployeeIdAndLeaveTypeId(request.getEmployeeId(), request.getLeaveTypeId())
                             .stream()
@@ -282,5 +274,4 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService {
                     return Mono.empty();
                 }).subscribeOn(Schedulers.boundedElastic()).then();
     }
-
 }

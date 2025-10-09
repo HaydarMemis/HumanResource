@@ -32,6 +32,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,28 +49,25 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
 
     private Mono<Employee> getEmployee(Long employeeId) {
         return Mono.fromCallable(() -> employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee", employeeId)))
+                .orElseThrow(ResourceNotFoundException::employeeNotFound))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
     private Mono<LeaveType> getLeaveType(Long leaveTypeId) {
         return Mono.fromCallable(() -> leaveTypeRepository.findById(leaveTypeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Type", leaveTypeId)))
+                .orElseThrow(ResourceNotFoundException::leaveTypeNotFound))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
-    /* ---------- helper: string -> enum parse (throws if invalid) ---------- */
     private LeaveStatus parseStatus(String status) {
         if (status == null)
-            throw new IllegalArgumentException("Status cannot be null");
+            throw new IllegalArgumentException("Durum boş olamaz.");
         try {
             return LeaveStatus.valueOf(status.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid status: " + status);
+            throw new IllegalArgumentException("Geçersiz durum: " + status);
         }
     }
-
-    /* -------------------- normal CRUD + queries -------------------- */
 
     @Override
     public Mono<LeaveRequestResponseList> getAll() {
@@ -86,7 +84,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     public Mono<LeaveRequestResponse> getById(IdRequest request) {
         return Mono.fromCallable(() -> leaveRequestRepository.findById(request.getId())
                 .map(LeaveRequestMapper::toDTO)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Request", request.getId())))
+                .orElseThrow(ResourceNotFoundException::leaveRequestNotFound))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -95,7 +93,8 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
         return Mono.zip(
                 getEmployee(dto.getEmployeeId()),
                 getLeaveType(dto.getLeaveTypeId()),
-                dto.getApprovedById() != null ? getEmployee(dto.getApprovedById()) : Mono.just(null)).flatMap(tuple -> {
+                dto.getApprovedById() != null ? getEmployee(dto.getApprovedById()) : Mono.just(null))
+                .flatMap(tuple -> {
                     Employee employee = tuple.getT1();
                     LeaveType leaveType = tuple.getT2();
                     Employee approver = tuple.getT3();
@@ -118,35 +117,37 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
 
     @Override
     public Mono<LeaveRequestResponse> update(UpdateLeaveRequestRequest dto) {
-        return Mono.fromCallable(() -> {
+        return Mono.defer(() -> {
             LeaveRequest existing = leaveRequestRepository.findById(dto.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Leave Request", dto.getId()));
+                    .orElseThrow(ResourceNotFoundException::leaveRequestNotFound);
 
-            Employee employee = null;
-            if (dto.getEmployeeId() != null) {
-                employee = employeeRepository.findById(dto.getEmployeeId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Employee", dto.getEmployeeId()));
-            }
+            Employee employee = dto.getEmployeeId() != null
+                    ? employeeRepository.findById(dto.getEmployeeId())
+                            .orElseThrow(ResourceNotFoundException::employeeNotFound)
+                    : existing.getEmployee();
 
-            LeaveType leaveType = null;
-            if (dto.getLeaveTypeId() != null) {
-                leaveType = leaveTypeRepository.findById(dto.getLeaveTypeId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Leave Type", dto.getLeaveTypeId()));
-            }
+            LeaveType leaveType = dto.getLeaveTypeId() != null
+                    ? leaveTypeRepository.findById(dto.getLeaveTypeId())
+                            .orElseThrow(ResourceNotFoundException::leaveTypeNotFound)
+                    : existing.getLeaveType();
 
-            Employee approver = null;
-            if (dto.getApprovedById() != null) {
-                approver = employeeRepository.findById(dto.getApprovedById())
-                        .orElseThrow(() -> new ResourceNotFoundException("Approver Employee", dto.getApprovedById()));
-            }
+            Employee approver = dto.getApprovedById() != null
+                    ? employeeRepository.findById(dto.getApprovedById())
+                            .orElseThrow(ResourceNotFoundException::approverEmployeeNotFound)
+                    : existing.getApprovedBy();
 
-            LeaveRequestMapper.updateEntity(existing, dto, employee, leaveType, approver);
+            LocalDate startDate = dto.getStartDate() != null ? dto.getStartDate() : existing.getStartDate();
+            LocalDate endDate = dto.getEndDate() != null ? dto.getEndDate() : existing.getEndDate();
+            BigDecimal requestedDays = BigDecimal.valueOf(ChronoUnit.DAYS.between(startDate, endDate) + 1);
 
-            LeaveRequest updated = leaveRequestRepository.save(existing);
-
-            Logger.logUpdated(LeaveRequest.class, updated.getId(), "LeaveRequest");
-
-            return LeaveRequestMapper.toDTO(updated);
+            return leaveRequestValidator
+                    .validateLeaveRequestUpdate(existing, employee, leaveType, startDate, endDate, requestedDays)
+                    .then(Mono.fromCallable(() -> {
+                        LeaveRequestMapper.updateEntity(existing, dto, employee, leaveType, approver);
+                        LeaveRequest updated = leaveRequestRepository.save(existing);
+                        Logger.logUpdated(LeaveRequest.class, updated.getId(), "LeaveRequest");
+                        return LeaveRequestMapper.toDTO(updated);
+                    }));
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -154,7 +155,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     public Mono<Void> delete(IdRequest request) {
         return Mono.fromRunnable(() -> {
             if (!leaveRequestRepository.existsById(request.getId())) {
-                throw new ResourceNotFoundException("Leave Request", request.getId());
+                throw ResourceNotFoundException.leaveRequestNotFound();
             }
             leaveRequestRepository.deleteById(request.getId());
             Logger.logDeleted(LeaveRequest.class, request.getId());
@@ -171,8 +172,6 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
             return new LeaveRequestResponseList(responses);
         }).subscribeOn(Schedulers.boundedElastic());
     }
-
-    /* ---------- FIXED: status methods must use LeaveStatus enum ---------- */
 
     @Override
     public Mono<LeaveRequestResponseList> getByStatus(StatusRequest request) {
@@ -278,7 +277,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     @Override
     public Mono<LeaveRequestResponse> changeStatus(ChangeLeaveRequestStatusRequest dto) {
         return Mono.fromCallable(() -> leaveRequestRepository.findById(dto.getLeaveRequestId())
-                .orElseThrow(() -> new ResourceNotFoundException("Leave Request", dto.getLeaveRequestId())))
+                .orElseThrow(ResourceNotFoundException::leaveRequestNotFound))
                 .flatMap(existing -> {
                     LeaveStatus oldStatus = existing.getStatus();
                     LeaveStatus newStatus = dto.getStatus();
@@ -288,7 +287,6 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
                     return leaveRequestValidator.validateStatusChange(existing, newStatus)
                             .then(Mono.defer(() -> {
 
-                                // 1️⃣ Onaylanacaksa ve daha önce onaylı değilse
                                 if (LeaveStatus.APPROVED.equals(newStatus) && !LeaveStatus.APPROVED.equals(oldStatus)) {
                                     return leaveBalanceService.getByEmployeeAndLeaveType(
                                             new EmployeeLeaveTypeRequest(existing.getEmployee().getId(),
@@ -300,10 +298,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
                                                     existing.getStartDate().getYear())))
                                             .then(Mono.defer(() -> updateLeaveRequest(existing, newStatus,
                                                     dto.getApprovalNote())));
-                                }
-
-                                // 2️⃣ Reddedilecek veya iptal edilecek ve önceden onaylı ise
-                                else if ((LeaveStatus.REJECTED.equals(newStatus)
+                                } else if ((LeaveStatus.REJECTED.equals(newStatus)
                                         || LeaveStatus.CANCELLED.equals(newStatus))
                                         && LeaveStatus.APPROVED.equals(oldStatus)) {
                                     return leaveBalanceService.addLeave(new AddLeaveRequest(
@@ -313,10 +308,7 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
                                             existing.getStartDate().getYear()))
                                             .then(Mono.defer(() -> updateLeaveRequest(existing, newStatus,
                                                     dto.getApprovalNote())));
-                                }
-
-                                // 3️⃣ Diğer durumlarda sadece status güncelle
-                                else {
+                                } else {
                                     return updateLeaveRequest(existing, newStatus, dto.getApprovalNote());
                                 }
 

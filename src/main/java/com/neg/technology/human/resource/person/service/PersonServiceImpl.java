@@ -63,8 +63,9 @@ public class PersonServiceImpl implements PersonService {
     public Mono<Void> deletePerson(IdRequest request) {
         return Mono.fromRunnable(() -> {
             if (!personRepository.existsById(request.getId())) {
-                throw new ResourceNotFoundException(request.getClass().getName(), request.getId());
+                throw ResourceNotFoundException.personNotFound();
             }
+
             personRepository.deleteById(request.getId());
         });
     }

@@ -40,7 +40,7 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
         return Mono.fromCallable(() ->
                 employeeProjectRepository.findById(id)
                         .map(EmployeeProjectMapper::toDTO)
-                        .orElseThrow(() -> new ResourceNotFoundException("Employee Project", id))
+                        .orElseThrow(ResourceNotFoundException::employeeProjectNotFound)
         );
     }
 
@@ -49,9 +49,9 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
         return Mono.fromCallable(() -> {
             EmployeeProject entity = EmployeeProjectMapper.toEntity(request,
                     employeeRepository.findById(request.getEmployeeId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId())),
+                            .orElseThrow(ResourceNotFoundException::employeeNotFound),
                     projectRepository.findById(request.getProjectId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Project", request.getProjectId()))
+                            .orElseThrow(ResourceNotFoundException::projectNotFound)
             );
 
             EmployeeProject saved = employeeProjectRepository.save(entity);
@@ -64,14 +64,14 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
     public Mono<EmployeeProjectResponse> updateEmployeeProject(UpdateEmployeeProjectRequest request) {
         return Mono.fromCallable(() -> {
             EmployeeProject existing = employeeProjectRepository.findById(request.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Employee Project", request.getId()));
+                    .orElseThrow(ResourceNotFoundException::employeeProjectNotFound);
 
             EmployeeProjectMapper.updateEntity(existing, request,
                     request.getEmployeeId() != null ? employeeRepository.findById(request.getEmployeeId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Employee", request.getEmployeeId()))
+                            .orElseThrow(ResourceNotFoundException::employeeNotFound)
                             : null,
                     request.getProjectId() != null ? projectRepository.findById(request.getProjectId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Project", request.getProjectId()))
+                            .orElseThrow(ResourceNotFoundException::projectNotFound)
                             : null
             );
 
@@ -85,7 +85,7 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
     public Mono<Void> deleteEmployeeProject(Long id) {
         return Mono.fromRunnable(() -> {
             if (!employeeProjectRepository.existsById(id)) {
-                throw new ResourceNotFoundException("Employee Project", id);
+                throw ResourceNotFoundException.employeeProjectNotFound();
             }
             employeeProjectRepository.deleteById(id);
             Logger.logDeleted(EmployeeProject.class, id);
@@ -96,7 +96,7 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
     public Mono<Void> deleteByEmployeeId(Long employeeId) {
         return Mono.fromRunnable(() -> {
             if (!employeeProjectRepository.existsByEmployee_Id(employeeId)) {
-                throw new ResourceNotFoundException("Employee Project", employeeId);
+                throw ResourceNotFoundException.employeeProjectNotFound();
             }
             employeeProjectRepository.deleteByEmployee_Id(employeeId);
             Logger.logDeleted(EmployeeProject.class, employeeId);
@@ -107,7 +107,7 @@ public class EmployeeProjectServiceImpl implements EmployeeProjectService {
     public Mono<Void> deleteByProjectId(Long projectId) {
         return Mono.fromRunnable(() -> {
             if (!employeeProjectRepository.existsByProject_Id(projectId)) {
-                throw new ResourceNotFoundException("Employee Project", projectId);
+                throw ResourceNotFoundException.employeeProjectNotFound();
             }
             employeeProjectRepository.deleteByProject_Id(projectId);
             Logger.logDeleted(EmployeeProject.class, projectId);

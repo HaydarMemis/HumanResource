@@ -19,6 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.concurrent.Callable;
 
 @Service
 public class PositionServiceImpl implements PositionService {
@@ -26,7 +27,6 @@ public class PositionServiceImpl implements PositionService {
     private final PositionRepository positionRepository;
     private final PositionValidator positionValidator;
     private final PositionMapper positionMapper;
-    private final String message = "Position";
 
     public PositionServiceImpl(PositionRepository positionRepository,
                                PositionValidator positionValidator,
@@ -38,7 +38,7 @@ public class PositionServiceImpl implements PositionService {
 
     @Override
     public Mono<PositionResponseList> getAllPositions() {
-        return Mono.fromCallable(() ->
+        return Mono.fromCallable((Callable<PositionResponseList>) () ->
                 new PositionResponseList(
                         positionRepository.findAll()
                                 .stream()
@@ -50,16 +50,16 @@ public class PositionServiceImpl implements PositionService {
 
     @Override
     public Mono<PositionResponse> getPositionById(IdRequest request) {
-        return Mono.fromCallable(() ->
+        return Mono.fromCallable((Callable<PositionResponse>) () ->
                 positionRepository.findById(request.getId())
                         .map(positionMapper::toDTO)
-                        .orElseThrow(() -> new ResourceNotFoundException(message, request.getId()))
+                        .orElseThrow(ResourceNotFoundException::positionNotFound)
         );
     }
 
     @Override
     public Mono<PositionResponse> createPosition(CreatePositionRequest request) {
-        return Mono.fromCallable(() -> {
+        return Mono.fromCallable((Callable<PositionResponse>) () -> {
             positionValidator.validateCreate(request);
             Position position = positionMapper.toEntity(request);
             Position saved = positionRepository.save(position);
@@ -70,13 +70,13 @@ public class PositionServiceImpl implements PositionService {
 
     @Override
     public Mono<PositionResponse> updatePosition(UpdatePositionRequest request) {
-        return Mono.fromCallable(() -> {
+        return Mono.fromCallable((Callable<PositionResponse>) () -> {
             if (!positionRepository.existsById(request.getId())) {
-                throw new ResourceNotFoundException(message, request.getId());
+                throw ResourceNotFoundException.positionNotFound();
             }
             positionValidator.validateUpdate(request);
             Position existing = positionRepository.findById(request.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException(message, request.getId()));
+                    .orElseThrow(ResourceNotFoundException::positionNotFound);
             positionMapper.updateEntity(existing, request);
             Position updated = positionRepository.save(existing);
             Logger.logUpdated(Position.class, updated.getId(), updated.getTitle());
@@ -88,7 +88,7 @@ public class PositionServiceImpl implements PositionService {
     public Mono<Void> deletePosition(IdRequest request) {
         return Mono.fromRunnable(() -> {
             if (!positionRepository.existsById(request.getId())) {
-                throw new ResourceNotFoundException(message, request.getId());
+                throw ResourceNotFoundException.positionNotFound();
             }
             positionRepository.deleteById(request.getId());
             Logger.logDeleted(Position.class, request.getId());
@@ -97,10 +97,10 @@ public class PositionServiceImpl implements PositionService {
 
     @Override
     public Mono<PositionResponse> getPositionByTitle(TitleRequest request) {
-        return Mono.fromCallable(() ->
+        return Mono.fromCallable((Callable<PositionResponse>) () ->
                 positionRepository.findByTitle(request.getTitle())
                         .map(positionMapper::toDTO)
-                        .orElseThrow(() -> new ResourceNotFoundException(message, request.getTitle()))
+                        .orElseThrow(ResourceNotFoundException::positionTitleNotFound)
         );
     }
 
@@ -111,7 +111,7 @@ public class PositionServiceImpl implements PositionService {
 
     @Override
     public Mono<PositionResponseList> getPositionsByBaseSalary(SalaryRequest request) {
-        return Mono.fromCallable(() ->
+        return Mono.fromCallable((Callable<PositionResponseList>) () ->
                 new PositionResponseList(
                         positionRepository.findByBaseSalaryGreaterThanEqual(request.getSalary())
                                 .stream()
@@ -121,8 +121,7 @@ public class PositionServiceImpl implements PositionService {
         );
     }
 
-    // --- Utility methods in reactive wrappers ---
-
+    // --- Utility reactive methods ---
     @Override
     public Mono<Position> save(Position position) {
         return Mono.fromCallable(() -> positionRepository.save(position));
@@ -132,7 +131,7 @@ public class PositionServiceImpl implements PositionService {
     public Mono<Position> findById(Long id) {
         return Mono.fromCallable(() ->
                 positionRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException(message, id))
+                        .orElseThrow(ResourceNotFoundException::positionNotFound)
         );
     }
 
@@ -145,7 +144,7 @@ public class PositionServiceImpl implements PositionService {
     public Mono<Void> deleteById(Long id) {
         return Mono.fromRunnable(() -> {
             if (!positionRepository.existsById(id)) {
-                throw new ResourceNotFoundException(message, id);
+                throw ResourceNotFoundException.positionNotFound();
             }
             positionRepository.deleteById(id);
         });
@@ -155,7 +154,7 @@ public class PositionServiceImpl implements PositionService {
     public Mono<Position> update(Long id, Position position) {
         return Mono.fromCallable(() -> {
             Position existing = positionRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException(message, id));
+                    .orElseThrow(ResourceNotFoundException::positionNotFound);
             existing.setTitle(position.getTitle());
             existing.setBaseSalary(position.getBaseSalary());
             return positionRepository.save(existing);
@@ -181,7 +180,7 @@ public class PositionServiceImpl implements PositionService {
     public Mono<Position> findByTitle(String title) {
         return Mono.fromCallable(() ->
                 positionRepository.findByTitle(title)
-                        .orElseThrow(() -> new ResourceNotFoundException(message, title))
+                        .orElseThrow(ResourceNotFoundException::positionTitleNotFound)
         );
     }
 }

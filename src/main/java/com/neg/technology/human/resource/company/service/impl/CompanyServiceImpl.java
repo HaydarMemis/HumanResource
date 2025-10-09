@@ -1,4 +1,5 @@
 package com.neg.technology.human.resource.company.service.impl;
+
 import com.neg.technology.human.resource.company.model.entity.Company;
 import com.neg.technology.human.resource.company.model.mapper.CompanyMapper;
 import com.neg.technology.human.resource.company.model.request.*;
@@ -13,7 +14,6 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class CompanyServiceImpl implements CompanyService {
-    public static final String MESSAGE = "Company";
 
     private final CompanyRepository companyRepository;
 
@@ -35,7 +35,7 @@ public class CompanyServiceImpl implements CompanyService {
     public Mono<CompanyResponse> updateCompany(UpdateCompanyRequest request) {
         return Mono.fromCallable(() -> {
             Company existing = companyRepository.findById(request.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, request.getId()));
+                    .orElseThrow(ResourceNotFoundException::companyNotFound);
 
             existing.setName(request.getName());
             Company updated = companyRepository.save(existing);
@@ -49,7 +49,7 @@ public class CompanyServiceImpl implements CompanyService {
     public Mono<Void> deleteCompany(CompanyIdRequest request) {
         return Mono.fromRunnable(() -> {
             if (!companyRepository.existsById(request.getCompanyId())) {
-                throw new ResourceNotFoundException(MESSAGE, request.getCompanyId());
+                throw ResourceNotFoundException.companyNotFound();
             }
             companyRepository.deleteById(request.getCompanyId());
             Logger.logDeleted(Company.class, request.getCompanyId());
@@ -73,7 +73,7 @@ public class CompanyServiceImpl implements CompanyService {
         return Mono.fromCallable(() ->
                 companyRepository.findById(request.getCompanyId())
                         .map(CompanyMapper::toDTO)
-                        .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, request.getCompanyId()))
+                        .orElseThrow(ResourceNotFoundException::companyNotFound)
         );
     }
 
@@ -82,7 +82,7 @@ public class CompanyServiceImpl implements CompanyService {
         return Mono.fromCallable(() ->
                 companyRepository.findByName(request.getName())
                         .map(CompanyMapper::toDTO)
-                        .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, request.getName()))
+                        .orElseThrow(ResourceNotFoundException::companyNameNotFound)
         );
     }
 

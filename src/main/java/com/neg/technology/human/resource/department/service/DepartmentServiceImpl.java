@@ -13,9 +13,11 @@ import com.neg.technology.human.resource.utility.module.entity.request.NameReque
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.concurrent.Callable;
+
 @Service
 public class DepartmentServiceImpl implements DepartmentService {
-    public static final String MESSAGE = "Department";
+
     private final DepartmentRepository departmentRepository;
 
     public DepartmentServiceImpl(DepartmentRepository departmentRepository) {
@@ -24,7 +26,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Mono<DepartmentResponse> createDepartment(CreateDepartmentRequest request) {
-        return Mono.fromCallable(() -> {
+        return Mono.fromCallable((Callable<DepartmentResponse>) () -> {
             Department department = Department.builder()
                     .name(request.getName())
                     .location(request.getLocation())
@@ -37,9 +39,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Mono<DepartmentResponse> updateDepartment(UpdateDepartmentRequest request) {
-        return Mono.fromCallable(() ->
+        return Mono.fromCallable((Callable<Department>) () ->
                 departmentRepository.findById(request.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, request.getId()))
+                        .orElseThrow(ResourceNotFoundException::departmentNotFound)
         ).map(existing -> {
             existing.setName(request.getName());
             existing.setLocation(request.getLocation());
@@ -53,7 +55,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     public Mono<Void> deleteDepartment(IdRequest request) {
         return Mono.fromRunnable(() -> {
             if (!departmentRepository.existsById(request.getId())) {
-                throw new ResourceNotFoundException(MESSAGE, request.getId());
+                throw ResourceNotFoundException.departmentNotFound();
             }
             departmentRepository.deleteById(request.getId());
             Logger.logDeleted(Department.class, request.getId());
@@ -62,30 +64,28 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Mono<DepartmentResponse> getDepartmentById(IdRequest request) {
-        return Mono.fromCallable(() ->
-                departmentRepository.findById(request.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, request.getId()))
-        ).map(this::toResponse);
-    }
-
-    @Override
-    public Mono<DepartmentResponse> getDepartmentByName(NameRequest request) {
-        return Mono.fromCallable(() ->
-                departmentRepository.findByName(request.getName())
-                        .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, request.getName()))
-        ).map(this::toResponse);
-    }
-
-    @Override
-    public Mono<Boolean> existsByName(NameRequest request) {
-        return Mono.fromCallable(() ->
-                departmentRepository.existsByName(request.getName())
+        return Mono.fromCallable((Callable<DepartmentResponse>) () ->
+                toResponse(departmentRepository.findById(request.getId())
+                        .orElseThrow(ResourceNotFoundException::departmentNotFound))
         );
     }
 
     @Override
+    public Mono<DepartmentResponse> getDepartmentByName(NameRequest request) {
+        return Mono.fromCallable((Callable<DepartmentResponse>) () ->
+                toResponse(departmentRepository.findByName(request.getName())
+                        .orElseThrow(ResourceNotFoundException::departmentNameNotFound))
+        );
+    }
+
+    @Override
+    public Mono<Boolean> existsByName(NameRequest request) {
+        return Mono.fromCallable(() -> departmentRepository.existsByName(request.getName()));
+    }
+
+    @Override
     public Mono<DepartmentResponseList> getAllDepartments() {
-        return Mono.fromCallable(() ->
+        return Mono.fromCallable((Callable<DepartmentResponseList>) () ->
                 new DepartmentResponseList(
                         departmentRepository.findAll()
                                 .stream()
