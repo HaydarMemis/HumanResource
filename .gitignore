@@ -42,3 +42,4 @@ build/
 **/docker-compose.yml
 **/filebeat.yml
 
+application.properties
