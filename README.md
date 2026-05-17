@@ -13,7 +13,7 @@ This project is designed as a simple back-end code of HR resource management sys
 ## Getting Started
 ### 1. PostgreSQL Database
 The application uses postgreSQL for its database so a running instance of a version is required.
-First download a version og pgAdmin [here](https://www.pgadmin.org/download/). After creating a user and a password,
+First download a version of pgAdmin [here](https://www.pgadmin.org/download/). After creating a user and a password,
 in the server create a database called **hr_management**.
 Liquibase will automatically create the necessary tables within this database and fill it with dummy data.
 
