@@ -86,6 +86,23 @@ Wait for all processes to finish.
 Once all the necessary files and the database are created press the **Run** application button on the top of the project to run the spring boot application.
 After this the application will be available for usage.
 
+To look at:
+```
+// -- Swagger --
+//UI
+http://localhost:8082/swagger-ui/index.html
+//docs
+http://localhost:8082/v3/api-docs
+
+// -- Log Services (Must have Docker running for these)--
+//Kibana
+http://localhost:5601
+//Elasticsearch
+http://localhost:9200
+//SonarQube
+http://localhost:9000
+```
+
 ### 5. Stoping the Application
 To stop the application click the **Stop** button and close the docker if you wish using the command:
 ```
