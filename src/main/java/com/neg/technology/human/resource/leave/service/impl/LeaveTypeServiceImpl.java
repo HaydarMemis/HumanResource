@@ -40,7 +40,7 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
         return Mono.fromCallable(() ->
                 leaveTypeRepository.findById(request.getId())
                         .map(leaveTypeMapper::toResponse)
-                        .orElseThrow(() -> new ResourceNotFoundException("Leave Type", request.getId()))
+                        .orElseThrow(ResourceNotFoundException::leaveTypeNotFound)
         );
     }
 
@@ -58,7 +58,7 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
     public Mono<LeaveTypeResponse> update(UpdateLeaveTypeRequest request) {
         return Mono.fromCallable(() -> {
             LeaveType existing = leaveTypeRepository.findById(request.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Leave Type", request.getId()));
+                    .orElseThrow(ResourceNotFoundException::leaveTypeNotFound);
 
             leaveTypeMapper.updateEntityFromRequest(request, existing);
             LeaveType updated = leaveTypeRepository.save(existing);
@@ -71,7 +71,7 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
     public Mono<Void> delete(IdRequest request) {
         return Mono.fromRunnable(() -> {
             if (!leaveTypeRepository.existsById(request.getId())) {
-                throw new ResourceNotFoundException("Leave Type", request.getId());
+                throw ResourceNotFoundException.leaveTypeNotFound();
             }
             leaveTypeRepository.deleteById(request.getId());
             Logger.logDeleted(LeaveType.class, request.getId());
@@ -83,10 +83,9 @@ public class LeaveTypeServiceImpl implements LeaveTypeService {
         return Mono.fromCallable(() ->
                 leaveTypeRepository.findByNameIgnoreCase(request.getName())
                         .map(leaveTypeMapper::toResponse)
-                        .orElseThrow(() -> new ResourceNotFoundException("Leave Type with name", request.getName()))
+                        .orElseThrow(ResourceNotFoundException::leaveTypeNameNotFound)
         );
     }
-
 
     @Override
     public Mono<LeaveTypeResponseList> getAnnual(BooleanRequest request) {

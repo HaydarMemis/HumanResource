@@ -8,7 +8,8 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: BIGSERIAL
+                  type: BIGINT
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -23,23 +24,32 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: effective_date
-                  type: DATE
+                  name: year
+                  type: INT
+                  constraints:
+                    nullable: false
               - column:
                   name: used_days
-                  type: INT
+                  type: NUMERIC(19,2)
                   defaultValueNumeric: 0
                   constraints:
                     nullable: false
               - column:
-                  name: amount
+                  name: total_days
                   type: NUMERIC(19,2)
+                  defaultValueNumeric: 0
                   constraints:
                     nullable: false
               - column:
                   name: deleted
                   type: VARCHAR(1)
                   defaultValue: "N"
+                  constraints:
+                    nullable: false   
+              - column:
+                  name: advance_days
+                  type: NUMERIC(19,2)
+                  defaultValueNumeric: 0
                   constraints:
                     nullable: false
               - column:

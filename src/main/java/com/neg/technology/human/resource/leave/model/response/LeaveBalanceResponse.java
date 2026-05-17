@@ -1,9 +1,7 @@
 package com.neg.technology.human.resource.leave.model.response;
 
 import lombok.*;
-
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -15,8 +13,8 @@ public class LeaveBalanceResponse {
     private String employeeFirstName;
     private String employeeLastName;
     private String leaveTypeName;
-    private Integer leaveTypeBorrowableLimit;
-    private Boolean leaveTypeIsUnpaid;
-    private LocalDate effectiveDate;
-    private BigDecimal amount;
+    private Integer year;
+    private BigDecimal totalDays;
+    private BigDecimal usedDays;
+    private BigDecimal availableBalance;
 }

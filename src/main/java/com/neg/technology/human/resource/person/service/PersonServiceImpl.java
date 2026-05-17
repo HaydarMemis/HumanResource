@@ -3,6 +3,7 @@ package com.neg.technology.human.resource.person.service;
 import com.neg.technology.human.resource.exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.person.model.entity.Person;
 import com.neg.technology.human.resource.person.model.enums.Gender;
+import com.neg.technology.human.resource.person.model.enums.MaritalStatus;
 import com.neg.technology.human.resource.person.model.mapper.PersonMapper;
 import com.neg.technology.human.resource.person.model.request.CreatePersonRequest;
 import com.neg.technology.human.resource.person.model.request.UpdatePersonRequest;
@@ -32,11 +33,9 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public Mono<PersonResponse> getPersonById(IdRequest request) {
-        return Mono.fromCallable(() ->
-                personRepository.findById(request.getId())
-                        .map(personMapper::toResponse)
-                        .orElseThrow(() -> new RuntimeException("Person not found with ID: " + request.getId()))
-        );
+        return Mono.fromCallable(() -> personRepository.findById(request.getId())
+                .map(personMapper::toResponse)
+                .orElseThrow(() -> new RuntimeException("Person not found with ID: " + request.getId())));
     }
 
     @Override
@@ -64,8 +63,9 @@ public class PersonServiceImpl implements PersonService {
     public Mono<Void> deletePerson(IdRequest request) {
         return Mono.fromRunnable(() -> {
             if (!personRepository.existsById(request.getId())) {
-                throw new ResourceNotFoundException(request.getClass().getName(),request.getId());
+                throw ResourceNotFoundException.personNotFound();
             }
+
             personRepository.deleteById(request.getId());
         });
     }
@@ -79,7 +79,6 @@ public class PersonServiceImpl implements PersonService {
         });
     }
 
-
     @Override
     public Mono<List<PersonResponse>> getPersonsBornBefore(String date) {
         return Mono.fromCallable(() -> {
@@ -92,18 +91,17 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public Mono<List<PersonResponse>> getPersonsByMaritalStatus(String status) {
         return Mono.fromCallable(() -> {
-            List<Person> persons = personRepository.findByMaritalStatusIgnoreCase(status);
+            MaritalStatus ms = MaritalStatus.fromString(status);
+            List<Person> persons = personRepository.findByMaritalStatus(ms);
             return personMapper.toResponseList(persons);
         });
     }
 
     @Override
     public Mono<PersonResponse> getPersonByNationalId(String nationalId) {
-        return Mono.fromCallable(() ->
-                personRepository.findByNationalId(nationalId)
-                        .map(personMapper::toResponse)
-                        .orElseThrow(() -> new RuntimeException("Person not found with national ID: " + nationalId))
-        );
+        return Mono.fromCallable(() -> personRepository.findByNationalId(nationalId)
+                .map(personMapper::toResponse)
+                .orElseThrow(() -> new RuntimeException("Person not found with national ID: " + nationalId)));
     }
 
     @Override
@@ -111,56 +109,43 @@ public class PersonServiceImpl implements PersonService {
         return Mono.fromCallable(() -> {
             List<Person> persons = personRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(
                     firstName != null ? firstName : "",
-                    lastName != null ? lastName : ""
-            );
+                    lastName != null ? lastName : "");
             return personMapper.toResponseList(persons);
         });
     }
 
     @Override
     public Mono<PersonResponse> getPersonByEmail(String email) {
-        return Mono.fromCallable(() ->
-                personRepository.findByEmailIgnoreCase(email)
-                        .map(personMapper::toResponse)
-                        .orElseThrow(() -> new RuntimeException("Person not found with email: " + email))
-        );
+        return Mono.fromCallable(() -> personRepository.findByEmailIgnoreCase(email)
+                .map(personMapper::toResponse)
+                .orElseThrow(() -> new RuntimeException("Person not found with email: " + email)));
     }
 
     @Override
     public Mono<Boolean> existsByEmail(String email) {
-        return Mono.fromCallable(() ->
-                personRepository.existsByEmail(email)
-        );
+        return Mono.fromCallable(() -> personRepository.existsByEmail(email));
     }
 
     @Override
     public Mono<Boolean> existsByNationalId(String nationalId) {
-        return Mono.fromCallable(() ->
-                personRepository.existsByNationalId(nationalId)
-        );
+        return Mono.fromCallable(() -> personRepository.existsByNationalId(nationalId));
     }
 
     @Override
     public Mono<Person> findByEmailIgnoreCase(String email) {
-        return Mono.fromCallable(() ->
-                personRepository.findByEmailIgnoreCase(email)
-                        .orElseThrow(() -> new RuntimeException("Person not found with email: " + email))
-        );
+        return Mono.fromCallable(() -> personRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new RuntimeException("Person not found with email: " + email)));
     }
 
     @Override
     public Mono<Person> findByNationalId(String nationalId) {
-        return Mono.fromCallable(() ->
-                personRepository.findByNationalId(nationalId)
-                        .orElseThrow(() -> new RuntimeException("Person not found with national ID: " + nationalId))
-        );
+        return Mono.fromCallable(() -> personRepository.findByNationalId(nationalId)
+                .orElseThrow(() -> new RuntimeException("Person not found with national ID: " + nationalId)));
     }
 
     @Override
     public Mono<Boolean> existsById(Long id) {
-        return Mono.fromCallable(() ->
-                personRepository.existsById(id)
-        );
+        return Mono.fromCallable(() -> personRepository.existsById(id));
     }
 
     @Override
@@ -173,7 +158,8 @@ public class PersonServiceImpl implements PersonService {
             } else if ((firstName == null || firstName.isBlank()) && lastName != null && !lastName.isBlank()) {
                 return personRepository.findByLastNameContainingIgnoreCase(lastName);
             } else {
-                return personRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstName, lastName);
+                return personRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstName,
+                        lastName);
             }
         });
     }

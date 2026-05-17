@@ -6,15 +6,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Entity
-@Table(
-        name = "leave_balance",
-        uniqueConstraints = @UniqueConstraint(
-                columnNames = {"employee_id", "leave_type_id", "effective_date"}
-        )
-)
+@Table(name = "leave_balance", uniqueConstraints = @UniqueConstraint(columnNames = { "employee_id", "leave_type_id",
+        "year" }))
 @Getter
 @Setter
 @AllArgsConstructor
@@ -26,7 +21,7 @@ public class LeaveBalance extends AuditableEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER) // Lazy patlamasın diye
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
@@ -34,38 +29,48 @@ public class LeaveBalance extends AuditableEntity {
     @JoinColumn(name = "leave_type_id", nullable = false)
     private LeaveType leaveType;
 
-
-    @Column(name = "effective_date", nullable = false)
-    private LocalDate effectiveDate; // Yılın başlangıcını temsil edecek
+    @Column(nullable = false)
+    private Integer year;
 
     @Column(nullable = false)
-    private BigDecimal amount;
+    private BigDecimal totalDays;
 
-    @Column(name = "used_days")
+    @Column(name = "used_days", nullable = false)
     @Builder.Default
-    private Integer usedDays = 0;
+    private BigDecimal usedDays = BigDecimal.ZERO;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private String deleted = "N";
+
+    // --- Helper Methods ---
 
     /**
      * Kullanılabilir bakiye hesaplama helper metodu
      */
     public BigDecimal getAvailableBalance() {
-        return amount.subtract(BigDecimal.valueOf(usedDays));
+        return totalDays.subtract(usedDays);
     }
 
     /**
      * Kullanılabilir bakiye varsa düşme işlemi
+     * Sadece yıllık izin için -5'e kadar düşme mantığı validator'da kontrol edilecek
      */
     public void deduct(BigDecimal days) {
-        if (getAvailableBalance().compareTo(days) < 0) {
-            throw new IllegalArgumentException("Insufficient leave balance.");
-        }
-        this.usedDays += days.intValue();
+        this.usedDays = this.usedDays.add(days);
     }
 
     /**
-     * Bakiye ekleme helper
+     * Bakiye ekleme helper (örn. yeni yılda hak tanımlama veya devretme)
      */
     public void add(BigDecimal days) {
-        this.amount = this.amount.add(days);
+        this.totalDays = this.totalDays.add(days);
+    }
+
+    /**
+     * Yeni yıl devri için helper
+     */
+    public BigDecimal calculateNewYearEntitlement(BigDecimal newYearEntitlement) {
+        return newYearEntitlement;
     }
 }

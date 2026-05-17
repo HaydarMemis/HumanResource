@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -17,10 +16,11 @@ public class CreateLeaveBalanceRequest {
 
     @NotNull
     private Long leaveTypeId;
+    
+    @NotNull
+    private BigDecimal totalDays;
 
     @NotNull
-    private LocalDate effectiveDate; // Integer date yerine LocalDate effectiveDate
+    private Integer year;
 
-    @NotNull
-    private BigDecimal amount;
 }

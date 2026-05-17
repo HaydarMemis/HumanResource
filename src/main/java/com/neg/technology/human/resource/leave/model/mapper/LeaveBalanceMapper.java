@@ -14,6 +14,7 @@ import java.util.List;
 @Component
 public class LeaveBalanceMapper {
 
+    // Entity -> Response
     public LeaveBalanceResponse toResponse(LeaveBalance leaveBalance) {
         if (leaveBalance == null) {
             return null;
@@ -23,21 +24,20 @@ public class LeaveBalanceMapper {
                 .employeeFirstName(
                         leaveBalance.getEmployee() != null && leaveBalance.getEmployee().getPerson() != null
                                 ? leaveBalance.getEmployee().getPerson().getFirstName()
-                                : null
-                )
+                                : null)
                 .employeeLastName(
                         leaveBalance.getEmployee() != null && leaveBalance.getEmployee().getPerson() != null
                                 ? leaveBalance.getEmployee().getPerson().getLastName()
-                                : null
-                )
+                                : null)
                 .leaveTypeName(leaveBalance.getLeaveType() != null ? leaveBalance.getLeaveType().getName() : null)
-                .leaveTypeBorrowableLimit(leaveBalance.getLeaveType() != null ? leaveBalance.getLeaveType().getBorrowableLimit() : null)
-                .leaveTypeIsUnpaid(leaveBalance.getLeaveType() != null ? leaveBalance.getLeaveType().getIsUnpaid() : null)
-                .effectiveDate(leaveBalance.getEffectiveDate()) // Corrected to use existing field
-                .amount(leaveBalance.getAmount())
+                .year(leaveBalance.getYear())
+                .totalDays(leaveBalance.getTotalDays())
+                .usedDays(leaveBalance.getUsedDays())
+                .availableBalance(leaveBalance.getAvailableBalance())
                 .build();
     }
 
+    // Liste dönüşümü
     public LeaveBalanceResponseList toResponseList(List<LeaveBalance> leaveBalances) {
         List<LeaveBalanceResponse> responses = leaveBalances.stream()
                 .map(this::toResponse)
@@ -45,6 +45,7 @@ public class LeaveBalanceMapper {
         return new LeaveBalanceResponseList(responses);
     }
 
+    // Request -> Entity (create)
     public LeaveBalance toEntity(CreateLeaveBalanceRequest dto, Employee employee, LeaveType leaveType) {
         if (dto == null) {
             return null;
@@ -52,12 +53,14 @@ public class LeaveBalanceMapper {
         return LeaveBalance.builder()
                 .employee(employee)
                 .leaveType(leaveType)
-                .effectiveDate(dto.getEffectiveDate()) // Corrected to use existing field
-                .amount(dto.getAmount())
+                .year(dto.getYear())
+                .totalDays(dto.getTotalDays())
                 .build();
     }
 
-    public void updateEntity(LeaveBalance existing, UpdateLeaveBalanceRequest dto, Employee employee, LeaveType leaveType) {
+    // Request -> Entity (update)
+    public void updateEntity(LeaveBalance existing, UpdateLeaveBalanceRequest dto, Employee employee,
+            LeaveType leaveType) {
         if (existing == null || dto == null) {
             return;
         }
@@ -67,11 +70,14 @@ public class LeaveBalanceMapper {
         if (leaveType != null) {
             existing.setLeaveType(leaveType);
         }
-        if (dto.getEffectiveDate() != null) {
-            existing.setEffectiveDate(dto.getEffectiveDate()); // Corrected to use existing field
+        if (dto.getYear() != null) {
+            existing.setYear(dto.getYear());
         }
-        if (dto.getAmount() != null) {
-            existing.setAmount(dto.getAmount());
+        if (dto.getTotalDays() != null) {
+            existing.setTotalDays(dto.getTotalDays());
+        }
+        if (dto.getUsedDays() != null) {
+            existing.setUsedDays(dto.getUsedDays());
         }
     }
 }

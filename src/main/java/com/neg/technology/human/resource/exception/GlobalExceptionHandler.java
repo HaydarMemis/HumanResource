@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", "Validation Failed");
+        body.put("error", "Doğrulama Hatası");
         body.put("details", errors);
         body.put("path", exchange.getRequest().getPath().value());
 
@@ -55,38 +55,38 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex, ServerWebExchange exchange) {
-        return buildErrorResponse("Invalid parameter: " + ex.getMessage(), HttpStatus.BAD_REQUEST, exchange.getRequest().getPath().value());
+        return buildErrorResponse("Geçersiz parametre: " + ex.getMessage(), HttpStatus.BAD_REQUEST, exchange.getRequest().getPath().value());
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex, ServerWebExchange exchange) {
-        return buildErrorResponse("Database constraint violation: " + ex.getMostSpecificCause().getMessage(),
+        return buildErrorResponse("Veritabanı bütünlüğü ihlali: " + ex.getMostSpecificCause().getMessage(),
                 HttpStatus.CONFLICT, exchange.getRequest().getPath().value());
     }
 
     @ExceptionHandler(MissingRequestValueException.class)
     public ResponseEntity<ApiErrorResponse> handleMissingRequestParam(MissingRequestValueException ex, ServerWebExchange exchange) {
-        String message = "Missing request parameter or body value: " + ex.getReason();
+        String message = "Eksik istek parametresi veya gövde değeri: " + ex.getReason();
         return buildErrorResponse(message, HttpStatus.BAD_REQUEST, exchange.getRequest().getPath().value());
     }
 
     @ExceptionHandler(UnsupportedMediaTypeStatusException.class)
     public ResponseEntity<ApiErrorResponse> handleUnsupportedMediaType(UnsupportedMediaTypeStatusException ex, ServerWebExchange exchange) {
-        return buildErrorResponse("Unsupported media type: " + ex.getMessage(),
+        return buildErrorResponse("Desteklenmeyen içerik türü: " + ex.getMessage(),
                 HttpStatus.UNSUPPORTED_MEDIA_TYPE, exchange.getRequest().getPath().value());
     }
 
     @ExceptionHandler(ServerErrorException.class)
     public ResponseEntity<ApiErrorResponse> handleServerError(ServerErrorException ex, ServerWebExchange exchange) {
-        log.error("Server error occurred", ex);
-        return buildErrorResponse("Server error: " + ex.getMessage(),
+        log.error("Sunucu hatası oluştu", ex);
+        return buildErrorResponse("Sunucu hatası: " + ex.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR, exchange.getRequest().getPath().value());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGeneric(Exception ex, ServerWebExchange exchange) {
-        log.error("Unexpected error occurred", ex);
-        return buildErrorResponse("An unexpected error occurred: " + ex.getMessage(),
+        log.error("Beklenmeyen bir hata oluştu", ex);
+        return buildErrorResponse("Beklenmeyen bir hata oluştu: " + ex.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR, exchange.getRequest().getPath().value());
     }
 

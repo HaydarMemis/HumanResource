@@ -1,10 +1,11 @@
 package com.neg.technology.human.resource.leave.validator;
 
 import com.neg.technology.human.resource.employee.model.entity.Employee;
+import com.neg.technology.human.resource.exception.InvalidLeaveRequestException;
+import com.neg.technology.human.resource.exception.LeaveBalanceExceededException;
 import com.neg.technology.human.resource.leave.model.entity.LeaveRequest;
 import com.neg.technology.human.resource.leave.model.enums.LeaveStatus;
 import com.neg.technology.human.resource.leave.model.entity.LeaveType;
-import com.neg.technology.human.resource.leave.model.request.ChangeLeaveRequestStatusRequest;
 import com.neg.technology.human.resource.leave.model.request.EmployeeLeaveTypeRequest;
 import com.neg.technology.human.resource.leave.repository.LeaveRequestRepository;
 import com.neg.technology.human.resource.leave.service.LeaveBalanceService;
@@ -38,81 +39,120 @@ public class LeaveRequestValidator {
             LocalDate.of(2025, Month.OCTOBER, 29)
     );
 
-    /**
-     * Checks if a given date is a holiday (official holiday or weekend).
-     */
     public Mono<Boolean> isHoliday(LocalDate date) {
-        if (date == null) {
-            return Mono.error(new IllegalArgumentException("Date cannot be null"));
-        }
+        if (date == null)
+            return Mono.error(InvalidLeaveRequestException.invalidRequest("Tarih boş olamaz."));
         boolean isHoliday = OFFICIAL_HOLIDAYS.contains(date) ||
                 date.getDayOfWeek() == DayOfWeek.SATURDAY ||
                 date.getDayOfWeek() == DayOfWeek.SUNDAY;
         return Mono.just(isHoliday);
     }
 
-    /**
-     * Checks if an employee is eligible for a specific leave type based on criteria like gender.
-     */
     public Mono<Void> validateEligibility(Employee employee, LeaveType leaveType) {
-        if (employee == null || leaveType == null) {
-            return Mono.error(new IllegalArgumentException("Employee or leave type cannot be null"));
-        }
+        if (employee == null || leaveType == null)
+            return Mono.error(InvalidLeaveRequestException.invalidRequest("Çalışan veya izin türü boş olamaz."));
 
         Gender requiredGender = leaveType.getGenderRequired();
         Gender employeeGender = employee.getPerson().getGender();
 
         if (requiredGender != null && requiredGender != Gender.OTHER) {
             if (requiredGender != employeeGender) {
-                return Mono.error(new IllegalArgumentException(
-                        "This leave type is not for the employee's gender."
-                ));
+                return Mono.error(InvalidLeaveRequestException.invalidRequest(
+                        "Bu izin türü çalışanın cinsiyeti için uygun değil."));
             }
         }
         return Mono.empty();
     }
 
-    /**
-     * Checks if an employee has any overlapping leave requests for the specified dates.
-     */
     public Mono<Boolean> hasOverlappingRequests(Long employeeId, LocalDate startDate, LocalDate endDate) {
-        List<LeaveRequest> overlappingRequests = leaveRequestRepository.findOverlappingRequests(employeeId, startDate, endDate);
+        List<LeaveRequest> overlappingRequests = leaveRequestRepository.findOverlappingRequests(employeeId,
+                startDate, endDate);
         return Mono.just(overlappingRequests.isEmpty());
     }
 
-    /**
-     * Validates a new leave request before creation.
-     */
-    public Mono<Void> validateLeaveRequestCreation(Employee employee, LeaveType leaveType, LocalDate startDate, LocalDate endDate, BigDecimal requestedDays) {
+    public Mono<Void> validateLeaveRequestCreation(
+            Employee employee,
+            LeaveType leaveType,
+            LocalDate startDate,
+            LocalDate endDate,
+            BigDecimal requestedDays) {
+
+        boolean isAnnualLeave = "Yıllık İzin".equalsIgnoreCase(leaveType.getName());
+
         return hasOverlappingRequests(employee.getId(), startDate, endDate)
                 .flatMap(isNotOverlapping -> {
-                    if (Boolean.FALSE.equals(isNotOverlapping)) {
-                        return Mono.error(new RuntimeException("An existing leave request already covers this date range."));
+                    if (!isNotOverlapping) {
+                        return Mono.error(InvalidLeaveRequestException.invalidRequest(
+                                "Bu tarih aralığında zaten mevcut bir izin talebi var."));
                     }
-                    return validateEligibility(employee, leaveType);
-                })
-                .then(Mono.fromCallable(() -> {
-                    return leaveBalanceService.getByEmployeeAndLeaveType(new EmployeeLeaveTypeRequest(employee.getId(), leaveType.getId()))
-                            .doOnNext(balance -> {
-                                if (balance.getAmount().compareTo(requestedDays) < 0) {
-                                    throw new RuntimeException("Insufficient leave balance.");
-                                }
-                            })
-                            .then();
-                })).then();
+
+                    return validateEligibility(employee, leaveType)
+                            .then(Mono.defer(() -> leaveBalanceService
+                                    .getByEmployeeAndLeaveType(
+                                            new EmployeeLeaveTypeRequest(employee.getId(), leaveType.getId()))
+                                    .switchIfEmpty(Mono.error(InvalidLeaveRequestException.invalidRequest(
+                                            "Bu izin türü için tanımlı bir bakiye bulunamadı.")))
+                                    .flatMap(balance -> {
+                                        BigDecimal available = balance.getAvailableBalance();
+
+                                        if (isAnnualLeave) {
+                                            BigDecimal maxNegative = BigDecimal.valueOf(5); // -5 gün negatif izin
+                                            BigDecimal maxAllowed = available.add(maxNegative);
+
+                                            if (requestedDays.compareTo(maxAllowed) > 0) {
+                                                return Mono.error(LeaveBalanceExceededException.custom(
+                                                        "Yetersiz izin bakiyesi. Maksimum -5 gün eksiye düşülebilir. "
+                                                                + "Mevcut: " + available
+                                                                + ", Talep edilen: " + requestedDays));
+                                            }
+                                        } else {
+                                            if (requestedDays.compareTo(available) > 0) {
+                                                return Mono.error(LeaveBalanceExceededException.custom(
+                                                        "Yetersiz izin bakiyesi. Mevcut: " + available
+                                                                + ", Talep edilen: " + requestedDays));
+                                            }
+                                        }
+
+                                        return Mono.empty();
+                                    })));
+                });
     }
 
-
-    public Mono<Void> validateStatusChange(LeaveRequest existingRequest, ChangeLeaveRequestStatusRequest dto) {
+    public Mono<Void> validateStatusChange(LeaveRequest existingRequest, LeaveStatus newStatus) {
         LeaveStatus oldStatus = existingRequest.getStatus();
-        LeaveStatus newStatus = dto.getStatus(); // Artık doğrudan enum geliyor
 
-        if (newStatus == LeaveStatus.APPROVED && (oldStatus == LeaveStatus.REJECTED || oldStatus == LeaveStatus.CANCELLED)) {
-            return Mono.error(new IllegalArgumentException("Cannot approve a rejected or cancelled leave request."));
+        if (newStatus == LeaveStatus.APPROVED &&
+                (oldStatus == LeaveStatus.REJECTED || oldStatus == LeaveStatus.CANCELLED)) {
+            return Mono.error(InvalidLeaveRequestException.invalidRequest(
+                    "Reddedilmiş veya iptal edilmiş izin talebi onaylanamaz."));
         }
 
-        // İsteğe bağlı olarak başka kurallar ekleyebilirsin
         return Mono.empty();
     }
 
+    public Mono<Void> validateLeaveRequestUpdate(
+            LeaveRequest existing,
+            Employee employee,
+            LeaveType leaveType,
+            LocalDate startDate,
+            LocalDate endDate,
+            BigDecimal requestedDays) {
+
+        return hasOverlappingRequests(employee.getId(), startDate, endDate)
+                .flatMap(isNotOverlapping -> {
+                    List<LeaveRequest> overlapping = leaveRequestRepository
+                            .findOverlappingRequests(employee.getId(), startDate, endDate)
+                            .stream()
+                            .filter(req -> !req.getId().equals(existing.getId()))
+                            .toList();
+
+                    if (!overlapping.isEmpty()) {
+                        return Mono.error(InvalidLeaveRequestException.invalidRequest(
+                                "Bu tarih aralığında zaten mevcut bir izin talebi var."));
+                    }
+
+                    // Creation validasyonunu çağır
+                    return validateLeaveRequestCreation(employee, leaveType, startDate, endDate, requestedDays);
+                });
+    }
 }

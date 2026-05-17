@@ -10,15 +10,15 @@ import com.neg.technology.human.resource.department.repository.DepartmentReposit
 import com.neg.technology.human.resource.employee.model.entity.Employee;
 import com.neg.technology.human.resource.employee.model.mapper.EmployeeMapper;
 import com.neg.technology.human.resource.employee.model.request.CreateEmployeeRequest;
-import com.neg.technology.human.resource.utility.module.entity.request.DateRequest;
-import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
 import com.neg.technology.human.resource.employee.model.request.UpdateEmployeeRequest;
-import com.neg.technology.human.resource.employee.model.response.EmployeeResponse;
 import com.neg.technology.human.resource.employee.model.response.EmployeeListResponse;
+import com.neg.technology.human.resource.employee.model.response.EmployeeResponse;
 import com.neg.technology.human.resource.employee.repository.EmployeeRepository;
 import com.neg.technology.human.resource.exception.ResourceNotFoundException;
 import com.neg.technology.human.resource.person.repository.PersonRepository;
 import com.neg.technology.human.resource.company.repository.PositionRepository;
+import com.neg.technology.human.resource.utility.module.entity.request.DateRequest;
+import com.neg.technology.human.resource.utility.module.entity.request.IdRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -36,10 +36,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final CompanyRepository companyRepository;
 
     public EmployeeServiceImpl(EmployeeRepository employeeRepository,
-                               PersonRepository personRepository,
-                               DepartmentRepository departmentRepository,
-                               PositionRepository positionRepository,
-                               CompanyRepository companyRepository) {
+            PersonRepository personRepository,
+            DepartmentRepository departmentRepository,
+            PositionRepository positionRepository,
+            CompanyRepository companyRepository) {
         this.employeeRepository = employeeRepository;
         this.personRepository = personRepository;
         this.departmentRepository = departmentRepository;
@@ -53,18 +53,19 @@ public class EmployeeServiceImpl implements EmployeeService {
             Employee employee = EmployeeMapper.toEntity(
                     request,
                     personRepository.findById(request.getPersonId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Person", request.getPersonId())),
+                            .orElseThrow(ResourceNotFoundException::employeeNotFound),
                     departmentRepository.findById(request.getDepartmentId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Department", request.getDepartmentId())),
+                            .orElseThrow(ResourceNotFoundException::employeeNotFound),
                     positionRepository.findById(request.getPositionId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Position", request.getPositionId())),
+                            .orElseThrow(ResourceNotFoundException::employeeNotFound),
                     companyRepository.findById(request.getCompanyId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Company", request.getCompanyId())),
-                    request.getManagerId() != null ? employeeRepository.findById(request.getManagerId()).orElse(null) : null
-            );
+                            .orElseThrow(ResourceNotFoundException::employeeNotFound),
+                    request.getManagerId() != null ? employeeRepository.findById(request.getManagerId()).orElse(null)
+                            : null);
 
             Employee saved = employeeRepository.save(employee);
-            Logger.logEmployeeCreated(saved.getId(), saved.getPerson().getFirstName() + " " + saved.getPerson().getLastName());
+            Logger.logEmployeeCreated(saved.getId(),
+                    saved.getPerson().getFirstName() + " " + saved.getPerson().getLastName());
             return EmployeeMapper.toDTO(saved);
         });
     }
@@ -73,31 +74,35 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Mono<EmployeeResponse> updateEmployee(UpdateEmployeeRequest request) {
         return Mono.fromCallable(() -> {
             Employee existing = employeeRepository.findById(request.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, request.getId()));
+                    .orElseThrow(ResourceNotFoundException::employeeNotFound);
 
             EmployeeMapper.updateEntity(
                     existing,
                     request,
-                    request.getPersonId() != null ? personRepository.findById(request.getPersonId()).orElse(null) : null,
-                    request.getDepartmentId() != null ? departmentRepository.findById(request.getDepartmentId()).orElse(null) : null,
-                    request.getPositionId() != null ? positionRepository.findById(request.getPositionId()).orElse(null) : null,
-                    request.getCompanyId() != null ? companyRepository.findById(request.getCompanyId()).orElse(null) : null,
-                    request.getManagerId() != null ? employeeRepository.findById(request.getManagerId()).orElse(null) : null
-            );
+                    request.getPersonId() != null ? personRepository.findById(request.getPersonId()).orElse(null)
+                            : null,
+                    request.getDepartmentId() != null
+                            ? departmentRepository.findById(request.getDepartmentId()).orElse(null)
+                            : null,
+                    request.getPositionId() != null ? positionRepository.findById(request.getPositionId()).orElse(null)
+                            : null,
+                    request.getCompanyId() != null ? companyRepository.findById(request.getCompanyId()).orElse(null)
+                            : null,
+                    request.getManagerId() != null ? employeeRepository.findById(request.getManagerId()).orElse(null)
+                            : null);
 
             Employee updated = employeeRepository.save(existing);
-            Logger.logEmployeeUpdated(updated.getId(), updated.getPerson().getFirstName() + " " + updated.getPerson().getLastName());
+            Logger.logEmployeeUpdated(updated.getId(),
+                    updated.getPerson().getFirstName() + " " + updated.getPerson().getLastName());
             return EmployeeMapper.toDTO(updated);
         });
     }
 
     @Override
     public Mono<EmployeeResponse> getEmployeeById(IdRequest request) {
-        return Mono.fromCallable(() ->
-                employeeRepository.findById(request.getId())
-                        .map(EmployeeMapper::toDTO)
-                        .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, request.getId()))
-        );
+        return Mono.fromCallable(() -> employeeRepository.findById(request.getId())
+                .map(EmployeeMapper::toDTO)
+                .orElseThrow(ResourceNotFoundException::employeeNotFound));
     }
 
     @Override
@@ -112,7 +117,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Mono<Void> deleteEmployee(IdRequest request) {
         return Mono.fromRunnable(() -> {
             Employee employee = employeeRepository.findById(request.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, request.getId()));
+                    .orElseThrow(ResourceNotFoundException::employeeNotFound);
             employeeRepository.delete(employee);
             Logger.logEmployeeDeleted(employee.getId());
         });
@@ -178,17 +183,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Mono<Employee> findEntityById(Long id) {
-        return Mono.fromCallable(() ->
-                employeeRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, id))
-        );
+        return Mono.fromCallable(() -> employeeRepository.findById(id)
+                .orElseThrow(ResourceNotFoundException::employeeNotFound));
     }
 
     @Override
-    public Mono<Object> findById(Long employeeId) {
-        return Mono.fromCallable(() ->
-                employeeRepository.findById(employeeId)
-                        .orElseThrow(() -> new ResourceNotFoundException(MESSAGE, employeeId))
-        );
+    public Mono<EmployeeResponse> findById(Long employeeId) {
+        return Mono.fromCallable(() -> employeeRepository.findById(employeeId)
+                .map(EmployeeMapper::toDTO)
+                .orElseThrow(ResourceNotFoundException::employeeNotFound));
     }
+
 }

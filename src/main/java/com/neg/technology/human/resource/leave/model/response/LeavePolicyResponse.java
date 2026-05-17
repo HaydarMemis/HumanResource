@@ -1,5 +1,7 @@
 package com.neg.technology.human.resource.leave.model.response;
 
+import java.math.BigDecimal;
+
 import lombok.*;
 
 @Getter
@@ -11,5 +13,5 @@ public class LeavePolicyResponse {
 
     private Boolean eligible;
 
-    private Integer days;
+    private BigDecimal days;
 }

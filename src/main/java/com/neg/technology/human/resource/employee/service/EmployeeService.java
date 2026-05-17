@@ -40,5 +40,5 @@ public interface EmployeeService {
 
     Mono<Employee> findEntityById(Long id);
 
-    Mono<Object> findById(Long employeeId);
+    Mono<EmployeeResponse> findById(Long employeeId);
 }
