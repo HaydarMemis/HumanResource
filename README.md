@@ -25,27 +25,27 @@ Inside the project there are several example files that need to be created for t
 
 First, inside of src/main/resources/ create **application.yml** using the **application.yml.example** file by copying the inside of it. 
 Then change:
-```
-username: // what your username is for postgres user
-password: // password for that user
+```bash
+username: # what your username is for postgres user
+password: # password for that user
 ```
 
 Second, create the **application.properties** using the **application.properties.example** file inside the same directory.
 Then change:
-```
-spring.datasource.username=//what your username is for postgres user
-spring.datasource.password=// password for that user
+```bash
+spring.datasource.username=#what your username is for postgres user
+spring.datasource.password=#password for that user
 ```
 
 After the fixes in src/ move to elk-stack/ directory, create the **docker-compose.yml** using the example **docker-compose.yml-example** file.
 Inside of this file change:
-```
+```yml
 filebeat:
 image: docker.elastic.co/beats/filebeat:8.12.2
 container_name: filebeat
 user: root
 volumes:
-- /Users/haydar/Desktop/human-resource/logs:/logs:ro // <-- placeholder, change this to your own logs location
+- /Users/haydar/Desktop/human-resource/logs:/logs:ro # <-- placeholder, change this to your own logs location
 - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:rw
 command: [ "filebeat", "-e" ]
 depends_on:
@@ -54,11 +54,11 @@ depends_on:
 - kibana
 ```
 by running this in the terminal while on the root of the project:
-```
-//for Mac and Linux:
+```bash
+#for Mac and Linux:
 pwd
 
-//for Windows:
+#for Windows:
 Get-Location
 ```
 and replace the path up until **/logs:/logs:ro**. Log files will be stored inside the logs/ folder which will be created automatically when the application runs.
@@ -67,16 +67,16 @@ Inside the elk-stack/filebeat/ folder create the **filebeat.yml** using the **fi
 
 ### 3. Starting Docker
 For this project to be able to log properly Docker is required. You can download docker [here](https://www.docker.com/). After setting up docker, move to where the **docker-compose.yml** file is, run this in the terminal for the project by:
-```
+```bash
 cd elk-stack/
 
-//run docker
+#run docker
 docker compose up
 
-//or use this command for it to run in the background
+#or use this command for it to run in the background
 docker compose up -d
 
-// can use this command to check if everything is running
+# can use this command to check if everything is running
 docker ps
 ```
 
@@ -87,24 +87,24 @@ Once all the necessary files and the database are created press the **Run** appl
 After this the application will be available for usage.
 
 To look at:
-```
-// -- Swagger --
-//UI
+```bash
+# -- Swagger --
+# UI
 http://localhost:8082/swagger-ui/index.html
-//docs
+# docs
 http://localhost:8082/v3/api-docs
 
-// -- Log Services (Must have Docker running for these)--
-//Kibana
+# -- Log Services (Must have Docker running for these)--
+# Kibana
 http://localhost:5601
-//Elasticsearch
+# Elasticsearch
 http://localhost:9200
-//SonarQube
+# SonarQube
 http://localhost:9000
 ```
 
 ### 5. Stoping the Application
 To stop the application click the **Stop** button and close the docker if you wish using the command:
-```
+```bash
 docker compose down
 ```
